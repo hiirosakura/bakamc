@@ -1,0 +1,2 @@
+rootProject.name = 'bakamc'
+include ':common'

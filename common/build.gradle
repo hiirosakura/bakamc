@@ -1,0 +1,29 @@
+plugins {
+	id 'java'
+	id 'org.jetbrains.kotlin.jvm' version '1.7.10'
+	id 'maven-publish'
+}
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+group = rootProject.maven_group
+version = rootProject.maven_version
+setArchivesBaseName("bakamc-common")
+
+repositories {
+	mavenCentral()
+	mavenLocal()
+}
+
+dependencies {
+	compileOnly "org.jetbrains.kotlin:kotlin-stdlib"
+	compileOnly "com.google.code.gson:gson:2.8.8"
+	compileOnly "com.google.guava:guava:31.0.1-jre"
+	compileOnly "org.java-websocket:Java-WebSocket:${rootProject.properties.java_webSocket_version}"
+	testImplementation "org.jetbrains.kotlin:kotlin-stdlib"
+	testImplementation "com.google.code.gson:gson:2.8.8"
+	testImplementation "com.google.guava:guava:31.0.1-jre"
+	testImplementation "org.java-websocket:Java-WebSocket:${rootProject.properties.java_webSocket_version}"
+}
+
