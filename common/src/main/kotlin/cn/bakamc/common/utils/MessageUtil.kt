@@ -16,9 +16,9 @@ package cn.bakamc.common.utils
  */
 object MessageUtil {
 
-	private const val PLACEHOLDER = "&"
+	const val PLACEHOLDER = "&"
 
-	private val map = mapOf(
+	val map = mapOf(
 		"${PLACEHOLDER}4" to "§4",
 		"${PLACEHOLDER}c" to "§c",
 		"${PLACEHOLDER}6" to "§6",
@@ -48,7 +48,7 @@ object MessageUtil {
 	 * @param message [String] 原始消息 &6message
 	 * @return [String] 处理后的消息 §6message
 	 */
-	fun handleFormat(message: String): String {
+	fun handleFormat(message: String, map: Map<String, String>): String {
 		return message.replace(map)
 	}
 
@@ -57,7 +57,7 @@ object MessageUtil {
 	 * @param message [String] 原始消息 §6message
 	 * @return [String] 处理后的消息 &6message
 	 */
-	fun reHandleFormat(message: String): String {
+	fun reHandleFormat(message: String, map: Map<String, String>): String {
 		var temp: String = message
 		map.forEach { (k, v) ->
 			temp = temp.replace(v, k)
@@ -70,7 +70,7 @@ object MessageUtil {
 	 * @param message String
 	 * @return String
 	 */
-	fun cleanFormatting(message: String): String {
+	fun cleanFormatting(message: String, map: Map<String, String>): String {
 		var temp: String = message
 		map.forEach { (k, v) ->
 			temp = temp.replace(k, "")

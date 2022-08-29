@@ -1,8 +1,7 @@
 package cn.bakamc.common.chat.config
 
 import cn.bakamc.common.chat.ServerInfo
-import cn.bakamc.common.config.options.impl.ConfigString
-import cn.bakamc.common.config.options.impl.ConfigStringList
+import cn.bakamc.common.utils.MessageUtil
 
 /**
  * 聊天配置
@@ -20,20 +19,20 @@ import cn.bakamc.common.config.options.impl.ConfigStringList
  */
 interface ChatConfig {
 
-	val serverId: ConfigString
+	val serverId: String
 
-	val serverName: ConfigString
+	val serverName: String
 
-	val description: ConfigString
+	val description: String
 
-	val serverInfo: ServerInfo get() = ServerInfo(serverId.getValue(), serverName.getValue(), description.getValue())
+	val serverInfo: ServerInfo get() = ServerInfo(serverId, serverName, description)
 
-	val riguruAddress: ConfigString
+	val riguruAddress: String
 
 	/**
 	 * 聊天顺序 server:服务器 prefix:玩家前缀 playerName:玩家名 3:message
 	 */
-	val chatFormatting: ConfigStringList
+	val chatFormatting: String
 
 	/**
 	 * 服务器名包装器
@@ -42,7 +41,7 @@ interface ChatConfig {
 	 *
 	 * 服务器名 %serverName%
 	 */
-	val serverWrapper: ConfigString
+	val serverWrapper: String
 
 	/**
 	 * 玩家名包装器
@@ -53,7 +52,7 @@ interface ChatConfig {
 	 *
 	 * 玩家显示名 %displayName%
 	 */
-	val playerNameWrapper: ConfigString
+	val playerNameWrapper: String
 
 	/**
 	 * 消息包装器
@@ -62,6 +61,15 @@ interface ChatConfig {
 	 *
 	 * 消息内容 %message%
 	 */
-	val messageWrapper: ConfigString
+	val messageWrapper: String
 
+	/**
+	 * 聊天文本替换
+	 */
+	val messageMapping: Map<String, String>
+
+	/**
+	 * 重新加载配置
+	 */
+	fun reload()
 }

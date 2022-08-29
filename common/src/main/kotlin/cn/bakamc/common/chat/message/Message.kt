@@ -41,13 +41,13 @@ class Message(
 	/**
 	 * 消息内容
 	 *
-	 * §(content§)为占位符 内容将解析为 text
+	 * §(content§)为占位符 内容将解析为 Text
+	 *
+	 * 发送时转换为序列化之后的消息内容，可以被转换为对应环境的消息内容
+	 *
+	 * 接收时因直接解析为对应环境的 Text
 	 */
-	val message: String,
-	/**
-	 * 序列化之后的消息内容，可以被转换为对应环境的消息内容
-	 */
-	var msg:String
+	var message: String,
 ) {
 	companion object {
 		@JvmStatic
