@@ -6,6 +6,9 @@ import cn.bakamc.common.chat.message.MessageType.Chat
 import cn.bakamc.common.chat.message.MessageType.Whisper
 import cn.bakamc.common.utils.MessageUtil
 import cn.bakamc.common.utils.toJsonStr
+import java.util.*
+import java.util.regex.Pattern
+import kotlin.collections.ArrayList
 
 /**
  * 消息处理器基础实现
@@ -50,13 +53,11 @@ abstract class AbstractMessageHandler<T, P>(
 	override fun postMessage(message: Message) = bakaChatWebSocketClient.send(message.toJsonStr())
 
 	override fun Message.messagePreHandle(player: P): Message {
-		messageHandlers.forEach {
-			try {
-				it(this)
-			} catch (e: Exception) {
-				println("消息预处理异常")
-				e.printStackTrace()
-			}
+		try {
+			messageHandlers.forEach { it(this) }
+		} catch (e: Exception) {
+			println("消息预处理异常")
+			e.printStackTrace()
 		}
 		handleItemShow(this, player)
 		return this
@@ -69,6 +70,9 @@ abstract class AbstractMessageHandler<T, P>(
 		}
 	}
 
+	override val Message.text: T
+		get() = TODO("Not yet implemented")
+
 	override fun broadcast(message: Message) {
 		players.forEach { it.sendMessage(message.text) }
 	}
@@ -78,6 +82,20 @@ abstract class AbstractMessageHandler<T, P>(
 			val p = it.info
 			p.name == message.receiver && p.displayName == message.receiver
 		}?.sendMessage(message.text)
+	}
+
+	/**
+	 * 获取当前消息@的玩家名
+	 * @param message Message
+	 * @return List<String>
+	 */
+	fun Message.getAtList(): List<String> {
+		val list = LinkedList<String>()
+		this.message.replace(Regex("@.+?\\b")){
+			list.add(it.value.substring(1))
+			it.value
+		}
+		return list
 	}
 
 	/**
