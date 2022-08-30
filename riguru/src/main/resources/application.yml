@@ -1,8 +1,44 @@
 server:
-  port: 8080
+  port: 2333
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${DATABASE_HOST}/riguru?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: ${DATABASE_USER}
     password: ${DATABASE_PASS}
+bakamc:
+  chat:
+    chatFormatting:
+     - "server"
+     - "player"
+     - "message"
+    whisperFormatting:
+    - "server"
+    - "player"
+    - "message"
+    serverWrapper: "[%serverName%]"
+    playerNameWrapper: "[%playerName%]"
+    messageWrapper: "s"
+    messageMapping:
+        "&4" : "§4"
+        "&c" : "§c"
+        "&6" : "§6"
+        "&e" : "§e"
+        "&2" : "§2"
+        "&a" : "§a"
+        "&b" : "§b"
+        "&3" : "§3"
+        "&1" : "§1"
+        "&9" : "§9"
+        "&d" : "§d"
+        "&5" : "§5"
+        "&f" : "§f"
+        "&7" : "§7"
+        "&8" : "§8"
+        "&0" : "§0"
+        "&k" : "§k"
+        "&l" : "§l"
+        "&m" : "§m"
+        "&n" : "§n"
+        "&o" : "§o"
+        "&r" : "§r"

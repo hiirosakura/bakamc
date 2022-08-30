@@ -28,7 +28,25 @@ class ServerInfo(
 	 */
 	val description: String,
 ) {
+
 	override fun toString(): String {
 		return "ServerInfo(serverId='$serverId', serverName='$serverName', description='$description')"
+	}
+
+	override fun equals(other: Any?): Boolean {
+		if (this === other) return true
+		if (javaClass != other?.javaClass) return false
+
+		other as ServerInfo
+
+		if (serverId != other.serverId) return false
+		if (serverName != other.serverName) return false
+		if (description != other.description) return false
+
+		return true
+	}
+
+	override fun hashCode(): Int {
+		return serverId.hashCode()
 	}
 }

@@ -1,12 +1,19 @@
 package cn.bakamc.common.chat
 
+import cn.bakamc.common.api.WSMessage
+import cn.bakamc.common.api.WSMessageType
 import cn.bakamc.common.chat.config.ChatConfig
+import cn.bakamc.common.chat.config.RiguruChatConfig
 import cn.bakamc.common.chat.message.Message
+import cn.bakamc.common.chat.message.MessageChain
 import cn.bakamc.common.chat.message.MessageType.Chat
 import cn.bakamc.common.chat.message.MessageType.Whisper
+import cn.bakamc.common.utils.toJsonStr
 
 /**
  * 消息处理器
+ *
+ * 所有处理应该在发送服务器处理完成，发送给riguru的必须是可以直接反序列化的消息链
 
  * 项目名 bakamc
 
@@ -25,6 +32,11 @@ interface MessageHandler<T, P> {
 	 * 配置
 	 */
 	val config: ChatConfig
+
+	/**
+	 * 从服务端获取的配置
+	 */
+	val riguruChatConfig: RiguruChatConfig
 
 	/**
 	 * 服务器信息
@@ -57,7 +69,12 @@ interface MessageHandler<T, P> {
 	 * @param message String
 	 */
 	fun sendChatMessage(player: P, message: String) {
-		postMessage(Message(Chat, player.info, serverInfo, "", message).messagePreHandle(player))
+		postMessage(
+			WSMessage(
+				WSMessageType.CHAT_MESSAGE,
+				Message(Chat, player.info, serverInfo, "", message).toChain(player).toJsonStr()
+			)
+		)
 	}
 
 	/**
@@ -67,13 +84,18 @@ interface MessageHandler<T, P> {
 	 * @param receiver String
 	 */
 	fun sendWhisperMessage(player: P, message: String, receiver: String) {
-		postMessage(Message(Whisper, player.info, serverInfo, receiver, message).messagePreHandle(player))
+		postMessage(
+			WSMessage(
+				WSMessageType.WHISPER_MESSAGE,
+				Message(Whisper, player.info, serverInfo, receiver, message).toChain(player).toJsonStr()
+			)
+		)
 	}
 
 	/**
 	 * 消息发送前的预处理
 	 */
-	fun Message.messagePreHandle(player: P): Message
+	fun Message.toChain(player: P): MessageChain
 
 	/**
 	 * 向当前服务器指定玩家发送消息
@@ -86,25 +108,25 @@ interface MessageHandler<T, P> {
 	 * 向riguru服务器发送消息
 	 * @param message Message
 	 */
-	fun postMessage(message: Message)
+	fun postMessage(message: WSMessage)
 
 	/**
 	 * 当从riguru服务器接收到消息时
 	 * @param message Message
 	 */
-	fun receivesMessage(message: Message)
+	fun receivesMessage(message: MessageChain)
 
 	/**
 	 * 向服务器广播消息
 	 * @param message Message
 	 */
-	fun broadcast(message: Message)
+	fun broadcast(message: MessageChain)
 
 	/**
 	 * 向指定玩家发送悄悄话
 	 * @param message Message
 	 */
-	fun whisper(message: Message)
+	fun whisper(message: MessageChain)
 
 	/**
 	 * 在当前文本后添加文本
@@ -119,14 +141,14 @@ interface MessageHandler<T, P> {
 	 * @receiver T
 	 * @return String
 	 */
-	fun T.toJson():String
+	fun T.toJson(): String
 
 	/**
 	 * 将Json文本解析为当前环境的Text
 	 * @receiver String
 	 * @return T
 	 */
-	fun String.fromJson():T
+	fun String.fromJson(): T
 
 	/**
 	 * 将字符串转换为当前环境下的Text
@@ -151,7 +173,7 @@ interface MessageHandler<T, P> {
 	/**
 	 * 将消息转换为当前环境对应的Text
 	 */
-	val Message.text: T
+	val MessageChain.text: T
 
 	/**
 	 * 获取当前服务器所有在线的玩家

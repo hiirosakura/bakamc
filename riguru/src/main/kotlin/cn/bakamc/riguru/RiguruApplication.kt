@@ -3,6 +3,7 @@ package cn.bakamc.riguru
 import org.mybatis.spring.annotation.MapperScan
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.runApplication
 
 /**
@@ -20,6 +21,7 @@ import org.springframework.boot.runApplication
 
  */
 @SpringBootApplication(exclude = [DataSourceAutoConfiguration::class])
+@ConfigurationPropertiesScan
 @MapperScan("cn.bakamc.riguru.mapper")
 class RiguruApplication
 

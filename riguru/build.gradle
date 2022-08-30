@@ -27,6 +27,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	implementation "com.baomidou:mybatis-plus-boot-starter:${project.mybatis_plus_version}"
+	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 	runtimeOnly 'mysql:mysql-connector-java'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
