@@ -18,13 +18,25 @@ repositories {
 
 dependencies {
 	compileOnly "org.jetbrains.kotlin:kotlin-stdlib"
-	compileOnly "com.google.code.gson:gson:2.8.8"
-	compileOnly "com.google.guava:guava:31.0.1-jre"
+	compileOnly "org.jetbrains.kotlin:kotlin-reflect"
+	compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+	compileOnly "com.google.code.gson:gson:${rootProject.gson_version}"
+	compileOnly "com.google.guava:guava:${rootProject.guava_version}"
 	compileOnly "org.java-websocket:Java-WebSocket:${rootProject.properties.java_webSocket_version}"
 	testImplementation "org.jetbrains.kotlin:kotlin-stdlib"
-	testImplementation "com.google.code.gson:gson:2.8.8"
+	testImplementation "org.jetbrains.kotlin:kotlin-reflect"
+	testImplementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+	testImplementation "com.google.code.gson:gson:${rootProject.gson_version}"
 	testImplementation "com.google.guava:guava:31.0.1-jre"
 	testImplementation "org.java-websocket:Java-WebSocket:${rootProject.properties.java_webSocket_version}"
 	testImplementation group: 'junit', name: 'junit', version: '4.13.2'
 }
 
+tasks {
+	compileKotlin {
+		kotlinOptions.jvmTarget = "17"
+	}
+	compileTestKotlin {
+		kotlinOptions.jvmTarget = "17"
+	}
+}
