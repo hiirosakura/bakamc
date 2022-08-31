@@ -1,7 +1,6 @@
 package cn.bakamc.common.chat.config
 
 import cn.bakamc.common.api.serialization.JsonSerializer
-import cn.bakamc.common.utils.jsonArray
 import cn.bakamc.common.utils.jsonObject
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -23,43 +22,19 @@ import com.google.gson.JsonObject
 interface RiguruChatConfig : JsonSerializer {
 
 	/**
-	 * 聊天顺序 server:服务器 player:玩家名 :message
+	 * 聊天格式
 	 */
-	val chatFormatting: List<String>
+	val chatFormatting: String
 
 	/**
-	 * 聊天顺序 server:服务器 player:玩家名 :message
+	 * 细聊发送者消息格式
 	 */
-	val whisperFormatting: List<String>
+	val whisperSenderFormatting: String
 
 	/**
-	 * 服务器名包装器
-	 *
-	 * 占位符
-	 *
-	 * 服务器名 %serverName%
+	 * 私聊接受者 消息格式
 	 */
-	val serverWrapper: String
-
-	/**
-	 * 玩家名包装器
-	 *
-	 * 占位符
-	 *
-	 * 玩家名 %playerName%
-	 *
-	 * 玩家显示名 %displayName%
-	 */
-	val playerNameWrapper: String
-
-	/**
-	 * 消息包装器
-	 *
-	 * 占位符
-	 *
-	 * 消息内容 %message%
-	 */
-	val messageWrapper: String
+	val whisperReceiverFormatting: String
 
 	/**
 	 * 聊天文本替换
@@ -69,11 +44,9 @@ interface RiguruChatConfig : JsonSerializer {
 
 	override val serialization: JsonElement
 		get() = jsonObject {
-			"chatFormatting" at jsonArray(chatFormatting)
-			"whisperFormatting" at jsonArray(whisperFormatting)
-			"serverWrapper" at serverWrapper
-			"playerNameWrapper" at playerNameWrapper
-			"messageWrapper" at messageWrapper
+			"chatFormatting" at chatFormatting
+			"whisperSenderFormatting" at whisperSenderFormatting
+			"whisperReceiverFormatting" at whisperReceiverFormatting
 			"messageMapping" at jsonObject(messageMapping)
 		}
 
@@ -84,16 +57,12 @@ interface RiguruChatConfig : JsonSerializer {
 	companion object {
 		@JvmStatic
 		fun deserialize(serializedObject: JsonObject): RiguruChatConfig = object : RiguruChatConfig {
-			override val chatFormatting: List<String>
-				get() = buildList { serializedObject.getAsJsonArray("chatFormatting").forEach { add(it.asString) } }
-			override val whisperFormatting: List<String>
-				get() = buildList { serializedObject.getAsJsonArray("whisperFormatting").forEach { add(it.asString) } }
-			override val serverWrapper: String
-				get() = serializedObject.getAsJsonPrimitive("serverWrapper").asString
-			override val playerNameWrapper: String
-				get() = serializedObject.getAsJsonPrimitive("playerNameWrapper").asString
-			override val messageWrapper: String
-				get() = serializedObject.getAsJsonPrimitive("messageWrapper").asString
+			override val chatFormatting: String
+				get() = serializedObject.get("chatFormatting").asString
+			override val whisperSenderFormatting: String
+				get() = serializedObject.get("whisperSenderFormatting").asString
+			override val whisperReceiverFormatting: String
+				get() = serializedObject.get("whisperReceiverFormatting").asString
 			override val messageMapping: Map<String, String>
 				get() = buildMap { serializedObject.getAsJsonObject("messageMapping").entrySet().forEach { this[it.key] = it.value.asString } }
 		}

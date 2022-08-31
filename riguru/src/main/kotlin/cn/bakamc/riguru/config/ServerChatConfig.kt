@@ -20,10 +20,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  */
 @ConfigurationProperties(prefix = "bakamc.chat")
 object ServerChatConfig : RiguruChatConfig {
-	override lateinit var chatFormatting: List<String>
-	override lateinit var whisperFormatting: List<String>
-	override lateinit var serverWrapper: String
-	override lateinit var playerNameWrapper: String
-	override lateinit var messageWrapper: String
+	override lateinit var chatFormatting: String
+	override lateinit var whisperSenderFormatting: String
+	override lateinit var whisperReceiverFormatting: String
 	override lateinit var messageMapping: Map<String, String>
 }

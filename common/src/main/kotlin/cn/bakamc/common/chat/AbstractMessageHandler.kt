@@ -16,7 +16,6 @@ import cn.bakamc.common.utils.gson
 import cn.bakamc.common.utils.parseToJsonObject
 import cn.bakamc.common.utils.toJsonStr
 import java.util.*
-import java.util.regex.Pattern
 import kotlin.collections.ArrayList
 
 /**
@@ -90,27 +89,7 @@ abstract class AbstractMessageHandler<T, P>(
 	 */
 	protected open fun Message.format(): List<String> {
 		return buildList {
-			when (type) {
-				Chat    -> {
-					riguruChatConfig.chatFormatting.forEach {
-						when (it) {
-							"server"  -> add(serverInfo.text.toJson())
-							"player"  -> add(sender.text.toJson())
-							"message" -> add(message)
-						}
-					}
-				}
 
-				Whisper -> {
-					riguruChatConfig.whisperFormatting.forEach {
-						when (it) {
-							"server"  -> add(serverInfo.text.toJson())
-							"player"  -> add(sender.text.toJson())
-							"message" -> add(message)
-						}
-					}
-				}
-			}
 		}
 	}
 

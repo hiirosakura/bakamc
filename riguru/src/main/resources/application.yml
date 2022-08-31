@@ -8,16 +8,9 @@ spring:
     password: ${DATABASE_PASS}
 bakamc:
   chat:
-    chatFormatting:
-     - "server"
-     - "player"
-     - "message"
-    whisperFormatting:
-    - "server"
-    - "player"
-    - "message"
-    serverWrapper: "[%serverName%]"
-    playerNameWrapper: "[%playerName%]"
+    chatFormatting: "§[%server%][%playerName%] : %message%"
+    whisperSenderFormatting: "§[%server%]"
+    whisperReceiverFormatting: "§[%server%]"
     messageWrapper: "s"
     messageMapping:
         "&4" : "§4"
