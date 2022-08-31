@@ -22,19 +22,24 @@ import com.google.gson.JsonObject
 interface RiguruChatConfig : JsonSerializer {
 
 	/**
-	 * 聊天格式
+	 * 普通消息格式
 	 */
-	val chatFormatting: String
+	val chatFormat: String
 
 	/**
 	 * 细聊发送者消息格式
 	 */
-	val whisperSenderFormatting: String
+	val whisperSenderFormat: String
 
 	/**
 	 * 私聊接受者 消息格式
 	 */
-	val whisperReceiverFormatting: String
+	val whisperReceiverFormat: String
+
+	/**
+	 * @的格式
+	 */
+	val atFormat:String
 
 	/**
 	 * 聊天文本替换
@@ -44,9 +49,10 @@ interface RiguruChatConfig : JsonSerializer {
 
 	override val serialization: JsonElement
 		get() = jsonObject {
-			"chatFormatting" at chatFormatting
-			"whisperSenderFormatting" at whisperSenderFormatting
-			"whisperReceiverFormatting" at whisperReceiverFormatting
+			"chatFormat" at chatFormat
+			"whisperSenderFormat" at whisperSenderFormat
+			"whisperReceiverFormat" at whisperReceiverFormat
+			"atFormat" at atFormat
 			"messageMapping" at jsonObject(messageMapping)
 		}
 
@@ -57,12 +63,14 @@ interface RiguruChatConfig : JsonSerializer {
 	companion object {
 		@JvmStatic
 		fun deserialize(serializedObject: JsonObject): RiguruChatConfig = object : RiguruChatConfig {
-			override val chatFormatting: String
-				get() = serializedObject.get("chatFormatting").asString
-			override val whisperSenderFormatting: String
-				get() = serializedObject.get("whisperSenderFormatting").asString
-			override val whisperReceiverFormatting: String
-				get() = serializedObject.get("whisperReceiverFormatting").asString
+			override val chatFormat: String
+				get() = serializedObject.get("chatFormat").asString
+			override val whisperSenderFormat: String
+				get() = serializedObject.get("whisperSenderFormat").asString
+			override val whisperReceiverFormat: String
+				get() = serializedObject.get("whisperReceiverFormat").asString
+			override val atFormat: String
+				get() = serializedObject.get("atFormat").asString
 			override val messageMapping: Map<String, String>
 				get() = buildMap { serializedObject.getAsJsonObject("messageMapping").entrySet().forEach { this[it.key] = it.value.asString } }
 		}

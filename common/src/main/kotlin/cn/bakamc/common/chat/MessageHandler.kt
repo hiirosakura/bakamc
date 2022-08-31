@@ -5,7 +5,7 @@ import cn.bakamc.common.api.WSMessageType
 import cn.bakamc.common.chat.config.ChatConfig
 import cn.bakamc.common.chat.config.RiguruChatConfig
 import cn.bakamc.common.chat.message.Message
-import cn.bakamc.common.chat.message.MessageChain
+import cn.bakamc.common.chat.message.PostMessage
 import cn.bakamc.common.chat.message.MessageType.Chat
 import cn.bakamc.common.chat.message.MessageType.Whisper
 import cn.bakamc.common.utils.toJsonStr
@@ -72,7 +72,7 @@ interface MessageHandler<T, P> {
 		postMessage(
 			WSMessage(
 				WSMessageType.CHAT_MESSAGE,
-				Message(Chat, player.info, serverInfo, "", message).toChain(player).toJsonStr()
+				Message(Chat, player.info, serverInfo, "", message).toFinalMessage(player).toJsonStr()
 			)
 		)
 	}
@@ -87,7 +87,7 @@ interface MessageHandler<T, P> {
 		postMessage(
 			WSMessage(
 				WSMessageType.WHISPER_MESSAGE,
-				Message(Whisper, player.info, serverInfo, receiver, message).toChain(player).toJsonStr()
+				Message(Whisper, player.info, serverInfo, receiver, message).toFinalMessage(player).toJsonStr()
 			)
 		)
 	}
@@ -95,7 +95,7 @@ interface MessageHandler<T, P> {
 	/**
 	 * 消息发送前的预处理
 	 */
-	fun Message.toChain(player: P): MessageChain
+	fun Message.toFinalMessage(player: P): PostMessage
 
 	/**
 	 * 向当前服务器指定玩家发送消息
@@ -114,19 +114,19 @@ interface MessageHandler<T, P> {
 	 * 当从riguru服务器接收到消息时
 	 * @param message Message
 	 */
-	fun receivesMessage(message: MessageChain)
+	fun receivesMessage(message: PostMessage)
 
 	/**
 	 * 向服务器广播消息
 	 * @param message Message
 	 */
-	fun broadcast(message: MessageChain)
+	fun broadcast(message: PostMessage)
 
 	/**
 	 * 向指定玩家发送悄悄话
 	 * @param message Message
 	 */
-	fun whisper(message: MessageChain)
+	fun whisper(message: PostMessage)
 
 	/**
 	 * 在当前文本后添加文本
@@ -166,14 +166,19 @@ interface MessageHandler<T, P> {
 	val PlayerInfo.text: T
 
 	/**
+	 * 将玩家转换为对应环境的Text 且以[PlayerInfo.displayName]为显示文本
+	 */
+	val PlayerInfo.displayNameText: T
+
+	/**
+	 * 将玩家小镇信息转换为对应环境的Text
+	 */
+	val PlayerInfo.townText: T
+
+	/**
 	 * 将服务器信息转换为对应环境的Text
 	 */
 	val ServerInfo.text: T
-
-	/**
-	 * 将消息转换为当前环境对应的Text
-	 */
-	val MessageChain.text: T
 
 	/**
 	 * 获取当前服务器所有在线的玩家

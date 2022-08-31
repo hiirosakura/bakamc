@@ -1,5 +1,6 @@
 package cn.bakamc.common.chat
 
+import cn.bakamc.common.town.Town
 import java.util.*
 
 /**
@@ -29,6 +30,10 @@ class PlayerInfo(
 	 * 玩家uuid
 	 */
 	val uuid: UUID,
+	/**
+	 * 所在小镇
+	 */
+	val town: Town,
 	/**
 	 * 玩家等级
 	 */

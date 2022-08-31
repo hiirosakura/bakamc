@@ -28,6 +28,10 @@ class Town(
 	 */
 	val name: String,
 	/**
+	 * 简称
+	 */
+	val shortName:String,
+	/**
 	 * 镇长UUID
 	 */
 	val mayor: UUID,

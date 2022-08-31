@@ -21,7 +21,7 @@ import java.util.*
  * @author forpleuvoir
 
  */
-class Message(
+open class Message(
 	/**
 	 * 消息类型
 	 */
@@ -39,11 +39,7 @@ class Message(
 	 */
 	val receiver: String = "",
 	/**
-	 * 消息内容
-	 *
-	 * 发送时转换为序列化之后的消息内容，可以被转换为对应环境的消息内容
-	 *
-	 * 接收时因直接解析为对应环境的 Text
+	 * 消息原始内容
 	 */
 	var message: String,
 ) {
