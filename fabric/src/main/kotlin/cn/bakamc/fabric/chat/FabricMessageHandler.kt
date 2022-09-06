@@ -1,13 +1,12 @@
 package cn.bakamc.fabric.chat
 
 import cn.bakamc.common.chat.AbstractMessageHandler
-import cn.bakamc.common.chat.MessageHandler
-import cn.bakamc.common.chat.PlayerInfo
-import cn.bakamc.common.chat.ServerInfo
 import cn.bakamc.common.chat.config.ChatConfig
+import cn.bakamc.common.common.PlayerInfo
+import cn.bakamc.common.common.ServerInfo
 import cn.bakamc.common.town.Town
 import cn.bakamc.common.utils.replace
-import cn.bakamc.fabric.chat.config.Config
+import cn.bakamc.fabric.config.Config
 import net.minecraft.item.ItemStack
 import net.minecraft.network.MessageType.CHAT
 import net.minecraft.server.MinecraftServer
@@ -17,7 +16,7 @@ import net.minecraft.text.ClickEvent.Action.SUGGEST_COMMAND
 import net.minecraft.text.HoverEvent.Action
 import net.minecraft.text.HoverEvent.ItemStackContent
 import net.minecraft.util.Formatting.ITALIC
-import java.util.UUID
+import java.util.*
 import java.util.function.Consumer
 
 /**
@@ -34,7 +33,7 @@ import java.util.function.Consumer
  * @author forpleuvoir
 
  */
-class FabricMessageHandler(config: ChatConfig, val server: MinecraftServer) : AbstractMessageHandler<MutableText, ServerPlayerEntity>(config) {
+class FabricMessageHandler(config: ChatConfig, private val server: MinecraftServer) : AbstractMessageHandler<MutableText, ServerPlayerEntity>(config) {
 
 	companion object {
 		@JvmStatic
@@ -146,7 +145,7 @@ class FabricMessageHandler(config: ChatConfig, val server: MinecraftServer) : Ab
 
 	override val PlayerInfo.townText: MutableText
 		get() {
-			val town = town?.shortName ?: "无"
+			val town = town.shortName
 			return town.text
 		}
 
@@ -159,7 +158,7 @@ class FabricMessageHandler(config: ChatConfig, val server: MinecraftServer) : Ab
 				name.string,
 				displayName.string,
 				uuid,
-				null,
+				Town.NONE,
 				experienceLevel,
 				totalExperience,
 				maxHealth,

@@ -5,11 +5,13 @@ import cn.bakamc.common.api.WSMessageType
 import cn.bakamc.common.chat.config.ChatConfig
 import cn.bakamc.common.chat.config.RiguruChatConfig
 import cn.bakamc.common.chat.message.Message
-import cn.bakamc.common.chat.message.PostMessage
 import cn.bakamc.common.chat.message.MessageType.Chat
 import cn.bakamc.common.chat.message.MessageType.Whisper
+import cn.bakamc.common.chat.message.PostMessage
+import cn.bakamc.common.common.PlayerInfo
+import cn.bakamc.common.common.ServerInfo
 import cn.bakamc.common.utils.toJsonStr
-import java.util.UUID
+import java.util.*
 
 /**
  * 消息处理器

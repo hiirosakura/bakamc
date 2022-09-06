@@ -1,7 +1,6 @@
 package cn.bakamc.common.chat.config
 
-import cn.bakamc.common.chat.ServerInfo
-import cn.bakamc.common.utils.MessageUtil
+import cn.bakamc.common.common.ServerInfo
 
 /**
  * 聊天配置

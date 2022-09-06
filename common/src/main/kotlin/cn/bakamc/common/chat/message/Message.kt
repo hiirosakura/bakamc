@@ -1,8 +1,8 @@
 package cn.bakamc.common.chat.message
 
-import cn.bakamc.common.chat.PlayerInfo
-import cn.bakamc.common.chat.ServerInfo
 import cn.bakamc.common.chat.message.MessageType.Whisper
+import cn.bakamc.common.common.PlayerInfo
+import cn.bakamc.common.common.ServerInfo
 import cn.bakamc.common.utils.gson
 import com.google.gson.JsonElement
 import java.util.*

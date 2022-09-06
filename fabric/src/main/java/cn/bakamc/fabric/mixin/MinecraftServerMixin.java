@@ -1,7 +1,7 @@
 package cn.bakamc.fabric.mixin;
 
 import cn.bakamc.fabric.chat.FabricMessageHandler;
-import cn.bakamc.fabric.chat.config.Config;
+import cn.bakamc.fabric.config.Config;
 import net.minecraft.server.MinecraftServer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

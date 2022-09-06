@@ -1,4 +1,4 @@
-package cn.bakamc.common.chat
+package cn.bakamc.common.common
 
 import cn.bakamc.common.town.Town
 import java.util.*
@@ -8,7 +8,7 @@ import java.util.*
 
  * 项目名 bakamc
 
- * 包名 cn.bakamc.common.chat
+ * 包名 cn.bakamc.common.common
 
  * 文件名 PlayerInfo
 
@@ -33,7 +33,7 @@ class PlayerInfo(
 	/**
 	 * 所在小镇
 	 */
-	val town: Town?,
+	val town: Town,
 	/**
 	 * 玩家等级
 	 */
@@ -56,6 +56,6 @@ class PlayerInfo(
 	val dimension: String,
 ) {
 	override fun toString(): String {
-		return "PlayerInfo(name='$name', displayName='$displayName', uuid=$uuid, level=$level, experience=$experience, maxHealth=$maxHealth, health=$health, dimension='$dimension')"
+		return "PlayerInfo(name='$name', displayName='$displayName', uuid=$uuid, town=$town, level=$level, experience=$experience, maxHealth=$maxHealth, health=$health, dimension='$dimension')"
 	}
 }

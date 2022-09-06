@@ -8,19 +8,19 @@ import cn.bakamc.common.api.WSMessageType.WHISPER_MESSAGE
 import cn.bakamc.common.chat.config.ChatConfig
 import cn.bakamc.common.chat.config.RiguruChatConfig
 import cn.bakamc.common.chat.message.Message
-import cn.bakamc.common.chat.message.PostMessage
 import cn.bakamc.common.chat.message.MessageType.Chat
 import cn.bakamc.common.chat.message.MessageType.Whisper
+import cn.bakamc.common.chat.message.PostMessage
 import cn.bakamc.common.chat.message.PostMessage.Companion.AT_LIST
 import cn.bakamc.common.chat.message.PostMessage.Companion.FINAL_RECEIVER_TEXT
 import cn.bakamc.common.chat.message.PostMessage.Companion.FINAL_SENDER_TEXT
 import cn.bakamc.common.chat.message.PostMessage.Companion.FINAL_TEXT
+import cn.bakamc.common.common.PlayerInfo
+import cn.bakamc.common.common.ServerInfo
 import cn.bakamc.common.utils.*
 import java.math.RoundingMode.FLOOR
 import java.text.DecimalFormat
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.text.replace
 
 /**
  * 消息处理器基础实现
@@ -221,7 +221,7 @@ abstract class AbstractMessageHandler<T, P>(
 				this["%name%"] = player.name
 				this["%displayName%"] = player.displayName
 				this["%uuid%"] = player.uuid.toString()
-				this["%town%"] = if (player.town?.name == null) "" else player.town.name
+				this["%town%"] = player.town.name
 				this["%level%"] = player.level.toString()
 				this["%experience%"] = player.experience.toString()
 				this["%maxHealth%"] = format.format(player.maxHealth)

@@ -5,7 +5,7 @@ import cn.bakamc.common.api.WSMessageType.CHAT_MESSAGE
 import cn.bakamc.common.api.WSMessageType.CONFIG
 import cn.bakamc.common.api.WSMessageType.REGISTRY_SERVER_INFO
 import cn.bakamc.common.api.WSMessageType.WHISPER_MESSAGE
-import cn.bakamc.common.chat.ServerInfo
+import cn.bakamc.common.common.ServerInfo
 import cn.bakamc.common.utils.gson
 import cn.bakamc.common.utils.toJsonStr
 import cn.bakamc.riguru.config.ServerChatConfig

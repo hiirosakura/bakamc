@@ -1,12 +1,12 @@
-package cn.bakamc.fabric.chat.config
+package cn.bakamc.fabric.config
 
 import cn.bakamc.common.chat.config.ChatConfig
 import cn.bakamc.common.config.modconfig.impl.ConfigCategoryImpl
 import cn.bakamc.common.config.modconfig.impl.LocalServerModConfig
 import cn.bakamc.fabric.BakaMc
 import net.minecraft.server.MinecraftServer
-import java.nio.file.Path
 import java.io.File
+import java.nio.file.Path
 
 /**
  *

@@ -1,11 +1,11 @@
-package cn.bakamc.common.chat
+package cn.bakamc.common.common
 
 /**
  * 服务器信息
 
  * 项目名 bakamc
 
- * 包名 cn.bakamc.common.chat
+ * 包名 cn.bakamc.common.common
 
  * 文件名 ServerInfo
 

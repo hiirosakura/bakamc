@@ -1,6 +1,5 @@
 package cn.bakamc.fabric
 
-import cn.bakamc.fabric.chat.config.Config
 import net.fabricmc.api.ModInitializer
 
 /**
