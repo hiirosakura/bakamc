@@ -43,7 +43,7 @@ class ChatServer {
 		session: Session
 	) {
 		sessions[id] = session
-		serverInfos[id] = ServerInfo(id, id, "没有描述")
+		serverInfos[id] = ServerInfo(id, id, listOf("没有描述"))
 		log.info("[{}]有人订阅了昆虫通知服务！", id)
 	}
 
@@ -83,15 +83,19 @@ class ChatServer {
 	private fun registryServerInfo(json: String, session: Session, id: String) {
 		val serverInfo = gson.fromJson(json, ServerInfo::class.java)
 		serverInfos[id] = serverInfo
-		session.sendMessage(WSMessage(REGISTRY_SERVER_INFO,"注册服务器信息成功"))
+		session.sendMessage(WSMessage(REGISTRY_SERVER_INFO, "注册服务器信息成功"))
 		log.info("[{}]注册服务器信息!", id)
 	}
 
 	private fun chatMessage(json: String, session: Session, id: String) {
-
+		broadcast(WSMessage(CHAT_MESSAGE, json))
+		log.info("[({})chat]{}", id, json)
 	}
 
-	private fun whisperMessage(json: String, session: Session, id: String) {}
+	private fun whisperMessage(json: String, session: Session, id: String) {
+		broadcast(WSMessage(WHISPER_MESSAGE, json))
+		log.info("[({})chat]{}", id, json)
+	}
 
 	companion object {
 
@@ -102,6 +106,9 @@ class ChatServer {
 		private val serverInfos = ConcurrentHashMap<String, ServerInfo>()
 
 		private fun broadcast(message: String) {
+			sessions.values.forEach { it.sendMessage(message) }
+		}
+		private fun broadcast(message: WSMessage) {
 			sessions.values.forEach { it.sendMessage(message) }
 		}
 

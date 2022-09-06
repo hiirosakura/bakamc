@@ -18,7 +18,7 @@ class ServerInfo(
 	/**
 	 * 服务器ID
 	 */
-	val serverId: String,
+	val serverID: String,
 	/**
 	 * 服务器名称
 	 */
@@ -26,11 +26,11 @@ class ServerInfo(
 	/**
 	 * 服务器描述
 	 */
-	val description: String,
+	val description: List<String>,
 ) {
 
 	override fun toString(): String {
-		return "ServerInfo(serverId='$serverId', serverName='$serverName', description='$description')"
+		return "ServerInfo(serverID='$serverID', serverName='$serverName', description='$description')"
 	}
 
 	override fun equals(other: Any?): Boolean {
@@ -39,7 +39,7 @@ class ServerInfo(
 
 		other as ServerInfo
 
-		if (serverId != other.serverId) return false
+		if (serverID != other.serverID) return false
 		if (serverName != other.serverName) return false
 		if (description != other.description) return false
 
@@ -47,6 +47,6 @@ class ServerInfo(
 	}
 
 	override fun hashCode(): Int {
-		return serverId.hashCode()
+		return serverID.hashCode()
 	}
 }

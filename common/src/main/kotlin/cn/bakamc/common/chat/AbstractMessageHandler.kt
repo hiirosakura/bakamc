@@ -15,12 +15,12 @@ import cn.bakamc.common.chat.message.PostMessage.Companion.AT_LIST
 import cn.bakamc.common.chat.message.PostMessage.Companion.FINAL_RECEIVER_TEXT
 import cn.bakamc.common.chat.message.PostMessage.Companion.FINAL_SENDER_TEXT
 import cn.bakamc.common.chat.message.PostMessage.Companion.FINAL_TEXT
-import cn.bakamc.common.utils.MessageUtil
-import cn.bakamc.common.utils.gson
-import cn.bakamc.common.utils.parseToJsonObject
-import cn.bakamc.common.utils.toJsonStr
+import cn.bakamc.common.utils.*
+import java.math.RoundingMode.FLOOR
+import java.text.DecimalFormat
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.text.replace
 
 /**
  * 消息处理器基础实现
@@ -40,7 +40,7 @@ abstract class AbstractMessageHandler<T, P>(
 	final override val config: ChatConfig
 ) : MessageHandler<T, P> {
 
-	protected val bakaChatWebSocketClient = BakaChatWebSocketClient("${config.riguruAddress}/chat/${config.serverInfo.serverId}") {
+	protected val bakaChatWebSocketClient = BakaChatWebSocketClient("${config.riguruAddress}/chat/${config.serverInfo.serverID}") {
 		try {
 			gson.fromJson(it, WSMessage::class.java).run {
 				when (type) {
@@ -53,6 +53,8 @@ abstract class AbstractMessageHandler<T, P>(
 			println("消息解析失败")
 			e.printStackTrace()
 		}
+	}.apply {
+		onOpen = { postMessage(WSMessage(CONFIG, "")) }
 	}
 
 	override lateinit var riguruChatConfig: RiguruChatConfig
@@ -68,14 +70,15 @@ abstract class AbstractMessageHandler<T, P>(
 
 	override fun connect() {
 		bakaChatWebSocketClient.connect()
-		postMessage(WSMessage(CONFIG, ""))
 	}
 
 	override fun reconnect() = bakaChatWebSocketClient.reconnect()
 
 	override fun close() = bakaChatWebSocketClient.close()
 
-	override fun postMessage(message: WSMessage) = bakaChatWebSocketClient.send(message.toJsonStr())
+	override fun postMessage(message: WSMessage) {
+		bakaChatWebSocketClient.send(message.toJsonStr())
+	}
 
 	override fun Message.toFinalMessage(player: P): PostMessage {
 		var msg: String = message
@@ -100,11 +103,11 @@ abstract class AbstractMessageHandler<T, P>(
 		val data = buildMap {
 			when (type) {
 				Chat    ->
-					this[FINAL_TEXT] = format(regex, toEmpty, riguruChatConfig.chatFormat).toJson()
+					this[FINAL_TEXT] = format(regex, toEmpty, riguruChatConfig.chatFormat, msg).toJson()
 
 				Whisper -> {
-					this[FINAL_SENDER_TEXT] = format(regex, toEmpty, riguruChatConfig.whisperSenderFormat).toJson()
-					this[FINAL_RECEIVER_TEXT] = format(regex, toEmpty, riguruChatConfig.whisperReceiverFormat).toJson()
+					this[FINAL_SENDER_TEXT] = format(regex, toEmpty, riguruChatConfig.whisperSenderFormat, msg).toJson()
+					this[FINAL_RECEIVER_TEXT] = format(regex, toEmpty, riguruChatConfig.whisperReceiverFormat, msg).toJson()
 				}
 			}
 			this[AT_LIST] = getAtList()
@@ -113,7 +116,7 @@ abstract class AbstractMessageHandler<T, P>(
 	}
 
 
-	protected open fun Message.format(regex: Regex, toEmpty: Regex, msgForMatting: String): T {
+	protected open fun Message.format(regex: Regex, toEmpty: Regex, msgForMatting: String, msg: String): T {
 		val finalText: T = "".text
 		val texts = ArrayList<T>()
 		msgForMatting.replace(regex) {
@@ -124,15 +127,17 @@ abstract class AbstractMessageHandler<T, P>(
 					str == "playerName"                                         -> sender.text
 					str == "playerDisplayName"                                  -> sender.displayNameText
 					str == "town"                                               -> sender.townText
+					str == "message"                                            -> msg.fromJson()
 					"(§[0-9a-gulomkr])*receiver".toRegex().containsMatchIn(str) -> str.replace(receiver, "receiver").text
 					else                                                        -> str.text
 				}
 			)
 			it.value
 		}.split(regex).toMutableList().apply {
+			finalText.addSiblings(this[0].text)
 			texts.forEachIndexed { index, t ->
-				finalText.append(t)
-				finalText.append(this[index + 1].text)
+				finalText.addSiblings(t)
+				finalText.addSiblings(this[index + 1].text)
 			}
 		}
 		return finalText
@@ -146,18 +151,18 @@ abstract class AbstractMessageHandler<T, P>(
 	}
 
 	override fun broadcast(message: PostMessage) {
-		players.forEach { it.sendMessage(message.finalText { this.fromJson() }!!) }
+		players.forEach { it.sendMessage(message.finalText { this.fromJson() }!!, message.senderUUID) }
 	}
 
 	override fun whisper(message: PostMessage) {
 		players.findLast {
 			val p = it.info
 			p.name == message.receiver && p.displayName == message.receiver
-		}?.sendMessage(message.finalReceiverText { this.fromJson() }!!)
+		}?.sendMessage(message.finalReceiverText { this.fromJson() }!!, message.senderUUID)
 		players.findLast {
 			val p = it.info
 			p.uuid == message.senderUUID
-		}?.sendMessage(message.finalSenderText { this.fromJson() }!!)
+		}?.sendMessage(message.finalSenderText { this.fromJson() }!!, message.senderUUID)
 	}
 
 	/**
@@ -190,9 +195,10 @@ abstract class AbstractMessageHandler<T, P>(
 			itemTexts.add(player.getItemText(index))
 			it.value
 		}.split(regex).toMutableList().apply {
+			text.addSiblings(this[0].text)
 			itemTexts.forEachIndexed { index, s ->
-				text.append(s)
-				text.append(this[index + 1].text)
+				text.addSiblings(s)
+				text.addSiblings(this[index + 1].text)
 			}
 		}
 		return text.toJson()
@@ -206,5 +212,40 @@ abstract class AbstractMessageHandler<T, P>(
 	 */
 	abstract fun P.getItemText(index: Int): T
 
+	protected val PlayerInfo.placeholder: Map<String, String>
+		get() {
+			val format = DecimalFormat("#.##")
+			format.roundingMode = FLOOR
+			val player = this
+			return buildMap {
+				this["%name%"] = player.name
+				this["%displayName%"] = player.displayName
+				this["%uuid%"] = player.uuid.toString()
+				this["%town%"] = if (player.town?.name == null) "" else player.town.name
+				this["%level%"] = player.level.toString()
+				this["%experience%"] = player.experience.toString()
+				this["%maxHealth%"] = format.format(player.maxHealth)
+				this["%health%"] = format.format(player.health)
+				this["%dimension%"] = player.dimension
+			}
+		}
 
+	protected fun List<String>.placeholderHandler(playerInfo: PlayerInfo): List<String> = buildList {
+		this@placeholderHandler.forEach { add(it.replace(playerInfo.placeholder)) }
+	}
+
+	protected val ServerInfo.placeholder: Map<String, String>
+		get() {
+			val format = DecimalFormat("#.##")
+			format.roundingMode = FLOOR
+			return buildMap {
+				this["%serverID%"] = serverID
+				this["%serverName%"] = serverName
+
+			}
+		}
+
+	protected fun List<String>.placeholderHandler(serverInfo: ServerInfo): List<String> = buildList {
+		this@placeholderHandler.forEach { add(it.replace(serverInfo.placeholder)) }
+	}
 }

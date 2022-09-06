@@ -33,7 +33,7 @@ class PlayerInfo(
 	/**
 	 * 所在小镇
 	 */
-	val town: Town,
+	val town: Town?,
 	/**
 	 * 玩家等级
 	 */

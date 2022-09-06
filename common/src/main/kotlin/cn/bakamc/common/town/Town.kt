@@ -1,6 +1,5 @@
 package cn.bakamc.common.town
 
-import java.sql.Timestamp
 import java.util.UUID
 import java.util.concurrent.ConcurrentLinkedDeque
 
@@ -30,7 +29,7 @@ class Town(
 	/**
 	 * 简称
 	 */
-	val shortName:String,
+	val shortName: String,
 	/**
 	 * 镇长UUID
 	 */
@@ -38,7 +37,7 @@ class Town(
 	/**
 	 * 创建时间
 	 */
-	val createTime: Timestamp,
+	val createTime: Long,
 	/**
 	 * 管理员
 	 */
@@ -48,4 +47,9 @@ class Town(
 	 */
 	val members: ConcurrentLinkedDeque<UUID>,
 ) {
+
+	companion object {
+		val NONE = Town(0, "无", "", UUID.fromString(""), 0, ConcurrentLinkedDeque(), ConcurrentLinkedDeque())
+	}
+
 }

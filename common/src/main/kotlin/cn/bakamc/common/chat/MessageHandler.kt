@@ -9,6 +9,7 @@ import cn.bakamc.common.chat.message.PostMessage
 import cn.bakamc.common.chat.message.MessageType.Chat
 import cn.bakamc.common.chat.message.MessageType.Whisper
 import cn.bakamc.common.utils.toJsonStr
+import java.util.UUID
 
 /**
  * 消息处理器
@@ -102,7 +103,7 @@ interface MessageHandler<T, P> {
 	 * @receiver P
 	 * @param message Text[T]
 	 */
-	fun P.sendMessage(message: T)
+	fun P.sendMessage(message: T,uuid: UUID)
 
 	/**
 	 * 向riguru服务器发送消息
@@ -134,7 +135,7 @@ interface MessageHandler<T, P> {
 	 * @param text T
 	 * @return T
 	 */
-	fun T.append(text: T): T
+	fun T.addSiblings(text: T): T
 
 	/**
 	 * 将Text转换为可解析的Json文本

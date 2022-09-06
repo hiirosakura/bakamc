@@ -64,6 +64,7 @@ class PostMessage(
 
 	fun <T> finalReceiverText(converter: String.() -> T): T? = finalReceiverText?.let(converter)
 
+	@Suppress("UNCHECKED_CAST")
 	val atList: List<String>? get() = data[AT_LIST] as List<String>?
 
 	fun <T> atList(converter: String.() -> T): List<T>? =

@@ -1,5 +1,5 @@
 server:
-  port: 2333
+  port: 3499
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -8,10 +8,22 @@ spring:
     password: ${DATABASE_PASS}
 bakamc:
   chat:
-    chatFormat: "§6[§r%server%§6][§r(%town%)%player%§6]§r : %message%"
+    chatFormat: "§6[§r%server%§6][§r(%town%)%playerName%§6]§r : %message%"
     whisperSenderFormat: "§7你悄悄对§6[§r%§7receiver%§6]§7说§r : %message%"
     whisperReceiverFormat: "§6[§r%server%§6][§r(%town%)%player%§6]§7悄悄对你说§r : %message%"
     atFormat: "§b%at%§r"
+    playerInfoHover:
+      - "玩家名称 : %name%\n"
+      - "玩家显示名 : %displayName%\n"
+      - "UUID : %uuid%\n"
+      - "所在小镇 : %town%\n"
+      - "玩家等级 : %level%\n"
+      - "玩家总经验 : %experience%\n"
+      - "生命值 : %health%/%maxHealth%\n"
+      - "所在纬度 : %dimension%\n"
+      - "点击私聊"
+    playerInfoClickCommand: "/bakamc:chat msg %name% "
+    serverInfoClickCommand: "/server %serverID%"
     #只会替换原始消息文本
     messageMapping:
       "&0": "§0"

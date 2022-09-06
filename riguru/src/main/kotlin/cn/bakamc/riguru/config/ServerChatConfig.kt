@@ -24,5 +24,8 @@ object ServerChatConfig : RiguruChatConfig {
 	override lateinit var whisperSenderFormat: String
 	override lateinit var whisperReceiverFormat: String
 	override lateinit var atFormat: String
+	override lateinit var playerInfoHover: List<String>
+	override lateinit var playerInfoClickCommand: String
+	override lateinit var serverInfoClickCommand: String
 	override lateinit var messageMapping: Map<String, String>
 }

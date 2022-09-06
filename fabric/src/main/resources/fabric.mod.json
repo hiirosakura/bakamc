@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "bakamc",
+  "version": "${version}",
+  "name": "BakaMC",
+  "description": "§b⑨BakaMC⑨",
+  "authors": [
+	"forpleuvoir"
+  ],
+  "contact": {
+	"email": "695801070@qq.com",
+	"website": "https://github.com/hiirosakura/bakamc",
+	"sources": "https://github.com/hiirosakura/bakamc",
+	"issues": "https://github.com/hiirosakura/bakamc/issues"
+  },
+  "license": "GPL-3.0",
+  "accessWidener": "bakamc.accesswidener",
+  "environment": "*",
+  "entrypoints": {
+	"main": [
+	  {
+		"adapter": "kotlin",
+		"value": "cn.bakamc.fabric.BakaMc"
+	  }
+	]
+  },
+  "mixins": [
+	"bakamc.mixins.json"
+  ],
+  "depends": {
+	"fabricloader": ">=0.14.0",
+	"fabric": "*",
+	"minecraft": "1.18.2",
+	"fabric-language-kotlin": ">=1.8.3+kotlin.1.7.10"
+  }
+}

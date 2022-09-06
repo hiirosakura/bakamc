@@ -23,7 +23,7 @@ interface ChatConfig {
 
 	val serverName: String
 
-	val description: String
+	val description: List<String>
 
 	val serverInfo: ServerInfo get() = ServerInfo(serverId, serverName, description)
 

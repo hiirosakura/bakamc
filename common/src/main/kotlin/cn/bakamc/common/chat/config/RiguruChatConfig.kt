@@ -1,6 +1,7 @@
 package cn.bakamc.common.chat.config
 
 import cn.bakamc.common.api.serialization.JsonSerializer
+import cn.bakamc.common.utils.jsonArray
 import cn.bakamc.common.utils.jsonObject
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -37,9 +38,24 @@ interface RiguruChatConfig : JsonSerializer {
 	val whisperReceiverFormat: String
 
 	/**
-	 * @的格式
+	 * @ 的格式
 	 */
 	val atFormat:String
+
+	/**
+	 * 玩家浮动信息显示
+	 */
+	val playerInfoHover:List<String>
+
+	/**
+	 * 点击玩家信息返回的指令建议
+	 */
+	val playerInfoClickCommand:String
+
+	/**
+	 * 点击服务器信息返回的指令建议
+	 */
+	val serverInfoClickCommand:String
 
 	/**
 	 * 聊天文本替换
@@ -49,30 +65,39 @@ interface RiguruChatConfig : JsonSerializer {
 
 	override val serialization: JsonElement
 		get() = jsonObject {
-			"chatFormat" at chatFormat
-			"whisperSenderFormat" at whisperSenderFormat
-			"whisperReceiverFormat" at whisperReceiverFormat
-			"atFormat" at atFormat
-			"messageMapping" at jsonObject(messageMapping)
+			"chat_format" at chatFormat
+			"whisper_sender_format" at whisperSenderFormat
+			"whisper_receiver_format" at whisperReceiverFormat
+			"at_format" at atFormat
+			"player_info_hover" at jsonArray(playerInfoHover)
+			"player_info_click_command" at playerInfoClickCommand
+			"server_info_click_command" at serverInfoClickCommand
+			"message_mapping" at jsonObject(messageMapping)
 		}
 
 	override fun deserialize(serializedObject: JsonElement) {
-		throw NotImplementedError("方法未实现")
+		throw NotImplementedError("method not implemented")
 	}
 
 	companion object {
 		@JvmStatic
 		fun deserialize(serializedObject: JsonObject): RiguruChatConfig = object : RiguruChatConfig {
 			override val chatFormat: String
-				get() = serializedObject.get("chatFormat").asString
+				get() = serializedObject.get("chat_format").asString
 			override val whisperSenderFormat: String
-				get() = serializedObject.get("whisperSenderFormat").asString
+				get() = serializedObject.get("whisper_sender_format").asString
 			override val whisperReceiverFormat: String
-				get() = serializedObject.get("whisperReceiverFormat").asString
+				get() = serializedObject.get("whisper_receiver_format").asString
 			override val atFormat: String
-				get() = serializedObject.get("atFormat").asString
+				get() = serializedObject.get("at_format").asString
+			override val playerInfoHover: List<String>
+				get() = buildList { serializedObject.getAsJsonArray("player_info_hover").forEach { add(it.asString) } }
+			override val playerInfoClickCommand: String
+				get() = serializedObject.get("player_info_click_command").asString
+			override val serverInfoClickCommand: String
+				get() = serializedObject.get("server_info_click_command").asString
 			override val messageMapping: Map<String, String>
-				get() = buildMap { serializedObject.getAsJsonObject("messageMapping").entrySet().forEach { this[it.key] = it.value.asString } }
+				get() = buildMap { serializedObject.getAsJsonObject("message_mapping").entrySet().forEach { this[it.key] = it.value.asString } }
 		}
 	}
 }

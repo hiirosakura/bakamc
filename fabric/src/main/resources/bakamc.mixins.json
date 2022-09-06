@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "cn.bakamc.fabric.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+	"MinecraftServerMixin",
+	"ServerPlayNetworkHandlerMixin"
+  ],
+  "injectors": {
+	"defaultRequire": 1
+  }
+}

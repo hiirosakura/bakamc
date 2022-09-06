@@ -1,0 +1,69 @@
+plugins {
+	id 'java'
+	id 'fabric-loom' version '1.0-SNAPSHOT'
+	id 'maven-publish'
+	id 'org.jetbrains.kotlin.jvm' version '1.7.10'
+}
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+version = rootProject.maven_version
+group = rootProject.maven_group
+setArchivesBaseName("bakamc-fabric")
+
+repositories {
+	mavenCentral()
+	mavenLocal()
+}
+
+loom {
+	accessWidenerPath = file("src/main/resources/bakamc.accesswidener")
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+	mappings "net.fabricmc:yarn:${rootProject.yarn_mappings}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
+	modImplementation "net.fabricmc:fabric-language-kotlin:${rootProject.fabric_kotlin_version}"
+	implementation(project(":common")) { transitive(false) }
+	include(project(":common")) { transitive(false) }
+	implementation "org.java-websocket:Java-WebSocket:${rootProject.properties.java_webSocket_version}"
+	include "org.java-websocket:Java-WebSocket:${rootProject.properties.java_webSocket_version}"
+}
+
+processResources {
+	inputs.property "version", project.version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": project.version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 17
+	it.options.encoding = "UTF-8"
+}
+
+java {
+	withSourcesJar()
+	toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+}
+
+jar {
+	from("LICENSE") {
+		rename { "${it}_${project.archivesBaseName}" }
+	}
+}
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			from components.java
+		}
+	}
+	repositories {
+		mavenLocal()
+	}
+}
