@@ -1,6 +1,6 @@
 package cn.bakamc.common.chat.message
 
-import cn.bakamc.common.common.PlayerInfo
+import cn.bakamc.common.common.PlayerCurrentInfo
 import cn.bakamc.common.common.ServerInfo
 
 /**
@@ -25,7 +25,7 @@ class PostMessage(
 	/**
 	 * 发送者信息
 	 */
-	sender: PlayerInfo,
+	sender: PlayerCurrentInfo,
 	/**
 	 * 发送消息的服务器信息
 	 */

@@ -26,3 +26,4 @@ inline fun Boolean?.notc(action: () -> Unit) = if (this != null) {
 } else Unit
 
 fun <T> Boolean?.ternary(v1: T, v2: T): T = if (this == true) v1 else v2
+

@@ -1,7 +1,7 @@
 package cn.bakamc.common.chat.message
 
 import cn.bakamc.common.chat.message.MessageType.Whisper
-import cn.bakamc.common.common.PlayerInfo
+import cn.bakamc.common.common.PlayerCurrentInfo
 import cn.bakamc.common.common.ServerInfo
 import cn.bakamc.common.utils.gson
 import com.google.gson.JsonElement
@@ -29,7 +29,7 @@ open class Message(
 	/**
 	 * 发送者信息
 	 */
-	val sender: PlayerInfo,
+	val sender: PlayerCurrentInfo,
 	/**
 	 * 发送消息的服务器信息
 	 */

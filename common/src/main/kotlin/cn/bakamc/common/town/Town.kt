@@ -1,5 +1,6 @@
 package cn.bakamc.common.town
 
+import cn.bakamc.common.common.PlayerInfo
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedDeque
@@ -34,23 +35,23 @@ class Town(
 	/**
 	 * 镇长UUID
 	 */
-	val mayor: UUID,
+	val mayor: PlayerInfo,
 	/**
 	 * 创建时间
 	 */
-	val createTime: Long,
+	val createTime: Date,
 	/**
 	 * 管理员
 	 */
-	val administrators: ConcurrentLinkedDeque<UUID>,
+	val administrators: ConcurrentLinkedDeque<PlayerInfo>,
 	/**
 	 * 小镇成员
 	 */
-	val members: ConcurrentLinkedDeque<UUID>,
+	val members: ConcurrentLinkedDeque<PlayerInfo>,
 ) {
 
 	companion object {
-		val NONE get() = Town(0, "none", "", UUID(0L, 0L), 0, ConcurrentLinkedDeque(), ConcurrentLinkedDeque())
+		val NONE get() = Town(0, "none", "", PlayerInfo.NONE, Date(0), ConcurrentLinkedDeque(), ConcurrentLinkedDeque())
 	}
 
 	fun formatTime(format: String): String = SimpleDateFormat(format).format(createTime)

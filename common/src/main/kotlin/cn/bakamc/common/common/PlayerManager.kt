@@ -19,6 +19,6 @@ import java.util.concurrent.ConcurrentLinkedDeque
  */
 class PlayerManager {
 
-	private val players: Deque<PlayerInfo> = ConcurrentLinkedDeque()
+	private val players: Deque<PlayerCurrentInfo> = ConcurrentLinkedDeque()
 
 }

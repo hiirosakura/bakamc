@@ -1,30 +1,30 @@
-package cn.bakamc.riguru.websocketserver
+package cn.bakamc.riguru.chat
 
 import cn.bakamc.common.api.WSMessage
-import cn.bakamc.common.api.WSMessageType.CHAT_MESSAGE
-import cn.bakamc.common.api.WSMessageType.CONFIG
-import cn.bakamc.common.api.WSMessageType.REGISTRY_SERVER_INFO
-import cn.bakamc.common.api.WSMessageType.WHISPER_MESSAGE
+import cn.bakamc.common.api.WSMessageType.Chat.CHAT_MESSAGE
+import cn.bakamc.common.api.WSMessageType.Chat.CONFIG
+import cn.bakamc.common.api.WSMessageType.Chat.REGISTRY_SERVER_INFO
+import cn.bakamc.common.api.WSMessageType.Chat.WHISPER_MESSAGE
 import cn.bakamc.common.common.ServerInfo
 import cn.bakamc.common.utils.gson
-import cn.bakamc.common.utils.toJsonStr
 import cn.bakamc.riguru.config.ServerChatConfig
-import jakarta.websocket.OnClose
-import jakarta.websocket.OnMessage
-import jakarta.websocket.OnOpen
-import jakarta.websocket.Session
-import jakarta.websocket.server.PathParam
-import jakarta.websocket.server.ServerEndpoint
+import cn.bakamc.riguru.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
+import javax.websocket.OnClose
+import javax.websocket.OnMessage
+import javax.websocket.OnOpen
+import javax.websocket.Session
+import javax.websocket.server.PathParam
+import javax.websocket.server.ServerEndpoint
 
 /**
  * 聊天系统服务器
 
  * 项目名 bakamc
 
- * 包名 cn.bakamc.riguru.websocketserver
+ * 包名 cn.bakamc.riguru.chat
 
  * 文件名 ChatServer
 
@@ -88,12 +88,12 @@ class ChatServer {
 	}
 
 	private fun chatMessage(json: String, session: Session, id: String) {
-		broadcast(WSMessage(CHAT_MESSAGE, json))
+		sessions.values.broadcast(WSMessage(CHAT_MESSAGE, json))
 		log.info("[({})chat]{}", id, json)
 	}
 
 	private fun whisperMessage(json: String, session: Session, id: String) {
-		broadcast(WSMessage(WHISPER_MESSAGE, json))
+		sessions.values.broadcast(WSMessage(WHISPER_MESSAGE, json))
 		log.info("[({})chat]{}", id, json)
 	}
 
@@ -104,22 +104,6 @@ class ChatServer {
 		private val sessions = ConcurrentHashMap<String, Session>()
 
 		private val serverInfos = ConcurrentHashMap<String, ServerInfo>()
-
-		private fun broadcast(message: String) {
-			sessions.values.forEach { it.sendMessage(message) }
-		}
-		private fun broadcast(message: WSMessage) {
-			sessions.values.forEach { it.sendMessage(message) }
-		}
-
-		private fun Session.sendMessage(message: String) {
-			this.basicRemote.sendText(message)
-		}
-
-		private fun Session.sendMessage(message: WSMessage) {
-			sendMessage(message.toJsonStr())
-		}
-
 	}
 
 }

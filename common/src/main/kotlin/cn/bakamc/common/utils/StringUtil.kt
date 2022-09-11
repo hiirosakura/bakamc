@@ -65,3 +65,19 @@ fun String.replace(map: Map<String, String>): String {
 	}
 	return temp
 }
+
+fun String.replace(origin: Iterable<String>, new: String): String {
+	var temp: String = this
+	origin.forEach {
+		temp = temp.replace(it, new)
+	}
+	return temp
+}
+
+fun String.replace(origin: Array<String>, new: String): String {
+	var temp: String = this
+	origin.forEach {
+		temp = temp.replace(it, new)
+	}
+	return temp
+}

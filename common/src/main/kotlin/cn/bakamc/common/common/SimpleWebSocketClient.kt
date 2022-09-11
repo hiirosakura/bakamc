@@ -1,4 +1,4 @@
-package cn.bakamc.common.chat
+package cn.bakamc.common.common
 
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
@@ -9,16 +9,16 @@ import java.net.URI
 
  * 项目名 bakamc
 
- * 包名 cn.bakamc.common.chat
+ * 包名 cn.bakamc.common.common
 
- * 文件名 BakaChatWebSocketClient
+ * 文件名 SimpleWebSocketClient
 
  * 创建时间 2022/8/28 17:23
 
  * @author forpleuvoir
 
  */
-class BakaChatWebSocketClient(uri: String, var onMessage: (String) -> Unit) : WebSocketClient(URI.create(uri)) {
+class SimpleWebSocketClient(uri: String, var onMessage: (String) -> Unit) : WebSocketClient(URI.create(uri)) {
 
 	var onOpen: ((ServerHandshake) -> Unit)? = null
 

@@ -8,7 +8,7 @@ import cn.bakamc.common.chat.message.Message
 import cn.bakamc.common.chat.message.MessageType.Chat
 import cn.bakamc.common.chat.message.MessageType.Whisper
 import cn.bakamc.common.chat.message.PostMessage
-import cn.bakamc.common.common.PlayerInfo
+import cn.bakamc.common.common.PlayerCurrentInfo
 import cn.bakamc.common.common.ServerInfo
 import cn.bakamc.common.utils.toJsonStr
 import java.util.*
@@ -74,7 +74,7 @@ interface MessageHandler<T, P> {
 	fun sendChatMessage(player: P, message: String) {
 		postMessage(
 			WSMessage(
-				WSMessageType.CHAT_MESSAGE,
+				WSMessageType.Chat.CHAT_MESSAGE,
 				Message(Chat, player.info, serverInfo, "", message).toFinalMessage(player).toJsonStr()
 			)
 		)
@@ -89,7 +89,7 @@ interface MessageHandler<T, P> {
 	fun sendWhisperMessage(player: P, message: String, receiver: String) {
 		postMessage(
 			WSMessage(
-				WSMessageType.WHISPER_MESSAGE,
+				WSMessageType.Chat.WHISPER_MESSAGE,
 				Message(Whisper, player.info, serverInfo, receiver, message).toFinalMessage(player).toJsonStr()
 			)
 		)
@@ -161,27 +161,34 @@ interface MessageHandler<T, P> {
 	/**
 	 * 获取玩家信息
 	 */
-	val P.info: PlayerInfo
+	val P.info: PlayerCurrentInfo
 
 	/**
 	 * 将玩家转换为对应环境的Text
 	 */
-	val PlayerInfo.text: T
+	fun PlayerCurrentInfo.text(origin:String): T
 
 	/**
-	 * 将玩家转换为对应环境的Text 且以[PlayerInfo.displayName]为显示文本
+	 * 将玩家转换为对应环境的Text 且以[PlayerCurrentInfo.displayName]为显示文本
 	 */
-	val PlayerInfo.displayNameText: T
+	fun PlayerCurrentInfo.displayNameText(origin:String): T
 
 	/**
 	 * 将玩家小镇信息转换为对应环境的Text
 	 */
-	val PlayerInfo.townText: T
+	fun PlayerCurrentInfo.townNameText(origin:String): T
+
+	fun PlayerCurrentInfo.townShortNameText(origin:String): T
 
 	/**
 	 * 将服务器信息转换为对应环境的Text
 	 */
-	val ServerInfo.text: T
+	fun ServerInfo.text(origin:String): T
+
+	/**
+	 * 将服务器信息转换为对应环境的Text
+	 */
+	fun ServerInfo.idText(origin:String): T
 
 	/**
 	 * 获取当前服务器所有在线的玩家

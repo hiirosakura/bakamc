@@ -1,8 +1,6 @@
 package cn.bakamc.common.town
 
 import com.google.common.collect.ImmutableList
-import java.lang.Exception
-import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -33,48 +31,6 @@ abstract class TownManager {
 
 	operator fun get(townName: String): Town? = towns.values.findLast { it.name == townName }
 
-	fun getByMayor(mayorID: UUID): Town? = towns.values.findLast { it.mayor == mayorID }
-
-	fun <T> getMayor(townID: Int, converter: (UUID) -> T): T? {
-		return this[townID]?.mayor?.run(converter)
-	}
-
-	fun <T> getMayor(townName: String, converter: (UUID) -> T): T? {
-		return this[townName]?.mayor?.run(converter)
-	}
-
-	fun <T> getAdministrators(townID: Int, converter: (UUID) -> T): List<T> {
-		val list = ArrayList<T>()
-		this[townID]?.let { town ->
-			town.administrators.forEach { list.add(converter(it)) }
-		}
-		return list
-	}
-
-	fun <T> getAdministrators(townName: String, converter: (UUID) -> T): List<T> {
-		val list = ArrayList<T>()
-		this[townName]?.let { town ->
-			town.administrators.forEach { list.add(converter(it)) }
-		}
-		return list
-	}
-
-	fun <T> getMembers(townID: Int, converter: (UUID) -> T): List<T> {
-		val list = ArrayList<T>()
-		this[townID]?.let { town ->
-			town.members.forEach { list.add(converter(it)) }
-		}
-		return list
-	}
-
-	fun <T> getMembers(townName: String, converter: (UUID) -> T): List<T> {
-		val list = ArrayList<T>()
-		this[townName]?.let { town ->
-			town.members.forEach { list.add(converter(it)) }
-		}
-		return list
-	}
-
 	fun update(towns: List<Town>) {
 		this.towns.clear()
 		towns.forEach {
@@ -89,5 +45,5 @@ abstract class TownManager {
 	 * @param onSuccess Function0<Unit> 同步成功时
 	 * @param onException Function1<Exception, Unit> 同步失败时
 	 */
-	abstract fun syncData(onSuccess: () -> Unit, onException: (Exception) -> Unit)
+	abstract fun syncData(onSuccess: () -> Unit = {}, onException: (Exception) -> Unit = {})
 }

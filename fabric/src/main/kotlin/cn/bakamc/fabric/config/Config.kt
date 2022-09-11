@@ -30,7 +30,7 @@ object Config : LocalServerModConfig<MinecraftServer>(BakaMc.ID) {
 		val SERVER_ID = configString("server_id", "sur")
 
 		@JvmStatic
-		val SERVER_NAME = configString("server_name", "生存服")
+		val SERVER_NAME = configString("server_name", "§c生存服")
 
 		@JvmStatic
 		val DESCRIPTION = configStringList(

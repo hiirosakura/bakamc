@@ -2,7 +2,7 @@ package cn.bakamc.fabric.chat
 
 import cn.bakamc.common.chat.AbstractMessageHandler
 import cn.bakamc.common.chat.config.ChatConfig
-import cn.bakamc.common.common.PlayerInfo
+import cn.bakamc.common.common.PlayerCurrentInfo
 import cn.bakamc.common.common.ServerInfo
 import cn.bakamc.common.town.Town
 import cn.bakamc.common.utils.replace
@@ -33,7 +33,8 @@ import java.util.function.Consumer
  * @author forpleuvoir
 
  */
-class FabricMessageHandler(config: ChatConfig, private val server: MinecraftServer) : AbstractMessageHandler<MutableText, ServerPlayerEntity>(config) {
+class FabricMessageHandler(config: ChatConfig, private val server: MinecraftServer) :
+	AbstractMessageHandler<MutableText, ServerPlayerEntity>(config) {
 
 	companion object {
 		@JvmStatic
@@ -98,66 +99,68 @@ class FabricMessageHandler(config: ChatConfig, private val server: MinecraftServ
 	override val String.text: MutableText
 		get() = LiteralText(this)
 
-	override val PlayerInfo.text: MutableText
-		get() {
-			val text = this.name.text
-			val hoverText = "".text
-			riguruChatConfig.playerInfoHover.placeholderHandler(this).forEach { hoverText.append(it.text) }
-			val command = riguruChatConfig.playerInfoClickCommand.replace(this.placeholder)
-			text.styled {
-				var style = it
-				style = style.withHoverEvent(HoverEvent((Action.SHOW_TEXT), hoverText))
-				style = style.withClickEvent(ClickEvent(SUGGEST_COMMAND, command))
-				style
-			}
-			return text
-		}
+	override fun PlayerCurrentInfo.text(origin: String): MutableText {
+		val text = origin.replace("playerName", this.name).text
+		val hoverText = "".text
+		riguruChatConfig.playerInfoHover.placeholderHandler(this).forEach { hoverText.append(it.text) }
+		val command = riguruChatConfig.playerInfoClickCommand.replace(this.placeholder)
+		return displayText(text, hoverText, command)
+	}
 
-	override val ServerInfo.text: MutableText
-		get() {
-			val text = this.serverName.text
-			val hoverText = "".text
-			this.description.placeholderHandler(this).forEach { hoverText.append(it.text) }
-			val command = riguruChatConfig.serverInfoClickCommand.replace(this.placeholder)
-			text.styled {
-				var style = it
-				style = style.withHoverEvent(HoverEvent((Action.SHOW_TEXT), hoverText))
-				style = style.withClickEvent(ClickEvent(SUGGEST_COMMAND, command))
-				style
-			}
-			return text
-		}
+	override fun ServerInfo.text(origin: String): MutableText {
+		val text = origin.replace("serverName", this.serverName).text
+		val hoverText = "".text
+		this.description.placeholderHandler(this).forEach { hoverText.append(it.text) }
+		val command = riguruChatConfig.serverInfoClickCommand.replace(this.placeholder)
+		return displayText(text, hoverText, command)
+	}
 
-	override val PlayerInfo.displayNameText: MutableText
-		get() {
-			val text = this.displayName.text
-			val hoverText = "".text
-			riguruChatConfig.playerInfoHover.placeholderHandler(this).forEach { hoverText.append(it.text) }
-			val command = riguruChatConfig.playerInfoClickCommand.replace(this.placeholder)
-			text.styled {
-				var style = it
-				style = style.withHoverEvent(HoverEvent((Action.SHOW_TEXT), hoverText))
-				style = style.withClickEvent(ClickEvent(SUGGEST_COMMAND, command))
-				style
-			}
-			return text
-		}
+	override fun ServerInfo.idText(origin: String): MutableText {
+		val text = origin.replace("serverID", this.serverID).text
+		val hoverText = "".text
+		this.description.placeholderHandler(this).forEach { hoverText.append(it.text) }
+		val command = riguruChatConfig.serverInfoClickCommand.replace(this.placeholder)
+		return displayText(text, hoverText, command)
+	}
 
-	override val PlayerInfo.townText: MutableText
-		get() {
-			val town = town.shortName
-			return town.text
+	override fun PlayerCurrentInfo.displayNameText(origin: String): MutableText {
+		val text = origin.replace("playerDisplayName", this.displayName).text
+		val hoverText = "".text
+		riguruChatConfig.playerInfoHover.placeholderHandler(this).forEach { hoverText.append(it.text) }
+		val command = riguruChatConfig.playerInfoClickCommand.replace(this.placeholder)
+		return displayText(text, hoverText, command)
+	}
+
+	override fun PlayerCurrentInfo.townNameText(origin: String): MutableText {
+		val town = town.name
+		return if (town.isNotEmpty()) origin.replace("townName", town).text else "".text
+	}
+
+	override fun PlayerCurrentInfo.townShortNameText(origin: String): MutableText {
+		val town = town.shortName
+		return if (town.isNotEmpty()) origin.replace("townShortName", town).text else "".text
+	}
+
+
+	private fun displayText(display: MutableText, hoverText: MutableText, command: String): MutableText {
+		display.styled {
+			var style = it
+			style = style.withHoverEvent(HoverEvent((Action.SHOW_TEXT), hoverText))
+			style = style.withClickEvent(ClickEvent(SUGGEST_COMMAND, command))
+			style
 		}
+		return display
+	}
 
 	override val players: Iterable<ServerPlayerEntity>
 		get() = server.playerManager.playerList
 
-	override val ServerPlayerEntity.info: PlayerInfo
+	override val ServerPlayerEntity.info: PlayerCurrentInfo
 		get() {
-			return PlayerInfo(
-				name.string,
-				displayName.string,
+			return PlayerCurrentInfo(
 				uuid,
+				displayName.string,
+				name.string,
 				Town.NONE,
 				experienceLevel,
 				totalExperience,
