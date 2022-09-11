@@ -1,6 +1,8 @@
 server:
   port: 3499
 spring:
+  main:
+    web-application-type: servlet
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${DATABASE_HOST}/riguru?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
@@ -8,9 +10,9 @@ spring:
     password: ${DATABASE_PASS}
 bakamc:
   chat:
-    chatFormat: "§6[§r%server%§6][§r(%town%)%playerName%§6]§r : %message%"
-    whisperSenderFormat: "§7你悄悄对§6[§r%§7receiver%§6]§7说§r : %message%"
-    whisperReceiverFormat: "§6[§r%server%§6][§r(%town%)%player%§6]§7悄悄对你说§r : %message%"
+    chatFormat: "#{§6[§rserverName§6]}#{§6[§rtownShortName§6]}#{§6[§r§bplayerName§6]}§b:§r #{message}"
+    whisperSenderFormat: "§7你悄悄对#{§6[§r§7receiver§6]}§7说§b:§r #{message}"
+    whisperReceiverFormat: "#{§6[§rserverName§6]}#{§6[§rtown§6]}#{§6[§r§bplayerName§6]}§7悄悄对你说§b:§r #{message}"
     atFormat: "§b%at%§r"
     playerInfoHover:
       - "玩家名称 : %name%\n"
@@ -26,27 +28,27 @@ bakamc:
     serverInfoClickCommand: "/server %serverID%"
     #只会替换原始消息文本
     messageMapping:
-      "&0": "§0"
-      "&1": "§1"
-      "&2": "§2"
-      "&3": "§3"
-      "&4": "§4"
-      "&5": "§5"
-      "&6": "§6"
-      "&7": "§7"
-      "&8": "§8"
-      "&9": "§9"
-      "&a": "§a"
-      "&b": "§b"
-      "&c": "§c"
-      "&d": "§d"
-      "&e": "§e"
-      "&f": "§f"
-      "&g": "§g"
-      "&h": "§h"
-      "&u": "§u"
-      "&l": "§l"
-      "&o": "§o"
-      "&m": "§m"
-      "&k": "§k"
-      "&r": "§r"
+      "[&0]": "§0"
+      "[&1]": "§1"
+      "[&2]": "§2"
+      "[&3]": "§3"
+      "[&4]": "§4"
+      "[&5]": "§5"
+      "[&6]": "§6"
+      "[&7]": "§7"
+      "[&8]": "§8"
+      "[&9]": "§9"
+      "[&a]": "§a"
+      "[&b]": "§b"
+      "[&c]": "§c"
+      "[&d]": "§d"
+      "[&e]": "§e"
+      "[&f]": "§f"
+      "[&g]": "§g"
+      "[&h]": "§h"
+      "[&u]": "§u"
+      "[&l]": "§l"
+      "[&o]": "§o"
+      "[&m]": "§m"
+      "[&k]": "§k"
+      "[&r]": "§r"
