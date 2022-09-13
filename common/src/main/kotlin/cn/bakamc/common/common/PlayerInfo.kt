@@ -34,6 +34,8 @@ open class PlayerInfo(
 		return "PlayerInfo(uuid=$uuid, name='$name', displayName='$displayName')"
 	}
 
+	fun uuid(): String = uuid.toString()
+
 	companion object {
 		val NONE get() = PlayerInfo(UUID(0, 0), "", "")
 	}

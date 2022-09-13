@@ -33,31 +33,31 @@ class Town(
 	 */
 	val shortName: String,
 	/**
-	 * 镇长UUID
-	 */
-	val mayor: PlayerInfo,
-	/**
 	 * 创建时间
 	 */
 	val createTime: Date,
 	/**
+	 * 镇长
+	 */
+	val mayor: ConcurrentLinkedDeque<PlayerInfo>,
+	/**
 	 * 管理员
 	 */
-	val administrators: ConcurrentLinkedDeque<PlayerInfo>,
+	val admin: ConcurrentLinkedDeque<PlayerInfo>,
 	/**
 	 * 小镇成员
 	 */
-	val members: ConcurrentLinkedDeque<PlayerInfo>,
+	val member: ConcurrentLinkedDeque<PlayerInfo>,
 ) {
 
 	companion object {
-		val NONE get() = Town(0, "none", "", PlayerInfo.NONE, Date(0), ConcurrentLinkedDeque(), ConcurrentLinkedDeque())
+		val NONE get() = Town(0, "none", "", Date(0), ConcurrentLinkedDeque(), ConcurrentLinkedDeque(), ConcurrentLinkedDeque())
 	}
 
 	fun formatTime(format: String): String = SimpleDateFormat(format).format(createTime)
 
 	override fun toString(): String {
-		return "Town(id=$id, name='$name', shortName='$shortName', mayor=$mayor, createTime=$createTime, administrators=$administrators, members=$members)"
+		return "Town(id=$id, name='$name', shortName='$shortName', createTime=${formatTime("yyyy-MM-dd HH:mm:ss")}, mayor=${mayor.map { it.name }}, admin=${admin.map { it.name }}, member=${member.map { it.name }})"
 	}
 
 

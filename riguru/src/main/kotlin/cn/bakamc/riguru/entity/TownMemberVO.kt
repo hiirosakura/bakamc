@@ -1,6 +1,5 @@
 package cn.bakamc.riguru.entity
 
-import com.baomidou.mybatisplus.annotation.IdType
 import com.baomidou.mybatisplus.annotation.TableField
 import com.baomidou.mybatisplus.annotation.TableId
 import com.baomidou.mybatisplus.annotation.TableName
@@ -20,16 +19,16 @@ import java.util.*
  * @author forpleuvoir
 
  */
-@TableName("town")
+@TableName("town_member")
 class TownMemberVO {
 
-	@TableId(type = IdType.AUTO, value = "player_id")
-	var playerID: Int? = null
+	@TableId("player_id")
+	var playerID: String? = null
 
 	@TableField("town_id")
 	var townId: Int? = null
 
-	@TableField("role")
+	@TableField("role_id")
 	var role: TownRole? = null
 
 }

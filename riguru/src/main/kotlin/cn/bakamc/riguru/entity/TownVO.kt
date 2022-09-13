@@ -32,9 +32,6 @@ class TownVO {
 	@TableField("short_name")
 	var shortName: String? = null
 
-	@TableField("major_id")
-	var majorID: Int? = null
-
 	@TableField("create_time")
 	var createTime: Date? = null
 
@@ -42,7 +39,6 @@ class TownVO {
 		this.id = null
 		if (this.name == null) throw DataFormatException("小镇名不能为空")
 		if (this.shortName == null) throw DataFormatException("小镇短名不能为空")
-		if (this.majorID == null) throw DataFormatException("小镇镇长不能为空")
 		if (this.createTime == null) throw DataFormatException("小镇创建时间不能为空")
 		return this
 	}

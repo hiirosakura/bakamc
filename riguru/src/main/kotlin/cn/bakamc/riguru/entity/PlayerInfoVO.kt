@@ -1,7 +1,6 @@
 package cn.bakamc.riguru.entity
 
 import cn.bakamc.common.common.PlayerInfo
-import com.baomidou.mybatisplus.annotation.IdType
 import com.baomidou.mybatisplus.annotation.TableField
 import com.baomidou.mybatisplus.annotation.TableId
 import com.baomidou.mybatisplus.annotation.TableName
@@ -23,16 +22,11 @@ import java.util.*
  */
 @TableName("player")
 class PlayerInfoVO {
-	/**
-	 * 主键 只是作为索引
-	 */
-	@TableId(type = IdType.AUTO, value = "id")
-	var id: Int? = null
 
 	/**
 	 * 玩家uuid
 	 */
-	@TableField("uuid")
+	@TableId("uuid")
 	var uuid: String? = null
 
 	/**
