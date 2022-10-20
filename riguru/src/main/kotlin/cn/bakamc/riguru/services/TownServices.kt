@@ -4,6 +4,7 @@ import cn.bakamc.common.common.PlayerInfo
 import cn.bakamc.common.town.Town
 import cn.bakamc.common.town.TownApplication
 import cn.bakamc.riguru.entity.PlayerInfoVO
+import cn.bakamc.riguru.entity.TownApplicationVO
 import cn.bakamc.riguru.entity.TownApplicationVO.Companion.toVO
 import cn.bakamc.riguru.entity.TownMemberVO
 import cn.bakamc.riguru.entity.TownRole
@@ -39,6 +40,10 @@ class TownServices(
 	@Autowired val townApplicationMapper: TownApplicationMapper
 ) {
 
+	/**
+	 * 获取所有小镇
+	 * @return Map<Int, Town> 小镇ID:小镇对象
+	 */
 	fun getAll(): Map<Int, Town> {
 		val townVOs = townMapper.selectList(null)
 		return buildMap {
@@ -118,9 +123,20 @@ class TownServices(
 	 * 批准加入小镇的申请
 	 * @param application TownApplication
 	 */
-	fun approveApplication(application: TownApplication):Boolean{
-		val isInTown = isInTown(application.applicant)
-		if (isInTown.first) return false
-
+	fun approveApplication(application: TownApplication): Boolean {
+		townApplicationMapper.selectById(application.id) ?: return false
+		val returnValue = join(application.town, application.applicant)
+		if (returnValue) townApplicationMapper.deleteById(application.id)
+		return returnValue
 	}
+
+	/**
+	 * 获取对应小镇的申请列表
+	 * @param town Town
+	 * @return [List]<[TownApplication]>
+	 */
+	fun applicationList(town: Town):List<TownApplication>{
+		TODO("查询该小镇的所有申请")
+	}
+
 }
