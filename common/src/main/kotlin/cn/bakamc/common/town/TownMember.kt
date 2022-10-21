@@ -20,4 +20,8 @@ class TownMember(
 	val playerInfo: PlayerInfo,
 	val townID: Int,
 	val role: String
-)
+){
+	override fun toString(): String {
+		return "TownMember(playerInfo=$playerInfo, townID=$townID, role='$role')"
+	}
+}
