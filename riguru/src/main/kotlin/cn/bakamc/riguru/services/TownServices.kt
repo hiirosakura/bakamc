@@ -3,13 +3,15 @@ package cn.bakamc.riguru.services
 import cn.bakamc.common.common.PlayerInfo
 import cn.bakamc.common.town.Town
 import cn.bakamc.common.town.TownApplication
+import cn.bakamc.common.town.TownMember
 import cn.bakamc.riguru.entity.PlayerInfoVO
-import cn.bakamc.riguru.entity.TownApplicationVO
 import cn.bakamc.riguru.entity.TownApplicationVO.Companion.toVO
 import cn.bakamc.riguru.entity.TownMemberVO
+import cn.bakamc.riguru.entity.TownMemberVO.Companion.roleVO
 import cn.bakamc.riguru.entity.TownRole
 import cn.bakamc.riguru.mapper.PlayerInfoMapper
 import cn.bakamc.riguru.mapper.TownApplicationMapper
+import cn.bakamc.riguru.mapper.TownApplicationMapper.Companion.listOfTownIdAsVO
 import cn.bakamc.riguru.mapper.TownMapper
 import cn.bakamc.riguru.mapper.TownMemberMapper
 import cn.bakamc.riguru.mapper.TownMemberMapper.Companion.getAllByTownIDAsVO
@@ -50,13 +52,13 @@ class TownServices(
 			townVOs.forEach { townVOs ->
 				val allMembers = townMemberMapper.getAllByTownIDAsVO(townVOs.id!!)
 				val members = allMembers.map {
-					it.first.playerInfo
+					it.playerInfo
 				}
-				val major = allMembers.filter { it.second == TownRole.Major }.map {
-					it.first.playerInfo
+				val major = allMembers.filter { it.roleVO == TownRole.Major }.map {
+					it.playerInfo
 				}
-				val admins = allMembers.filter { it.second == TownRole.Admin }.map {
-					it.first.playerInfo
+				val admins = allMembers.filter { it.roleVO == TownRole.Admin }.map {
+					it.playerInfo
 				}
 				this[townVOs.id!!] = Town(
 					id = townVOs.id!!,
@@ -92,13 +94,13 @@ class TownServices(
 	 * @param joiner [PlayerInfo] 加入者的信息
 	 * @return [Boolean] 是否成功
 	 */
-	fun join(town: Town, joiner: PlayerInfo): Boolean {
+	fun join(townID: Int, joiner: PlayerInfo): Boolean {
 		val isInTown = isInTown(joiner)
 		if (isInTown.first) return false
 		val memberVO: TownMemberVO? = isInTown.second
 		val member = TownMemberVO().apply {
 			playerID = joiner.uuid()
-			townId = town.id
+			townId = townID
 			role = TownRole.Member
 		}
 		val result = if (memberVO == null) townMemberMapper.insert(member)
@@ -115,7 +117,7 @@ class TownServices(
 	fun application(application: TownApplication): Boolean {
 		val isInTown = isInTown(application.applicant)
 		if (isInTown.first) return false
-		val result = townApplicationMapper.insert(application.toVO())
+		val result = townApplicationMapper.insert(application.toVO(true))
 		return result == 1
 	}
 
@@ -125,18 +127,26 @@ class TownServices(
 	 */
 	fun approveApplication(application: TownApplication): Boolean {
 		townApplicationMapper.selectById(application.id) ?: return false
-		val returnValue = join(application.town, application.applicant)
+		val returnValue = join(application.townID, application.applicant)
 		if (returnValue) townApplicationMapper.deleteById(application.id)
 		return returnValue
 	}
 
 	/**
 	 * 获取对应小镇的申请列表
-	 * @param town Town
+	 * @param townID [Int]
 	 * @return [List]<[TownApplication]>
 	 */
-	fun applicationList(town: Town):List<TownApplication>{
-		TODO("查询该小镇的所有申请")
+	fun applicationList(townID: Int): List<TownApplication> {
+		return townApplicationMapper.listOfTownIdAsVO(townID)
 	}
 
+	/**
+	 * 获取对应小镇的所有成员
+	 * @param townID [Int]
+	 * @return [List]<[PlayerInfo]>
+	 */
+	fun members(townID: Int): List<TownMember> {
+		return townMemberMapper.getAllByTownIDAsVO(townID)
+	}
 }

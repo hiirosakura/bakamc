@@ -30,5 +30,9 @@ enum class TownRole(
 		fun ofCode(code: Int): TownRole {
 			return values().first { code == it.code }
 		}
+
+		fun ofDescription(description: String): TownRole {
+			return values().first { description == it.description }
+		}
 	}
 }

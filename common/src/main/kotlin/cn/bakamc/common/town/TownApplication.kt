@@ -18,14 +18,14 @@ import java.util.*
 
  */
 class TownApplication(
-	val id: Int,
-	val town: Town,
+	val id: Int = 0,
+	val townID: Int,
 	val applicant: PlayerInfo,
 	val message: String,
 	val applicationTime: Date
 ) {
 
 	override fun toString(): String {
-		return "TownApplication(id=$id, townID=${town.name}, applicant=${applicant.name}, message='$message', applicationTime=$applicationTime)"
+		return "TownApplication(id=$id, town_id=${townID}, applicant=${applicant.name}, message='$message', applicationTime=$applicationTime)"
 	}
 }

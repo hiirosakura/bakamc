@@ -43,8 +43,9 @@ class TownApplicationVO {
 	var applicationTime: Date? = null
 
 	companion object {
-		fun TownApplication.toVO(): TownApplicationVO = TownApplicationVO().apply {
-			this@apply.townID = this@toVO.town.id
+		fun TownApplication.toVO(asNewData: Boolean = false): TownApplicationVO = TownApplicationVO().apply {
+			this@apply.id = if (asNewData) null else this@toVO.id
+			this@apply.townID = this@toVO.townID
 			this@apply.applicantID = this@toVO.applicant.uuid()
 			this@apply.message = this@toVO.message
 			this@apply.applicationTime = this@toVO.applicationTime

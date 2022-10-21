@@ -1,5 +1,6 @@
 package cn.bakamc.riguru.entity
 
+import cn.bakamc.common.town.TownMember
 import com.baomidou.mybatisplus.annotation.TableField
 import com.baomidou.mybatisplus.annotation.TableId
 import com.baomidou.mybatisplus.annotation.TableName
@@ -30,5 +31,9 @@ class TownMemberVO {
 
 	@TableField("role_id")
 	var role: TownRole? = null
+
+	companion object {
+		val TownMember.roleVO get() = TownRole.ofDescription(this.role)
+	}
 
 }

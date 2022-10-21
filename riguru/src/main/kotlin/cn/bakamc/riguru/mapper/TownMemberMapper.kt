@@ -1,6 +1,7 @@
 package cn.bakamc.riguru.mapper
 
-import cn.bakamc.riguru.entity.PlayerInfoVO
+import cn.bakamc.common.common.PlayerInfo
+import cn.bakamc.common.town.TownMember
 import cn.bakamc.riguru.entity.TownMemberVO
 import cn.bakamc.riguru.entity.TownRole
 import com.baomidou.mybatisplus.core.mapper.BaseMapper
@@ -32,15 +33,15 @@ interface TownMemberMapper : BaseMapper<TownMemberVO> {
 	 * 默认方法写在伴生对象里，不会被注入
 	 */
 	companion object {
-		fun TownMemberMapper.getAllByTownIDAsVO(townID: Int): List<Pair<PlayerInfoVO, TownRole>> {
+		fun TownMemberMapper.getAllByTownIDAsVO(townID: Int): List<TownMember> {
 			return getAllByTownID(townID).map {
-				val playerInfo = PlayerInfoVO().apply {
-					this.uuid = it["uuid"] as String
-					this.name = it["name"] as String
-					this.displayName = it["display_name"] as String
-				}
+				val playerInfo = PlayerInfo(
+					uuid = UUID.fromString(it["uuid"] as String),
+					name = it["name"] as String,
+					displayName = it["display_name"] as String
+				)
 				val role = TownRole.ofCode(it["role_id"] as Int)
-				playerInfo to role
+				TownMember(playerInfo, townID, role.description)
 			}
 		}
 

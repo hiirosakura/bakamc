@@ -31,9 +31,7 @@ class ServicesTest {
 
 	@Test
 	fun test() {
-		townServices.getAll().forEach {
-			println(it.value)
-		}
+		townServices.members(1)
 	}
 
 	@Test
