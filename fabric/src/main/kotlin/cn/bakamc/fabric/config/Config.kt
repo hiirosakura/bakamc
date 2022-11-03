@@ -3,6 +3,7 @@ package cn.bakamc.fabric.config
 import cn.bakamc.common.chat.config.ChatConfig
 import cn.bakamc.common.config.modconfig.impl.ConfigCategoryImpl
 import cn.bakamc.common.config.modconfig.impl.LocalServerModConfig
+import cn.bakamc.common.town.config.TownConfig
 import cn.bakamc.fabric.BakaMc
 import net.minecraft.server.MinecraftServer
 import java.io.File
@@ -61,6 +62,14 @@ object Config : LocalServerModConfig<MinecraftServer>(BakaMc.ID) {
 		override fun reload() {
 			Config.loadAsync()
 		}
+	}
+
+	object Town : ConfigCategoryImpl("town", this), TownConfig {
+		@JvmStatic
+		val RIGURU_ADDRESS = configString("riguru_address", "ws://127.0.0.1:3499")
+
+		override val riguruAddress: String
+			get() = RIGURU_ADDRESS.getValue()
 	}
 
 	override fun localConfigPath(): Path {

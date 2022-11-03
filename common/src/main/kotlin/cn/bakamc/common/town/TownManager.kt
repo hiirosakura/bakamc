@@ -1,5 +1,7 @@
 package cn.bakamc.common.town
 
+import cn.bakamc.common.common.SimpleWebSocketClient
+import cn.bakamc.common.town.config.TownConfig
 import com.google.common.collect.ImmutableList
 import java.util.concurrent.ConcurrentHashMap
 
@@ -21,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap
  * @author forpleuvoir
 
  */
-abstract class TownManager {
+abstract class TownManager(val config: TownConfig) {
 
 	protected val towns: MutableMap<Int, Town> = ConcurrentHashMap()
 
@@ -39,6 +41,19 @@ abstract class TownManager {
 	}
 
 	fun getAll(): List<Town> = ImmutableList.copyOf(towns.values)
+
+	protected val webSocketClient = SimpleWebSocketClient("${config.riguruAddress}/town", ::onMessage)
+
+	fun connect() {
+		webSocketClient.connect()
+	}
+
+	fun reconnect() = webSocketClient.reconnect()
+
+	fun close() = webSocketClient.close()
+	fun onMessage(message: String) {
+
+	}
 
 	/**
 	 * 应该是个异步方法

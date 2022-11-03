@@ -54,10 +54,10 @@ class Town(
 		val NONE get() = Town(0, "none", "", Date(0), ConcurrentLinkedDeque(), ConcurrentLinkedDeque(), ConcurrentLinkedDeque())
 	}
 
-	fun formatTime(format: String): String = SimpleDateFormat(format).format(createTime)
+	fun formatTime(format: String = "yyyy-MM-dd HH:mm:ss"): String = SimpleDateFormat(format).format(createTime)
 
 	override fun toString(): String {
-		return "Town(id=$id, name='$name', shortName='$shortName', createTime=${formatTime("yyyy-MM-dd HH:mm:ss")}, mayor=${mayor.map { it.name }}, admin=${admin.map { it.name }}, member=${member.map { it.name }})"
+		return "Town(id=$id, name='$name', shortName='$shortName', createTime=${formatTime()}, mayor=${mayor.map { it.name }}, admin=${admin.map { it.name }}, member=${member.map { it.name }})"
 	}
 
 

@@ -7,6 +7,7 @@ import cn.bakamc.common.api.WSMessageType.Chat.REGISTRY_SERVER_INFO
 import cn.bakamc.common.api.WSMessageType.Chat.WHISPER_MESSAGE
 import cn.bakamc.common.common.ServerInfo
 import cn.bakamc.common.utils.gson
+import cn.bakamc.common.utils.toJsonStr
 import cn.bakamc.riguru.config.ServerChatConfig
 import cn.bakamc.riguru.util.*
 import org.slf4j.LoggerFactory
@@ -69,6 +70,7 @@ class ChatServer {
 					REGISTRY_SERVER_INFO -> registryServerInfo(data, session, id)
 					CHAT_MESSAGE         -> chatMessage(data, session, id)
 					WHISPER_MESSAGE      -> whisperMessage(data, session, id)
+					else                 -> log.error("[${message}]无法理解的消息格式")
 				}
 			}
 		} catch (e: Exception) {
