@@ -18,9 +18,9 @@ object WSMessageType {
 
 	object Chat {
 		/**
-		 * 用于获取配置
+		 * 用于获取聊天配置
 		 */
-		const val CONFIG = "config"
+		const val CHAT_CONFIG = "chat_config"
 
 		/**
 		 * 注册服务器信息
@@ -40,9 +40,9 @@ object WSMessageType {
 
 	object Town {
 		/**
-		 * 同步数据
+		 * 同步所有小镇数据
 		 */
-		const val SYNC_DATA = "sync_data"
+		const val TOWN_SYNC_ALL_DATA = "town_sync_all_data"
 	}
 
 

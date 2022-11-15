@@ -1,7 +1,6 @@
 package cn.bakamc.riguru.config
 
-import cn.bakamc.common.chat.config.RiguruChatConfig
-import com.google.gson.JsonElement
+import cn.bakamc.common.chat.config.ChatConfig
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 /**
@@ -19,7 +18,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 
  */
 @ConfigurationProperties(prefix = "bakamc.chat")
-object ServerChatConfig : RiguruChatConfig {
+object ServerChatConfig : ChatConfig {
 	override lateinit var chatFormat: String
 	override lateinit var whisperSenderFormat: String
 	override lateinit var whisperReceiverFormat: String

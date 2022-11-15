@@ -1,9 +1,9 @@
 package cn.bakamc.fabric.chat
 
 import cn.bakamc.common.chat.AbstractMessageHandler
-import cn.bakamc.common.chat.config.ChatConfig
 import cn.bakamc.common.common.PlayerCurrentInfo
 import cn.bakamc.common.common.ServerInfo
+import cn.bakamc.common.config.common.ServerConfig
 import cn.bakamc.common.town.Town
 import cn.bakamc.common.utils.replace
 import cn.bakamc.fabric.config.Config
@@ -33,7 +33,7 @@ import java.util.function.Consumer
  * @author forpleuvoir
 
  */
-class FabricMessageHandler(config: ChatConfig, private val server: MinecraftServer) :
+class FabricMessageHandler(config: ServerConfig, private val server: MinecraftServer) :
 	AbstractMessageHandler<MutableText, ServerPlayerEntity>(config) {
 
 	companion object {
@@ -50,7 +50,7 @@ class FabricMessageHandler(config: ChatConfig, private val server: MinecraftServ
 
 		@JvmStatic
 		fun init(server: MinecraftServer): FabricMessageHandler {
-			INSTANCE = FabricMessageHandler(Config.Chat, server)
+			INSTANCE = FabricMessageHandler(Config.Server, server)
 			INSTANCE.connect()
 			return INSTANCE
 		}
@@ -102,8 +102,8 @@ class FabricMessageHandler(config: ChatConfig, private val server: MinecraftServ
 	override fun PlayerCurrentInfo.text(origin: String): MutableText {
 		val text = origin.replace("playerName", this.name).text
 		val hoverText = "".text
-		riguruChatConfig.playerInfoHover.placeholderHandler(this).forEach { hoverText.append(it.text) }
-		val command = riguruChatConfig.playerInfoClickCommand.replace(this.placeholder)
+		chatConfig.playerInfoHover.placeholderHandler(this).forEach { hoverText.append(it.text) }
+		val command = chatConfig.playerInfoClickCommand.replace(this.placeholder)
 		return displayText(text, hoverText, command)
 	}
 
@@ -111,7 +111,7 @@ class FabricMessageHandler(config: ChatConfig, private val server: MinecraftServ
 		val text = origin.replace("serverName", this.serverName).text
 		val hoverText = "".text
 		this.description.placeholderHandler(this).forEach { hoverText.append(it.text) }
-		val command = riguruChatConfig.serverInfoClickCommand.replace(this.placeholder)
+		val command = chatConfig.serverInfoClickCommand.replace(this.placeholder)
 		return displayText(text, hoverText, command)
 	}
 
@@ -119,15 +119,15 @@ class FabricMessageHandler(config: ChatConfig, private val server: MinecraftServ
 		val text = origin.replace("serverID", this.serverID).text
 		val hoverText = "".text
 		this.description.placeholderHandler(this).forEach { hoverText.append(it.text) }
-		val command = riguruChatConfig.serverInfoClickCommand.replace(this.placeholder)
+		val command = chatConfig.serverInfoClickCommand.replace(this.placeholder)
 		return displayText(text, hoverText, command)
 	}
 
 	override fun PlayerCurrentInfo.displayNameText(origin: String): MutableText {
 		val text = origin.replace("playerDisplayName", this.displayName).text
 		val hoverText = "".text
-		riguruChatConfig.playerInfoHover.placeholderHandler(this).forEach { hoverText.append(it.text) }
-		val command = riguruChatConfig.playerInfoClickCommand.replace(this.placeholder)
+		chatConfig.playerInfoHover.placeholderHandler(this).forEach { hoverText.append(it.text) }
+		val command = chatConfig.playerInfoClickCommand.replace(this.placeholder)
 		return displayText(text, hoverText, command)
 	}
 

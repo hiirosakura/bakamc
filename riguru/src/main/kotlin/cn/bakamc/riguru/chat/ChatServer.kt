@@ -1,13 +1,13 @@
 package cn.bakamc.riguru.chat
 
 import cn.bakamc.common.api.WSMessage
+import cn.bakamc.common.api.WSMessageType.Chat.CHAT_CONFIG
 import cn.bakamc.common.api.WSMessageType.Chat.CHAT_MESSAGE
-import cn.bakamc.common.api.WSMessageType.Chat.CONFIG
 import cn.bakamc.common.api.WSMessageType.Chat.REGISTRY_SERVER_INFO
 import cn.bakamc.common.api.WSMessageType.Chat.WHISPER_MESSAGE
+import cn.bakamc.common.api.parseToWSMessage
 import cn.bakamc.common.common.ServerInfo
 import cn.bakamc.common.utils.gson
-import cn.bakamc.common.utils.toJsonStr
 import cn.bakamc.riguru.config.ServerChatConfig
 import cn.bakamc.riguru.util.*
 import org.slf4j.LoggerFactory
@@ -63,23 +63,24 @@ class ChatServer {
 		@PathParam("server_id") id: String,
 	) {
 		val session = sessions[id]!!
-		try {
-			gson.fromJson(message, WSMessage::class.java).run {
+		message.parseToWSMessage(
+			wsMessage = {
 				when (type) {
-					CONFIG               -> getConfig(session)
+					CHAT_CONFIG -> getConfig(session)
 					REGISTRY_SERVER_INFO -> registryServerInfo(data, session, id)
-					CHAT_MESSAGE         -> chatMessage(data, session, id)
-					WHISPER_MESSAGE      -> whisperMessage(data, session, id)
-					else                 -> log.error("[${message}]无法理解的消息格式")
+					CHAT_MESSAGE -> chatMessage(data, session, id)
+					WHISPER_MESSAGE -> whisperMessage(data, session, id)
+					else -> log.error("[${message}]无法解析的消息格式")
 				}
+			},
+			onException = {
+				log.error("[${message}]无法解析的消息格式", it)
 			}
-		} catch (e: Exception) {
-			log.error("[${message}]无法理解的消息格式", e)
-		}
+		)
 	}
 
 	private fun getConfig(session: Session) {
-		session.sendMessage(WSMessage(CONFIG, ServerChatConfig.serialization.toString()))
+		session.sendMessage(WSMessage(CHAT_CONFIG, ServerChatConfig.serialization.toString()))
 	}
 
 	private fun registryServerInfo(json: String, session: Session, id: String) {

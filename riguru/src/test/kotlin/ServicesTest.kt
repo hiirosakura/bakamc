@@ -1,13 +1,8 @@
-import cn.bakamc.common.common.PlayerInfo
-import cn.bakamc.common.town.Town
-import cn.bakamc.common.town.TownApplication
 import cn.bakamc.riguru.RiguruApplication
 import cn.bakamc.riguru.services.TownServices
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import java.util.*
-import java.util.concurrent.ConcurrentLinkedDeque
 
 /**
  *
@@ -31,7 +26,7 @@ class ServicesTest {
 
 	@Test
 	fun test() {
-		townServices.members(1)
+		println(townServices.members(1))
 	}
 
 	@Test

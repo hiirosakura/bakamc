@@ -3,13 +3,13 @@ package cn.bakamc.common.chat
 import cn.bakamc.common.api.WSMessage
 import cn.bakamc.common.api.WSMessageType
 import cn.bakamc.common.chat.config.ChatConfig
-import cn.bakamc.common.chat.config.RiguruChatConfig
 import cn.bakamc.common.chat.message.Message
 import cn.bakamc.common.chat.message.MessageType.Chat
 import cn.bakamc.common.chat.message.MessageType.Whisper
 import cn.bakamc.common.chat.message.PostMessage
 import cn.bakamc.common.common.PlayerCurrentInfo
 import cn.bakamc.common.common.ServerInfo
+import cn.bakamc.common.config.common.ServerConfig
 import cn.bakamc.common.utils.toJsonStr
 import java.util.*
 
@@ -34,12 +34,12 @@ interface MessageHandler<T, P> {
 	/**
 	 * 配置
 	 */
-	val config: ChatConfig
+	val config: ServerConfig
 
 	/**
 	 * 从服务端获取的配置
 	 */
-	val riguruChatConfig: RiguruChatConfig
+	val chatConfig: ChatConfig
 
 	/**
 	 * 服务器信息

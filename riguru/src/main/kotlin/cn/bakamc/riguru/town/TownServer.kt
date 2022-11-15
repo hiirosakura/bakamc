@@ -1,8 +1,12 @@
 package cn.bakamc.riguru.town
 
-import cn.bakamc.common.town.TownManager
+import cn.bakamc.common.api.WSMessage
+import cn.bakamc.common.api.WSMessageType.Town.TOWN_SYNC_ALL_DATA
+import cn.bakamc.common.api.parseToWSMessage
+import cn.bakamc.common.utils.jsonArray
 import cn.bakamc.riguru.chat.ChatServer
 import cn.bakamc.riguru.services.TownServices
+import cn.bakamc.riguru.util.sendMessage
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -34,8 +38,6 @@ class TownServer(@Autowired val townServices: TownServices) {
 
 		private val log = LoggerFactory.getLogger(ChatServer::class.java)
 
-		private val manager = object : TownManager() { override fun syncData(onSuccess: () -> Unit, onException: (Exception) -> Unit) {} }
-
 		private val sessions: MutableList<Session> = ArrayList()
 
 	}
@@ -54,15 +56,24 @@ class TownServer(@Autowired val townServices: TownServices) {
 	}
 
 	@OnMessage
-	fun onMessage() {
-
+	fun onMessage(message: String, session: Session) {
+		message.parseToWSMessage(
+			wsMessage = {
+				when (type) {
+					TOWN_SYNC_ALL_DATA -> syncData(session)
+					else               -> log.error("[${message}]无法解析的消息格式")
+				}
+			},
+			onException = {
+				log.error("[${message}]无法解析的消息格式", it)
+			}
+		)
 	}
 
-	fun syncData(session: Session){
-
+	fun syncData(session: Session) {
+		val towns = townServices.getAll().values
+		session.sendMessage(WSMessage(TOWN_SYNC_ALL_DATA, jsonArray(towns).toString()))
 	}
-
-
 
 
 }

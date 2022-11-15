@@ -1,7 +1,10 @@
 package cn.bakamc.common.town
 
+import cn.bakamc.common.api.WSMessageType.Town.TOWN_SYNC_ALL_DATA
+import cn.bakamc.common.api.parseToWSMessage
 import cn.bakamc.common.common.SimpleWebSocketClient
-import cn.bakamc.common.town.config.TownConfig
+import cn.bakamc.common.config.common.ServerConfig
+import cn.bakamc.common.utils.parseToJsonArray
 import com.google.common.collect.ImmutableList
 import java.util.concurrent.ConcurrentHashMap
 
@@ -23,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap
  * @author forpleuvoir
 
  */
-abstract class TownManager(val config: TownConfig) {
+abstract class TownManager(val config: ServerConfig) {
 
 	protected val towns: MutableMap<Int, Town> = ConcurrentHashMap()
 
@@ -44,15 +47,19 @@ abstract class TownManager(val config: TownConfig) {
 
 	protected val webSocketClient = SimpleWebSocketClient("${config.riguruAddress}/town", ::onMessage)
 
-	fun connect() {
-		webSocketClient.connect()
-	}
+	fun connect() = webSocketClient.connect()
 
 	fun reconnect() = webSocketClient.reconnect()
 
 	fun close() = webSocketClient.close()
-	fun onMessage(message: String) {
 
+	protected fun onMessage(message: String) {
+		message.parseToWSMessage {
+			when (type) {
+				TOWN_SYNC_ALL_DATA -> update(data.parseToJsonArray.map { Town.deserialize(it) })
+
+			}
+		}
 	}
 
 	/**

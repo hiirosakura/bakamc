@@ -1,12 +1,11 @@
 package cn.bakamc.common.chat
 
 import cn.bakamc.common.api.WSMessage
+import cn.bakamc.common.api.WSMessageType.Chat.CHAT_CONFIG
 import cn.bakamc.common.api.WSMessageType.Chat.CHAT_MESSAGE
-import cn.bakamc.common.api.WSMessageType.Chat.CONFIG
 import cn.bakamc.common.api.WSMessageType.Chat.REGISTRY_SERVER_INFO
 import cn.bakamc.common.api.WSMessageType.Chat.WHISPER_MESSAGE
 import cn.bakamc.common.chat.config.ChatConfig
-import cn.bakamc.common.chat.config.RiguruChatConfig
 import cn.bakamc.common.chat.message.Message
 import cn.bakamc.common.chat.message.MessageType.Chat
 import cn.bakamc.common.chat.message.MessageType.Whisper
@@ -18,6 +17,7 @@ import cn.bakamc.common.chat.message.PostMessage.Companion.FINAL_TEXT
 import cn.bakamc.common.common.PlayerCurrentInfo
 import cn.bakamc.common.common.ServerInfo
 import cn.bakamc.common.common.SimpleWebSocketClient
+import cn.bakamc.common.config.common.ServerConfig
 import cn.bakamc.common.utils.*
 import java.math.RoundingMode.FLOOR
 import java.text.DecimalFormat
@@ -38,15 +38,15 @@ import java.util.*
 
  */
 abstract class AbstractMessageHandler<T, P>(
-	final override val config: ChatConfig
+	final override val config: ServerConfig
 ) : MessageHandler<T, P> {
 
 	protected val webSocketClient = SimpleWebSocketClient("${config.riguruAddress}/chat/${config.serverInfo.serverID}") {
 		try {
 			gson.fromJson(it, WSMessage::class.java).run {
 				when (type) {
-					CONFIG                        -> riguruChatConfig = RiguruChatConfig.deserialize(this.data.parseToJsonObject)
-					REGISTRY_SERVER_INFO          -> println(data)
+					CHAT_CONFIG          -> chatConfig = ChatConfig.deserialize(this.data.parseToJsonObject)
+					REGISTRY_SERVER_INFO -> println(data)
 					CHAT_MESSAGE, WHISPER_MESSAGE -> receivesMessage(gson.fromJson(data, PostMessage::class.java))
 				}
 			}
@@ -55,16 +55,16 @@ abstract class AbstractMessageHandler<T, P>(
 			e.printStackTrace()
 		}
 	}.apply {
-		onOpen = { postMessage(WSMessage(CONFIG, "")) }
+		onOpen = { postMessage(WSMessage(CHAT_CONFIG, "")) }
 	}
 
-	override lateinit var riguruChatConfig: RiguruChatConfig
+	override lateinit var chatConfig: ChatConfig
 
 	protected val messageHandlers: MutableList<(String, player: P) -> String> = mutableListOf(
 		//处理消息文本替换
-		{ msg, _ -> MessageUtil.handleFormat(msg, riguruChatConfig.messageMapping) },
+		{ msg, _ -> MessageUtil.handleFormat(msg, chatConfig.messageMapping) },
 		//处理@格式
-		{ msg, _ -> msg.replace(Regex("@.+?(?<=\\b)")) { riguruChatConfig.atFormat.replace("%at%", it.value) } },
+		{ msg, _ -> msg.replace(Regex("@.+?(?<=\\b)")) { chatConfig.atFormat.replace("%at%", it.value) } },
 		//处理之后将变为可直接反序列化为对应环境的Text的Json文本 最好是放在最后添加
 		::handleItemShow
 	)
@@ -112,11 +112,11 @@ abstract class AbstractMessageHandler<T, P>(
 		val data = buildMap {
 			when (type) {
 				Chat    ->
-					this[FINAL_TEXT] = parse(riguruChatConfig.chatFormat, formatHandlers).toJson()
+					this[FINAL_TEXT] = parse(chatConfig.chatFormat, formatHandlers).toJson()
 
 				Whisper -> {
-					this[FINAL_SENDER_TEXT] = parse(riguruChatConfig.whisperSenderFormat, formatHandlers).toJson()
-					this[FINAL_RECEIVER_TEXT] = parse(riguruChatConfig.whisperReceiverFormat, formatHandlers).toJson()
+					this[FINAL_SENDER_TEXT] = parse(chatConfig.whisperSenderFormat, formatHandlers).toJson()
+					this[FINAL_RECEIVER_TEXT] = parse(chatConfig.whisperReceiverFormat, formatHandlers).toJson()
 				}
 			}
 			this[AT_LIST] = getAtList()

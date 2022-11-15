@@ -1,5 +1,6 @@
 package cn.bakamc.common.utils
 
+import cn.bakamc.common.api.serialization.JsonSerializer
 import com.google.gson.*
 
 /**
@@ -69,12 +70,13 @@ fun jsonArray(elements: Iterable<Any>): JsonArray {
 	return JsonArray().apply {
 		for (element in elements) {
 			when (element) {
-				is Boolean     -> add(element)
-				is Number      -> add(element)
-				is String      -> add(element)
-				is Char        -> add(element)
-				is JsonElement -> add(element)
-				else           -> add(element.toJsonObject())
+				is Boolean        -> add(element)
+				is Number         -> add(element)
+				is String         -> add(element)
+				is Char           -> add(element)
+				is JsonElement    -> add(element)
+				is JsonSerializer -> add(element.serialization)
+				else              -> add(element.toJsonObject())
 			}
 		}
 	}

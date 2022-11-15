@@ -1,5 +1,8 @@
 package cn.bakamc.common.common
 
+import cn.bakamc.common.api.serialization.JsonSerializer
+import cn.bakamc.common.utils.jsonObject
+import com.google.gson.JsonElement
 import java.util.*
 
 /**
@@ -29,7 +32,18 @@ open class PlayerInfo(
 	 * 玩家显示名称
 	 */
 	open val displayName: String,
-) {
+) : JsonSerializer {
+	override val serialization: JsonElement
+		get() = jsonObject {
+			"uuid" at uuid.toString()
+			"name" at name
+			"display_name" at displayName
+		}
+
+	override fun deserialize(serializedObject: JsonElement) {
+		TODO("Not yet implemented")
+	}
+
 	override fun toString(): String {
 		return "PlayerInfo(uuid=$uuid, name='$name', displayName='$displayName')"
 	}
@@ -38,5 +52,15 @@ open class PlayerInfo(
 
 	companion object {
 		val NONE get() = PlayerInfo(UUID(0, 0), "", "")
+
+		fun deserialize(serializedObject: JsonElement): PlayerInfo {
+			serializedObject.asJsonObject.apply {
+				return PlayerInfo(
+					UUID.fromString(this["uuid"].asString),
+					this["name"].asString,
+					this["display_name"].asString
+				)
+			}
+		}
 	}
 }
