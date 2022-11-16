@@ -31,7 +31,7 @@ import java.util.function.Consumer
 
  */
 class FabricMessageHandler(config: ServerConfig, override val commonConfig: CommonConfig, override val server: MinecraftServer) :
-	AbstractMessageHandler<MutableText, ServerPlayerEntity, MinecraftServer>(config, FabricPlatform,commonConfig) {
+	AbstractMessageHandler<MutableText, ServerPlayerEntity, MinecraftServer>(config, FabricPlatform, commonConfig) {
 
 	companion object {
 		@JvmStatic
@@ -58,6 +58,9 @@ class FabricMessageHandler(config: ServerConfig, override val commonConfig: Comm
 			-2   -> this.offHandStack
 			-1   -> this.mainHandStack
 			else -> this.inventory.getStack(index)
+		}
+		if (item.isEmpty) {
+			return if (index == -2) "%i".text else if (index == -1) "%o".text else "%$index".text
 		}
 		return item.getHoverableText()
 	}
