@@ -18,16 +18,6 @@ object WSMessageType {
 
 	object Chat {
 		/**
-		 * 用于获取聊天配置
-		 */
-		const val CHAT_CONFIG = "chat_config"
-
-		/**
-		 * 注册服务器信息
-		 */
-		const val REGISTRY_SERVER_INFO = "registry_server_info"
-
-		/**
 		 * 聊天消息
 		 */
 		const val CHAT_MESSAGE = "chat_message"

@@ -45,7 +45,7 @@ abstract class TownManager(val config: ServerConfig) {
 
 	fun getAll(): List<Town> = ImmutableList.copyOf(towns.values)
 
-	protected val webSocketClient = SimpleWebSocketClient("${config.riguruAddress}/town", ::onMessage)
+	protected val webSocketClient = SimpleWebSocketClient("${config.riguruWebSocketAddress}/town", ::onMessage)
 
 	fun connect() = webSocketClient.connect()
 

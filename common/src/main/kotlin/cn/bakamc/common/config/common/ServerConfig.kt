@@ -4,6 +4,8 @@ import cn.bakamc.common.common.ServerInfo
 
 /**
  *
+ * 当前服务器终端配置
+ *
 
  * 项目名 bakamc
 
@@ -36,9 +38,14 @@ interface ServerConfig {
 	val serverInfo: ServerInfo get() = ServerInfo(serverId, serverName, description)
 
 	/**
-	 * riguru服务器地址
+	 * riguru WebSocket服务器地址
 	 */
-	val riguruAddress: String
+	val riguruWebSocketAddress: String
+
+	/**
+	 * riguru HTTP服务器地址
+	 */
+	val riguruHttpAddress: String
 
 	fun reload()
 }

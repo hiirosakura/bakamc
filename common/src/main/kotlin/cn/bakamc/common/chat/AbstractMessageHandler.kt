@@ -1,11 +1,8 @@
 package cn.bakamc.common.chat
 
 import cn.bakamc.common.api.WSMessage
-import cn.bakamc.common.api.WSMessageType.Chat.CHAT_CONFIG
 import cn.bakamc.common.api.WSMessageType.Chat.CHAT_MESSAGE
-import cn.bakamc.common.api.WSMessageType.Chat.REGISTRY_SERVER_INFO
 import cn.bakamc.common.api.WSMessageType.Chat.WHISPER_MESSAGE
-import cn.bakamc.common.chat.config.ChatConfig
 import cn.bakamc.common.chat.message.Message
 import cn.bakamc.common.chat.message.MessageType.Chat
 import cn.bakamc.common.chat.message.MessageType.Whisper
@@ -14,14 +11,14 @@ import cn.bakamc.common.chat.message.PostMessage.Companion.AT_LIST
 import cn.bakamc.common.chat.message.PostMessage.Companion.FINAL_RECEIVER_TEXT
 import cn.bakamc.common.chat.message.PostMessage.Companion.FINAL_SENDER_TEXT
 import cn.bakamc.common.chat.message.PostMessage.Companion.FINAL_TEXT
-import cn.bakamc.common.common.PlayerCurrentInfo
-import cn.bakamc.common.common.ServerInfo
+import cn.bakamc.common.common.MultiPlatform
 import cn.bakamc.common.common.SimpleWebSocketClient
+import cn.bakamc.common.config.common.CommonConfig
 import cn.bakamc.common.config.common.ServerConfig
-import cn.bakamc.common.utils.*
-import java.math.RoundingMode.FLOOR
-import java.math.RoundingMode.HALF_UP
-import java.text.DecimalFormat
+import cn.bakamc.common.utils.MessageUtil
+import cn.bakamc.common.utils.gson
+import cn.bakamc.common.utils.replace
+import cn.bakamc.common.utils.toJsonStr
 import java.util.*
 
 /**
@@ -38,16 +35,16 @@ import java.util.*
  * @author forpleuvoir
 
  */
-abstract class AbstractMessageHandler<T, P>(
-	final override val config: ServerConfig
-) : MessageHandler<T, P> {
+abstract class AbstractMessageHandler<T, P, S>(
+	final override val config: ServerConfig,
+	override val multiplatform: MultiPlatform<T, P, S>,
+	override val commonConfig: CommonConfig
+) : MessageHandler<T, P, S> {
 
-	protected val webSocketClient = SimpleWebSocketClient("${config.riguruAddress}/chat/${config.serverInfo.serverID}") {
+	protected val webSocketClient = SimpleWebSocketClient("${config.riguruWebSocketAddress}/chat/${config.serverInfo.serverID}") {
 		try {
 			gson.fromJson(it, WSMessage::class.java).run {
 				when (type) {
-					CHAT_CONFIG          -> chatConfig = ChatConfig.deserialize(this.data.parseToJsonObject)
-					REGISTRY_SERVER_INFO -> println(data)
 					CHAT_MESSAGE, WHISPER_MESSAGE -> receivesMessage(gson.fromJson(data, PostMessage::class.java))
 				}
 			}
@@ -55,11 +52,7 @@ abstract class AbstractMessageHandler<T, P>(
 			println("消息解析失败")
 			e.printStackTrace()
 		}
-	}.apply {
-		onOpen = { postMessage(WSMessage(CHAT_CONFIG, "")) }
 	}
-
-	override lateinit var chatConfig: ChatConfig
 
 	protected val messageHandlers: MutableList<(String, player: P) -> String> = mutableListOf(
 		//处理消息文本替换
@@ -101,14 +94,14 @@ abstract class AbstractMessageHandler<T, P>(
 	 */
 	protected open fun Message.format(msg: String): PostMessage {
 		val formatHandlers = mapOf<String, (String) -> T>(
-			"serverName" to { serverInfo.text(it) },
-			"serverID" to { serverInfo.idText(it) },
-			"playerName" to { sender.text(it) },
-			"playerDisplayName" to { sender.displayNameText(it) },
-			"townName" to { sender.townNameText(it) },
-			"townShortName" to { sender.townShortNameText(it) },
-			"message" to { msg.fromJson() },
-			"receiver" to { it.replace("receiver", receiver).text }
+			"serverName" to { multiplatform.serverNameText(serverInfo, it) },
+			"serverID" to { multiplatform.serverIdText(serverInfo, it) },
+			"playerName" to { multiplatform.playerNameText(sender, it) },
+			"playerDisplayName" to { multiplatform.playerDisplayNameText(sender, it) },
+			"townName" to { multiplatform.townNameText(sender.town, it) },
+			"townShortName" to { multiplatform.townShortNameText(sender.town, it) },
+			"message" to { multiplatform.textFromJson(msg) },
+			"receiver" to { multiplatform.stringToText(it.replace("receiver", receiver)) }
 		)
 		val data = buildMap {
 			when (type) {
@@ -161,18 +154,18 @@ abstract class AbstractMessageHandler<T, P>(
 	}
 
 	override fun broadcast(message: PostMessage) {
-		players.forEach { it.sendMessage(message.finalText { this.fromJson() }!!, message.senderUUID) }
+		multiplatform.players(server).forEach { it.sendMessage(message.finalText { multiplatform.textFromJson(this) }!!, message.senderUUID) }
 	}
 
 	override fun whisper(message: PostMessage) {
-		players.findLast {
-			val p = it.info
+		multiplatform.players(server).findLast {
+			val p = multiplatform.playerInfo(it)
 			p.name == message.receiver && p.displayName == message.receiver
-		}?.sendMessage(message.finalReceiverText { this.fromJson() }!!, message.senderUUID)
-		players.findLast {
-			val p = it.info
+		}?.sendMessage(message.finalReceiverText { multiplatform.textFromJson(this) }!!, message.senderUUID)
+		multiplatform.players(server).findLast {
+			val p = multiplatform.playerInfo(it)
 			p.uuid == message.senderUUID
-		}?.sendMessage(message.finalSenderText { this.fromJson() }!!, message.senderUUID)
+		}?.sendMessage(message.finalSenderText { multiplatform.textFromJson(this) }!!, message.senderUUID)
 	}
 
 	/**
@@ -222,37 +215,4 @@ abstract class AbstractMessageHandler<T, P>(
 	 */
 	abstract fun P.getItemText(index: Int): T
 
-	protected val PlayerCurrentInfo.placeholder: Map<String, String>
-		get() {
-			val format = DecimalFormat("#.##")
-			format.roundingMode = HALF_UP
-			val player = this
-			return buildMap {
-				this["%name%"] = player.name
-				this["%displayName%"] = player.displayName
-				this["%uuid%"] = player.uuid.toString()
-				this["%town%"] = player.town.name
-				this["%level%"] = player.level.toString()
-				this["%experience%"] = player.experience.toString()
-				this["%maxHealth%"] = format.format(player.maxHealth)
-				this["%health%"] = format.format(player.health)
-				this["%dimension%"] = player.dimension
-			}
-		}
-
-	protected fun List<String>.placeholderHandler(playerInfo: PlayerCurrentInfo): List<String> = buildList {
-		this@placeholderHandler.forEach { add(it.replace(playerInfo.placeholder)) }
-	}
-
-	protected val ServerInfo.placeholder: Map<String, String>
-		get() {
-			return buildMap {
-				this["%serverID%"] = serverID
-				this["%serverName%"] = serverName
-			}
-		}
-
-	protected fun List<String>.placeholderHandler(serverInfo: ServerInfo): List<String> = buildList {
-		this@placeholderHandler.forEach { add(it.replace(serverInfo.placeholder)) }
-	}
 }

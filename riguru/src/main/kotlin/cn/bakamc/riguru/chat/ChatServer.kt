@@ -1,14 +1,9 @@
 package cn.bakamc.riguru.chat
 
 import cn.bakamc.common.api.WSMessage
-import cn.bakamc.common.api.WSMessageType.Chat.CHAT_CONFIG
 import cn.bakamc.common.api.WSMessageType.Chat.CHAT_MESSAGE
-import cn.bakamc.common.api.WSMessageType.Chat.REGISTRY_SERVER_INFO
 import cn.bakamc.common.api.WSMessageType.Chat.WHISPER_MESSAGE
 import cn.bakamc.common.api.parseToWSMessage
-import cn.bakamc.common.common.ServerInfo
-import cn.bakamc.common.utils.gson
-import cn.bakamc.riguru.config.ServerChatConfig
 import cn.bakamc.riguru.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -44,7 +39,6 @@ class ChatServer {
 		session: Session
 	) {
 		sessions[id] = session
-		serverInfos[id] = ServerInfo(id, id, listOf("没有描述"))
 		log.info("[{}]有人订阅了昆虫通知服务！", id)
 	}
 
@@ -66,8 +60,6 @@ class ChatServer {
 		message.parseToWSMessage(
 			wsMessage = {
 				when (type) {
-					CHAT_CONFIG -> getConfig(session)
-					REGISTRY_SERVER_INFO -> registryServerInfo(data, session, id)
 					CHAT_MESSAGE -> chatMessage(data, session, id)
 					WHISPER_MESSAGE -> whisperMessage(data, session, id)
 					else -> log.error("[${message}]无法解析的消息格式")
@@ -77,17 +69,6 @@ class ChatServer {
 				log.error("[${message}]无法解析的消息格式", it)
 			}
 		)
-	}
-
-	private fun getConfig(session: Session) {
-		session.sendMessage(WSMessage(CHAT_CONFIG, ServerChatConfig.serialization.toString()))
-	}
-
-	private fun registryServerInfo(json: String, session: Session, id: String) {
-		val serverInfo = gson.fromJson(json, ServerInfo::class.java)
-		serverInfos[id] = serverInfo
-		session.sendMessage(WSMessage(REGISTRY_SERVER_INFO, "注册服务器信息成功"))
-		log.info("[{}]注册服务器信息!", id)
 	}
 
 	private fun chatMessage(json: String, session: Session, id: String) {
@@ -106,7 +87,6 @@ class ChatServer {
 
 		private val sessions = ConcurrentHashMap<String, Session>()
 
-		private val serverInfos = ConcurrentHashMap<String, ServerInfo>()
 	}
 
 }

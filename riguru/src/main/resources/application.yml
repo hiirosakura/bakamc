@@ -9,11 +9,7 @@ spring:
     username: ${DATABASE_USER}
     password: ${DATABASE_PASS}
 bakamc:
-  chat:
-    chatFormat: "#{§6[§rserverName§6]}#{§6[§rtownShortName§6]}#{§6[§r§bplayerName§6]}§b:§r #{message}"
-    whisperSenderFormat: "§7你悄悄对#{§6[§r§7receiver§6]}§7说§b:§r #{message}"
-    whisperReceiverFormat: "#{§6[§rserverName§6]}#{§6[§rtown§6]}#{§6[§r§bplayerName§6]}§7悄悄对你说§b:§r #{message}"
-    atFormat: "§b%at%§r"
+  text:
     playerInfoHover:
       - "玩家名称 : %name%\n"
       - "玩家显示名 : %displayName%\n"
@@ -25,7 +21,22 @@ bakamc:
       - "所在纬度 : %dimension%\n"
       - "点击私聊"
     playerInfoClickCommand: "/bakamc:chat msg %name% "
+    townHover:
+      - "小镇ID : %id%\n"
+      - "小组名称 : %name%\n"
+      - "小镇简称 : %shortName%\n"
+      - "创建时间 : %createTime%\n"
+      - "镇长 : %mayor%\n"
+      - "管理员 : %admin%\n"
+      - "成员 : %member%\n"
+      - "点击申请加入该小镇"
+    townClickCommand: "/bakamc:town application %id%"
     serverInfoClickCommand: "/server %serverID%"
+  chat:
+    chatFormat: "#{§6[§rserverName§6]}#{§6[§rtownShortName§6]}#{§6[§r§bplayerName§6]}§b:§r #{message}"
+    whisperSenderFormat: "§7你悄悄对#{§6[§r§7receiver§6]}§7说§b:§r #{message}"
+    whisperReceiverFormat: "#{§6[§rserverName§6]}#{§6[§rtown§6]}#{§6[§r§bplayerName§6]}§7悄悄对你说§b:§r #{message}"
+    atFormat: "§b%at%§r"
     #只会替换原始消息文本
     messageMapping:
       "[&0]": "§0"

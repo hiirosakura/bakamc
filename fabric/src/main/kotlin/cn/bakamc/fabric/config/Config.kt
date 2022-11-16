@@ -44,7 +44,10 @@ object Config : LocalServerModConfig<MinecraftServer>(BakaMc.ID) {
 		)
 
 		@JvmStatic
-		val RIGURU_ADDRESS = configString("riguru_address", "ws://127.0.0.1:3499")
+		val RIGURU_WEB_SOCKET_ADDRESS = configString("riguru_web_socket_address", "ws://127.0.0.1:3499")
+
+		@JvmStatic
+		val RIGURU_HTTP_ADDRESS = configString("riguru_http_address", "http://127.0.0.1:3499")
 
 		override val serverId: String
 			get() = SERVER_ID.getValue()
@@ -55,8 +58,11 @@ object Config : LocalServerModConfig<MinecraftServer>(BakaMc.ID) {
 		override val description: List<String>
 			get() = DESCRIPTION.getValue()
 
-		override val riguruAddress: String
-			get() = RIGURU_ADDRESS.getValue()
+		override val riguruWebSocketAddress: String
+			get() = RIGURU_WEB_SOCKET_ADDRESS.getValue()
+
+		override val riguruHttpAddress: String
+			get() = RIGURU_HTTP_ADDRESS.getValue()
 
 		override fun reload() {
 			Config.loadAsync()

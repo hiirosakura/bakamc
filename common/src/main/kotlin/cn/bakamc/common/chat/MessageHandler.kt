@@ -7,8 +7,9 @@ import cn.bakamc.common.chat.message.Message
 import cn.bakamc.common.chat.message.MessageType.Chat
 import cn.bakamc.common.chat.message.MessageType.Whisper
 import cn.bakamc.common.chat.message.PostMessage
-import cn.bakamc.common.common.PlayerCurrentInfo
+import cn.bakamc.common.common.MultiPlatform
 import cn.bakamc.common.common.ServerInfo
+import cn.bakamc.common.config.common.CommonConfig
 import cn.bakamc.common.config.common.ServerConfig
 import cn.bakamc.common.utils.toJsonStr
 import java.util.*
@@ -29,22 +30,30 @@ import java.util.*
  * @author forpleuvoir
 
  */
-interface MessageHandler<T, P> {
+interface MessageHandler<T, P, S> {
 
 	/**
 	 * 配置
 	 */
 	val config: ServerConfig
 
+	val commonConfig: CommonConfig
+
 	/**
 	 * 从服务端获取的配置
 	 */
-	val chatConfig: ChatConfig
+	val chatConfig: ChatConfig get() = commonConfig.chatConfig
+
 
 	/**
 	 * 服务器信息
 	 */
 	val serverInfo: ServerInfo get() = config.serverInfo
+
+	/**
+	 * 服务器实力类
+	 */
+	val server: S
 
 	/**
 	 * 重新加载配置
@@ -75,7 +84,7 @@ interface MessageHandler<T, P> {
 		postMessage(
 			WSMessage(
 				WSMessageType.Chat.CHAT_MESSAGE,
-				Message(Chat, player.info, serverInfo, "", message).toFinalMessage(player).toJsonStr()
+				Message(Chat, multiplatform.playerInfo(player), serverInfo, "", message).toFinalMessage(player).toJsonStr()
 			)
 		)
 	}
@@ -90,7 +99,7 @@ interface MessageHandler<T, P> {
 		postMessage(
 			WSMessage(
 				WSMessageType.Chat.WHISPER_MESSAGE,
-				Message(Whisper, player.info, serverInfo, receiver, message).toFinalMessage(player).toJsonStr()
+				Message(Whisper, multiplatform.playerInfo(player), serverInfo, receiver, message).toFinalMessage(player).toJsonStr()
 			)
 		)
 	}
@@ -105,7 +114,7 @@ interface MessageHandler<T, P> {
 	 * @receiver P
 	 * @param message Text[T]
 	 */
-	fun P.sendMessage(message: T,uuid: UUID)
+	fun P.sendMessage(message: T, uuid: UUID)
 
 	/**
 	 * 向riguru服务器发送消息
@@ -131,67 +140,11 @@ interface MessageHandler<T, P> {
 	 */
 	fun whisper(message: PostMessage)
 
-	/**
-	 * 在当前文本后添加文本
-	 * @receiver T
-	 * @param text T
-	 * @return T
-	 */
-	fun T.addSiblings(text: T): T
+	val multiplatform: MultiPlatform<T, P, S>
 
-	/**
-	 * 将Text转换为可解析的Json文本
-	 * @receiver T
-	 * @return String
-	 */
-	fun T.toJson(): String
+	fun T.toJson(): String = multiplatform.textToJson(this)
 
-	/**
-	 * 将Json文本解析为当前环境的Text
-	 * @receiver String
-	 * @return T
-	 */
-	fun String.fromJson(): T
+	val String.text: T get() = multiplatform.stringToText(this)
 
-	/**
-	 * 将字符串转换为当前环境下的Text
-	 */
-	val String.text: T
-
-	/**
-	 * 获取玩家信息
-	 */
-	val P.info: PlayerCurrentInfo
-
-	/**
-	 * 将玩家转换为对应环境的Text
-	 */
-	fun PlayerCurrentInfo.text(origin:String): T
-
-	/**
-	 * 将玩家转换为对应环境的Text 且以[PlayerCurrentInfo.displayName]为显示文本
-	 */
-	fun PlayerCurrentInfo.displayNameText(origin:String): T
-
-	/**
-	 * 将玩家小镇信息转换为对应环境的Text
-	 */
-	fun PlayerCurrentInfo.townNameText(origin:String): T
-
-	fun PlayerCurrentInfo.townShortNameText(origin:String): T
-
-	/**
-	 * 将服务器信息转换为对应环境的Text
-	 */
-	fun ServerInfo.text(origin:String): T
-
-	/**
-	 * 将服务器信息转换为对应环境的Text
-	 */
-	fun ServerInfo.idText(origin:String): T
-
-	/**
-	 * 获取当前服务器所有在线的玩家
-	 */
-	val players: Iterable<P>
+	fun T.addSiblings(vararg sibling: T): T = multiplatform.addSiblings(this, *sibling)
 }
