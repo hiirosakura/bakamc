@@ -20,6 +20,7 @@ import cn.bakamc.common.common.SimpleWebSocketClient
 import cn.bakamc.common.config.common.ServerConfig
 import cn.bakamc.common.utils.*
 import java.math.RoundingMode.FLOOR
+import java.math.RoundingMode.HALF_UP
 import java.text.DecimalFormat
 import java.util.*
 
@@ -224,7 +225,7 @@ abstract class AbstractMessageHandler<T, P>(
 	protected val PlayerCurrentInfo.placeholder: Map<String, String>
 		get() {
 			val format = DecimalFormat("#.##")
-			format.roundingMode = FLOOR
+			format.roundingMode = HALF_UP
 			val player = this
 			return buildMap {
 				this["%name%"] = player.name
@@ -245,12 +246,9 @@ abstract class AbstractMessageHandler<T, P>(
 
 	protected val ServerInfo.placeholder: Map<String, String>
 		get() {
-			val format = DecimalFormat("#.##")
-			format.roundingMode = FLOOR
 			return buildMap {
 				this["%serverID%"] = serverID
 				this["%serverName%"] = serverName
-
 			}
 		}
 
