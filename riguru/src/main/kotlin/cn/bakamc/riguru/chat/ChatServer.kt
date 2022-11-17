@@ -7,7 +7,6 @@ import cn.bakamc.common.api.parseToWSMessage
 import cn.bakamc.riguru.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import java.util.concurrent.ConcurrentHashMap
 import javax.websocket.OnClose
 import javax.websocket.OnMessage
 import javax.websocket.OnOpen
@@ -35,28 +34,28 @@ class ChatServer {
 
 	@OnOpen
 	fun onOpen(
-		@PathParam("server_id") id: String,
-		session: Session
+		session: Session,
+		@PathParam("server_id") id: String
 	) {
-		sessions[id] = session
+		sessions.add(session)
 		log.info("[{}]有人订阅了昆虫通知服务！", id)
 	}
 
 	@OnClose
 	fun onClose(
 		session: Session,
-		@PathParam("server_id") id: String,
+		@PathParam("server_id") id: String
 	) {
-		sessions.remove(id)
-		log.info("[{}]有人退订了昆虫通知服务！", id)
+		sessions.remove(session)
+		log.info("[{}]有人订阅了昆虫通知服务！", id)
 	}
 
 	@OnMessage
 	fun onMessage(
 		message: String,
-		@PathParam("server_id") id: String,
+		session: Session,
+		@PathParam("server_id") id: String
 	) {
-		val session = sessions[id]!!
 		message.parseToWSMessage(
 			wsMessage = {
 				when (type) {
@@ -72,12 +71,12 @@ class ChatServer {
 	}
 
 	private fun chatMessage(json: String, session: Session, id: String) {
-		sessions.values.broadcast(WSMessage(CHAT_MESSAGE, json))
+		sessions.broadcast(WSMessage(CHAT_MESSAGE, json))
 		log.info("[({})chat]{}", id, json)
 	}
 
 	private fun whisperMessage(json: String, session: Session, id: String) {
-		sessions.values.broadcast(WSMessage(WHISPER_MESSAGE, json))
+		sessions.broadcast(WSMessage(WHISPER_MESSAGE, json))
 		log.info("[({})chat]{}", id, json)
 	}
 
@@ -85,7 +84,7 @@ class ChatServer {
 
 		private val log = LoggerFactory.getLogger(ChatServer::class.java)
 
-		private val sessions = ConcurrentHashMap<String, Session>()
+		private val sessions: MutableList<Session> = ArrayList()
 
 	}
 

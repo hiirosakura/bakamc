@@ -1,10 +1,11 @@
 package cn.bakamc.fabric.chat
 
 import cn.bakamc.common.chat.AbstractMessageHandler
+import cn.bakamc.common.chat.MessageHandler
 import cn.bakamc.common.config.common.CommonConfig
 import cn.bakamc.common.config.common.ServerConfig
 import cn.bakamc.fabric.common.FabricPlatform
-import cn.bakamc.fabric.config.Config
+import cn.bakamc.fabric.config.FabricConfig
 import net.minecraft.item.ItemStack
 import net.minecraft.network.MessageType.CHAT
 import net.minecraft.server.MinecraftServer
@@ -35,19 +36,19 @@ class FabricMessageHandler(config: ServerConfig, override val commonConfig: Comm
 
 	companion object {
 		@JvmStatic
-		lateinit var INSTANCE: FabricMessageHandler
+		lateinit var INSTANCE: MessageHandler<MutableText, ServerPlayerEntity, MinecraftServer>
 			private set
 
 		@JvmStatic
-		fun hasHandler(action: Consumer<FabricMessageHandler>) {
+		fun hasHandler(action: Consumer<MessageHandler<MutableText, ServerPlayerEntity, MinecraftServer>>) {
 			if (this::INSTANCE.isInitialized) {
 				action.accept(INSTANCE)
 			}
 		}
 
 		@JvmStatic
-		fun init(server: MinecraftServer, commonConfig: CommonConfig): FabricMessageHandler {
-			INSTANCE = FabricMessageHandler(Config.Server, commonConfig, server)
+		fun init(server: MinecraftServer, commonConfig: CommonConfig): MessageHandler<MutableText, ServerPlayerEntity, MinecraftServer> {
+			INSTANCE = FabricMessageHandler(FabricConfig.Server, commonConfig, server)
 			INSTANCE.connect()
 			return INSTANCE
 		}

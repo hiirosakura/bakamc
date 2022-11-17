@@ -15,14 +15,14 @@ import java.nio.file.Path
 
  * 包名 cn.bakamc.fabric.chat.config
 
- * 文件名 FabricChatConfig
+ * 文件名 FabricConfig
 
  * 创建时间 2022/9/6 13:32
 
  * @author forpleuvoir
 
  */
-object Config : LocalServerModConfig<MinecraftServer>(BakaMc.ID) {
+object FabricConfig : LocalServerModConfig<MinecraftServer>(BakaMc.ID) {
 
 	object Server : ConfigCategoryImpl("server", this), ServerConfig {
 
@@ -65,7 +65,7 @@ object Config : LocalServerModConfig<MinecraftServer>(BakaMc.ID) {
 			get() = RIGURU_HTTP_ADDRESS.getValue()
 
 		override fun reload() {
-			Config.loadAsync()
+			FabricConfig.loadAsync()
 		}
 	}
 

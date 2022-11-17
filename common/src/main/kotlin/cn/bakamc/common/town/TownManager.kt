@@ -57,15 +57,8 @@ abstract class TownManager(val config: ServerConfig) {
 		message.parseToWSMessage {
 			when (type) {
 				TOWN_SYNC_ALL_DATA -> update(data.parseToJsonArray.map { Town.deserialize(it) })
-
 			}
 		}
 	}
 
-	/**
-	 * 应该是个异步方法
-	 * @param onSuccess Function0<Unit> 同步成功时
-	 * @param onException Function1<Exception, Unit> 同步失败时
-	 */
-	abstract fun syncData(onSuccess: () -> Unit = {}, onException: (Exception) -> Unit = {})
 }

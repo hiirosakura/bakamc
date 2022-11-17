@@ -6,6 +6,7 @@ import cn.bakamc.common.api.parseToWSMessage
 import cn.bakamc.common.utils.jsonArray
 import cn.bakamc.riguru.chat.ChatServer
 import cn.bakamc.riguru.services.TownServices
+import cn.bakamc.riguru.util.broadcast
 import cn.bakamc.riguru.util.sendMessage
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -75,5 +76,9 @@ class TownServer(@Autowired val townServices: TownServices) {
 		session.sendMessage(WSMessage(TOWN_SYNC_ALL_DATA, jsonArray(towns).toString()))
 	}
 
+	fun syncData() {
+		val towns = townServices.getAll().values
+		sessions.broadcast(WSMessage(TOWN_SYNC_ALL_DATA, jsonArray(towns).toString()))
+	}
 
 }
