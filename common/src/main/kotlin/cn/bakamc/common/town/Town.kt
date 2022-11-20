@@ -73,6 +73,7 @@ class Town(
 	}
 
 	fun formatTime(format: String = "yyyy-MM-dd HH:mm:ss"): String = SimpleDateFormat(format).format(createTime)
+
 	override val serialization: JsonElement
 		get() = jsonObject {
 			"id" at id
@@ -83,10 +84,6 @@ class Town(
 			"admin" at jsonArray(admin) { it.serialization }
 			"member" at jsonArray(member) { it.serialization }
 		}
-
-	override fun deserialize(serializedObject: JsonElement) {
-		TODO("Not yet implemented")
-	}
 
 	override fun toString(): String {
 		return "Town(id=$id, name='$name', shortName='$shortName', createTime=${formatTime()}, mayor=${mayor.map { it.name }}, admin=${admin.map { it.name }}, member=${member.map { it.name }})"

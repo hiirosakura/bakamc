@@ -6,6 +6,7 @@ import cn.bakamc.common.common.SimpleWebSocketClient
 import cn.bakamc.common.config.common.ServerConfig
 import cn.bakamc.common.utils.parseToJsonArray
 import com.google.common.collect.ImmutableList
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -30,6 +31,8 @@ abstract class TownManager(val config: ServerConfig) {
 
 	protected val towns: MutableMap<Int, Town> = ConcurrentHashMap()
 
+	protected val townList: Collection<Town> get() = towns.values
+
 	val townNames: List<String> get() = buildList { towns.values.forEach { add(it.name) } }
 
 	operator fun get(townID: Int): Town? = towns[townID]
@@ -44,6 +47,12 @@ abstract class TownManager(val config: ServerConfig) {
 	}
 
 	fun getAll(): List<Town> = ImmutableList.copyOf(towns.values)
+
+	fun getByPlayerID(uuid: UUID): Town {
+		return townList.find {
+			it.member.find { member -> member.uuid == uuid } != null
+		} ?: Town.NONE
+	}
 
 	protected val webSocketClient = SimpleWebSocketClient("${config.riguruWebSocketAddress}/town", ::onMessage)
 

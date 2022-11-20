@@ -35,5 +35,20 @@ object WSMessageType {
 		const val TOWN_SYNC_ALL_DATA = "town_sync_all_data"
 	}
 
+	object Player {
+		/**
+		 * 玩家加入某个服务器
+		 */
+		const val PLAYER_JOIN = "player_join"
 
+		/**
+		 * 玩家离开某个服务器
+		 */
+		const val PLAYER_LEFT = "player_left"
+
+		/**
+		 * 同步玩家数据
+		 */
+		const val PLAYER_SYNC_ALL_DATA = "player_sync_all_data"
+	}
 }

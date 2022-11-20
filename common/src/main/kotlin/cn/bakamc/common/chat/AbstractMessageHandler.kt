@@ -159,11 +159,11 @@ abstract class AbstractMessageHandler<T, P, S>(
 
 	override fun whisper(message: PostMessage) {
 		multiplatform.players(server).findLast {
-			val p = multiplatform.playerInfo(it)
+			val p = multiplatform.playerCurrentInfo(it)
 			p.name == message.receiver && p.displayName == message.receiver
 		}?.sendMessage(message.finalReceiverText { multiplatform.textFromJson(this) }!!, message.senderUUID)
 		multiplatform.players(server).findLast {
-			val p = multiplatform.playerInfo(it)
+			val p = multiplatform.playerCurrentInfo(it)
 			p.uuid == message.senderUUID
 		}?.sendMessage(message.finalSenderText { multiplatform.textFromJson(this) }!!, message.senderUUID)
 	}

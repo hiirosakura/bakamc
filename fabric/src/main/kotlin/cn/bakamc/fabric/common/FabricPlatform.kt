@@ -2,8 +2,9 @@ package cn.bakamc.fabric.common
 
 import cn.bakamc.common.common.AbstractPlatform
 import cn.bakamc.common.common.PlayerCurrentInfo
-import cn.bakamc.common.town.Town
+import cn.bakamc.common.common.PlayerInfo
 import cn.bakamc.fabric.config.FabricCommonConfig
+import cn.bakamc.fabric.town.FabricTownManager
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.*
@@ -45,19 +46,26 @@ object FabricPlatform : AbstractPlatform<MutableText, ServerPlayerEntity, Minecr
 
 	override fun textToJson(text: MutableText): String = Text.Serializer.toJson(text)
 
-
 	override fun textFromJson(json: String): MutableText = Text.Serializer.fromJson(json)!!
 
 	override fun stringToText(str: String): MutableText = LiteralText(str)
 
 	override fun players(server: MinecraftServer): Iterable<ServerPlayerEntity> = server.playerManager.playerList
 
-	override fun playerInfo(player: ServerPlayerEntity): PlayerCurrentInfo {
+	override fun playerInfo(player: ServerPlayerEntity): PlayerInfo {
+		return PlayerInfo(
+			player.uuid,
+			player.displayName.string,
+			player.name.string
+		)
+	}
+
+	override fun playerCurrentInfo(player: ServerPlayerEntity): PlayerCurrentInfo {
 		return PlayerCurrentInfo(
 			player.uuid,
 			player.displayName.string,
 			player.name.string,
-			Town.NONE,
+			FabricTownManager.INSTANCE.getByPlayerID(player.uuid),
 			player.experienceLevel,
 			player.totalExperience,
 			player.maxHealth,
@@ -65,4 +73,5 @@ object FabricPlatform : AbstractPlatform<MutableText, ServerPlayerEntity, Minecr
 			player.world.registryKey.value.toString(),
 		)
 	}
+
 }

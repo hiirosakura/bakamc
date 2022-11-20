@@ -1,10 +1,17 @@
 package cn.bakamc.common.common
 
+import cn.bakamc.common.api.WSMessage
+import cn.bakamc.common.api.WSMessageType.Player.PLAYER_JOIN
+import cn.bakamc.common.api.WSMessageType.Player.PLAYER_LEFT
+import cn.bakamc.common.api.WSMessageType.Player.PLAYER_SYNC_ALL_DATA
+import cn.bakamc.common.api.parseToWSMessage
+import cn.bakamc.common.config.common.ServerConfig
+import cn.bakamc.common.utils.toJsonStr
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedDeque
 
 /**
- * 玩家管理器 应该是保存当前服务器所有在线的玩家信息
+ * 玩家管理器 应该是保存所有服务器在线的玩家信息
 
  * 项目名 bakamc
 
@@ -17,8 +24,47 @@ import java.util.concurrent.ConcurrentLinkedDeque
  * @author forpleuvoir
 
  */
-class PlayerManager {
+abstract class PlayerManager<T, P, S>(val config: ServerConfig, val multiPlatform: MultiPlatform<T, P, S>) {
 
-	private val players: Deque<PlayerCurrentInfo> = ConcurrentLinkedDeque()
+	/**
+	 * 所有服务器的玩家
+	 */
+	protected val players: Deque<PlayerInfo> = ConcurrentLinkedDeque()
+
+	/**
+	 * 当前服务器的玩家
+	 */
+	protected val currentPlayers: Deque<P> = ConcurrentLinkedDeque()
+
+
+	fun syncData() {}
+
+	fun onPlayerJoin(player: P) {
+		webSocketClient.send(WSMessage(PLAYER_JOIN, multiPlatform.playerInfo(player).toJsonStr()).toJsonStr())
+		currentPlayers.add(player)
+	}
+
+	fun onPlayerLeft(player: P) {
+		webSocketClient.send(WSMessage(PLAYER_LEFT, multiPlatform.playerInfo(player).toJsonStr()).toJsonStr())
+		currentPlayers.remove(player)
+	}
+
+	protected val webSocketClient = SimpleWebSocketClient("${config.riguruWebSocketAddress}/player", ::onMessage)
+
+	fun connect() = webSocketClient.connect()
+
+	fun reconnect() = webSocketClient.reconnect()
+
+	fun close() = webSocketClient.close()
+
+	protected fun onMessage(message: String) {
+		message.parseToWSMessage {
+			when (type) {
+				PLAYER_SYNC_ALL_DATA -> {
+
+				}
+			}
+		}
+	}
 
 }

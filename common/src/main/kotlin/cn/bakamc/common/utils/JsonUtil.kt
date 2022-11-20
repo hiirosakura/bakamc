@@ -51,6 +51,9 @@ fun JsonObject.getNestedObject(key: String, create: Boolean = false): JsonObject
  * @return json字符串
  */
 fun Any.toJsonStr(): String {
+	if(this is JsonSerializer){
+		return this.serialization.toString()
+	}
 	return gson.toJson(this)
 }
 

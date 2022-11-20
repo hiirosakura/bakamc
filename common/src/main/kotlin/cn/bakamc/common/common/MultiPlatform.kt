@@ -48,8 +48,9 @@ interface MultiPlatform<T, P, S> {
 	/**
 	 * 获取玩家当前信息
 	 */
-	fun playerInfo(player: P): PlayerCurrentInfo
+	fun playerCurrentInfo(player: P): PlayerCurrentInfo
 
+	fun playerInfo(player: P): PlayerInfo
 
 	/**
 	 * 将玩家转换为对应环境的Text

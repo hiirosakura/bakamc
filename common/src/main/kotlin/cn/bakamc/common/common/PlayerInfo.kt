@@ -40,10 +40,6 @@ open class PlayerInfo(
 			"display_name" at displayName
 		}
 
-	override fun deserialize(serializedObject: JsonElement) {
-		TODO("Not yet implemented")
-	}
-
 	override fun toString(): String {
 		return "PlayerInfo(uuid=$uuid, name='$name', displayName='$displayName')"
 	}

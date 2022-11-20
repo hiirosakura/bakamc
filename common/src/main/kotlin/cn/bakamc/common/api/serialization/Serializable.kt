@@ -19,5 +19,8 @@ interface Serializable<T> {
 
 	val serialization: T
 
-	fun deserialize(serializedObject: T)
+	fun deserialize(serializedObject: T){
+		throw NotImplementedError("method not implemented")
+	}
+
 }

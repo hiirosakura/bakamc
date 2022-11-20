@@ -84,7 +84,7 @@ interface MessageHandler<T, P, S> {
 		postMessage(
 			WSMessage(
 				WSMessageType.Chat.CHAT_MESSAGE,
-				Message(Chat, multiplatform.playerInfo(player), serverInfo, "", message).toFinalMessage(player).toJsonStr()
+				Message(Chat, multiplatform.playerCurrentInfo(player), serverInfo, "", message).toFinalMessage(player).toJsonStr()
 			)
 		)
 	}
@@ -99,7 +99,7 @@ interface MessageHandler<T, P, S> {
 		postMessage(
 			WSMessage(
 				WSMessageType.Chat.WHISPER_MESSAGE,
-				Message(Whisper, multiplatform.playerInfo(player), serverInfo, receiver, message).toFinalMessage(player).toJsonStr()
+				Message(Whisper, multiplatform.playerCurrentInfo(player), serverInfo, receiver, message).toFinalMessage(player).toJsonStr()
 			)
 		)
 	}
