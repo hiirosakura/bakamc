@@ -1,0 +1,47 @@
+plugins {
+	id 'java'
+	id 'maven-publish'
+	id 'org.jetbrains.kotlin.jvm' version '1.7.10'
+	id 'com.github.johnrengelman.shadow' version '7.1.2'
+}
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+version = rootProject.maven_version
+group = rootProject.maven_group
+setArchivesBaseName("bakamc-spigot")
+
+repositories {
+	mavenCentral()
+	mavenLocal()
+	maven {
+		name "spigot-repo"
+		url "https://hub.spigotmc.org/nexus/content/repositories/snapshots/"
+	}
+}
+
+
+dependencies {
+	implementation 'org.jetbrains.kotlin:kotlin-stdlib'
+	implementation "org.jetbrains.kotlin:kotlin-reflect"
+	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+	implementation "com.google.code.gson:gson:${rootProject.gson_version}"
+	implementation "com.google.guava:guava:${rootProject.guava_version}"
+	implementation project(":common")
+	implementation "org.java-websocket:Java-WebSocket:${rootProject.properties.java_webSocket_version}"
+
+	compileOnly "org.spigotmc:spigot-api:${rootProject.minecraft_version}-R0.1-SNAPSHOT"
+}
+
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			from components.java
+		}
+	}
+	repositories {
+		mavenLocal()
+	}
+}

@@ -15,4 +15,5 @@ rootProject.name = 'bakamc'
 include ':common'
 include ':fabric'
 include ':riguru'
+include ':spigot'
 

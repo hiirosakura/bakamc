@@ -1,10 +1,9 @@
-package cn.bakamc.riguru.town
+package cn.bakamc.riguru.websocket
 
 import cn.bakamc.common.api.WSMessage
 import cn.bakamc.common.api.WSMessageType.Town.TOWN_SYNC_ALL_DATA
 import cn.bakamc.common.api.parseToWSMessage
 import cn.bakamc.common.utils.jsonArray
-import cn.bakamc.riguru.chat.ChatServer
 import cn.bakamc.riguru.services.TownServices
 import cn.bakamc.riguru.util.broadcast
 import cn.bakamc.riguru.util.sendMessage
@@ -22,7 +21,7 @@ import javax.websocket.server.ServerEndpoint
 
  * 项目名 bakamc
 
- * 包名 cn.bakamc.riguru.town
+ * 包名 cn.bakamc.riguru.websocket
 
  * 文件名 TownServer
 

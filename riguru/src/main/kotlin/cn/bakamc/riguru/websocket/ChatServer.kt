@@ -1,4 +1,4 @@
-package cn.bakamc.riguru.chat
+package cn.bakamc.riguru.websocket
 
 import cn.bakamc.common.api.WSMessage
 import cn.bakamc.common.api.WSMessageType.Chat.CHAT_MESSAGE
@@ -19,7 +19,7 @@ import javax.websocket.server.ServerEndpoint
 
  * 项目名 bakamc
 
- * 包名 cn.bakamc.riguru.chat
+ * 包名 cn.bakamc.riguru.websocket
 
  * 文件名 ChatServer
 

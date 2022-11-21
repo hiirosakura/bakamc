@@ -26,7 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class ServerPlayNetworkHandlerMixin {
 
-	private static Logger log = LoggerFactory.getLogger("(BakaMC)messageHandler");
+	private static final Logger log = LoggerFactory.getLogger("(BakaMC)messageHandler");
 
 	@Shadow
 	public ServerPlayerEntity player;
