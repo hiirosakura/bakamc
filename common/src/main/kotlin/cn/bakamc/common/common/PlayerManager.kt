@@ -6,6 +6,9 @@ import cn.bakamc.common.api.WSMessageType.Player.PLAYER_LEFT
 import cn.bakamc.common.api.WSMessageType.Player.PLAYER_SYNC_ALL_DATA
 import cn.bakamc.common.api.parseToWSMessage
 import cn.bakamc.common.config.common.ServerConfig
+import cn.bakamc.common.utils.parseToJsonArray
+import cn.bakamc.common.utils.parseToJsonElement
+import cn.bakamc.common.utils.parseToJsonObject
 import cn.bakamc.common.utils.toJsonStr
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedDeque
@@ -37,7 +40,9 @@ abstract class PlayerManager<T, P, S>(val config: ServerConfig, val multiPlatfor
 	protected val currentPlayers: Deque<P> = ConcurrentLinkedDeque()
 
 
-	fun syncData() {}
+	fun syncData() {
+		webSocketClient.send(WSMessage(PLAYER_SYNC_ALL_DATA, "").toJsonStr())
+	}
 
 	fun onPlayerJoin(player: P) {
 		webSocketClient.send(WSMessage(PLAYER_JOIN, multiPlatform.playerInfo(player).toJsonStr()).toJsonStr())
@@ -61,7 +66,16 @@ abstract class PlayerManager<T, P, S>(val config: ServerConfig, val multiPlatfor
 		message.parseToWSMessage {
 			when (type) {
 				PLAYER_SYNC_ALL_DATA -> {
+					players.clear()
+					players.addAll(data.parseToJsonArray.map { PlayerInfo.deserialize(it) })
+				}
 
+				PLAYER_JOIN          -> {
+					players.add(PlayerInfo.deserialize(data.parseToJsonObject))
+				}
+
+				PLAYER_LEFT          -> {
+					players.remove(PlayerInfo.deserialize(data.parseToJsonObject))
 				}
 			}
 		}
