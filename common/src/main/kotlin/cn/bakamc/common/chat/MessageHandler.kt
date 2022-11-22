@@ -146,5 +146,5 @@ interface MessageHandler<T, P, S> {
 
 	val String.text: T get() = multiplatform.stringToText(this)
 
-	fun T.addSiblings(vararg sibling: T): T = multiplatform.addSiblings(this, *sibling)
+	fun T.addSiblings(sibling: T): T = multiplatform.addSiblings(this, sibling)
 }

@@ -3,6 +3,7 @@ package cn.bakamc.fabric.common
 import cn.bakamc.common.common.AbstractPlatform
 import cn.bakamc.common.common.PlayerCurrentInfo
 import cn.bakamc.common.common.PlayerInfo
+import cn.bakamc.common.town.Town
 import cn.bakamc.fabric.config.FabricCommonConfig
 import cn.bakamc.fabric.town.FabricTownManager
 import net.minecraft.server.MinecraftServer
@@ -37,11 +38,8 @@ object FabricPlatform : AbstractPlatform<MutableText, ServerPlayerEntity, Minecr
 		return display
 	}
 
-	override fun addSiblings(origin: MutableText, vararg sibling: MutableText): MutableText {
-		for (mutableText in sibling) {
-			origin.append(mutableText)
-		}
-		return origin
+	override fun addSiblings(origin: MutableText,  sibling: MutableText): MutableText {
+		return origin.append(sibling)
 	}
 
 	override fun textToJson(text: MutableText): String = Text.Serializer.toJson(text)
@@ -61,11 +59,13 @@ object FabricPlatform : AbstractPlatform<MutableText, ServerPlayerEntity, Minecr
 	}
 
 	override fun playerCurrentInfo(player: ServerPlayerEntity): PlayerCurrentInfo {
+		var town: Town = Town.NONE
+		FabricTownManager.hasManager { town = it.getByPlayerID(player.uuid) }
 		return PlayerCurrentInfo(
 			player.uuid,
 			player.name.string,
 			player.displayName.string,
-			FabricTownManager.INSTANCE.getByPlayerID(player.uuid),
+			town,
 			player.experienceLevel,
 			player.totalExperience,
 			player.maxHealth,

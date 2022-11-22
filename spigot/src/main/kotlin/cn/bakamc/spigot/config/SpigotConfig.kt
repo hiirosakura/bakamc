@@ -1,10 +1,10 @@
-package cn.bakamc.fabric.config
+package cn.bakamc.spigot.config
 
 import cn.bakamc.common.config.common.ServerConfig
 import cn.bakamc.common.config.modconfig.impl.ConfigCategoryImpl
 import cn.bakamc.common.config.modconfig.impl.LocalServerModConfig
-import cn.bakamc.fabric.BakaMC
-import net.minecraft.server.MinecraftServer
+import cn.bakamc.spigot.BakaMC
+import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
 import java.nio.file.Path
 
@@ -13,17 +13,16 @@ import java.nio.file.Path
 
  * 项目名 bakamc
 
- * 包名 cn.bakamc.fabric.chat.config
+ * 包名 cn.bakamc.spigot.config
 
- * 文件名 FabricConfig
+ * 文件名 SpigotServerConfig
 
- * 创建时间 2022/9/6 13:32
+ * 创建时间 2022/11/22 20:35
 
  * @author forpleuvoir
 
  */
-object FabricConfig : LocalServerModConfig<MinecraftServer>(BakaMC.ID) {
-
+object SpigotConfig: LocalServerModConfig<JavaPlugin>(BakaMC.ID) {
 	object Server : ConfigCategoryImpl("server", this), ServerConfig {
 
 		@JvmStatic
@@ -65,19 +64,14 @@ object FabricConfig : LocalServerModConfig<MinecraftServer>(BakaMC.ID) {
 			get() = RIGURU_HTTP_ADDRESS.getValue()
 
 		override fun reload() {
-			FabricConfig.loadAsync()
+			SpigotConfig.loadAsync()
 		}
 	}
 
 	override fun localConfigPath(): Path {
-		val serverPath = server.session.directory
-		return File(serverPath.toFile(), modId).apply {
-			if (!exists()) {
-				this.mkdir()
-			}
-		}.toPath()
+		return File(server.config.currentPath).toPath()
 	}
 
-	override lateinit var server: MinecraftServer
+	override lateinit var server: JavaPlugin
 
 }

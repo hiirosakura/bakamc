@@ -30,40 +30,40 @@ abstract class AbstractPlatform<T, P, S>(protected val commonConfig: CommonConfi
 
 	protected val String.text: T get() = stringToText(this)
 
-	protected fun T.addSiblings(sibling: T): T = addSiblings(this, sibling)
+	private fun T.append(sibling: T): T = addSiblings(this, sibling)
 
 	abstract fun displayText(display: T, hoverText: T? = null, command: String? = null): T
 
 	override fun playerNameText(playerCurrentInfo: PlayerCurrentInfo, origin: String): T {
-		val text = origin.replace("name", playerCurrentInfo.name).text
+		val text = origin.replace("playerName", playerCurrentInfo.name).text
 		val hoverText = "".text
-		textConfig.playerInfoHover.placeholderHandler(playerCurrentInfo).forEach { hoverText.addSiblings(it.text) }
+		textConfig.playerInfoHover.placeholderHandler(playerCurrentInfo).forEach { hoverText.append(it.text) }
 		val command = textConfig.playerInfoClickCommand.replace(playerCurrentInfo.placeholder)
 		return displayText(text, hoverText, command)
 	}
 
 	override fun playerDisplayNameText(playerCurrentInfo: PlayerCurrentInfo, origin: String): T {
-		val text = origin.replace("displayName", playerCurrentInfo.displayName).text
+		val text = origin.replace("playerDisplayName", playerCurrentInfo.displayName).text
 		val hoverText = "".text
-		textConfig.playerInfoHover.placeholderHandler(playerCurrentInfo).forEach { hoverText.addSiblings(it.text) }
+		textConfig.playerInfoHover.placeholderHandler(playerCurrentInfo).forEach { hoverText.append(it.text) }
 		val command = textConfig.playerInfoClickCommand.replace(playerCurrentInfo.placeholder)
 		return displayText(text, hoverText, command)
 	}
 
 	override fun townNameText(town: Town, origin: String): T {
 		if (town == Town.NONE) return "".text
-		val text = origin.replace("name", town.name).text
+		val text = origin.replace("townName", town.name).text
 		val hoverText = "".text
-		textConfig.townHover.placeholderHandler(town).forEach { hoverText.addSiblings(it.text) }
+		textConfig.townHover.placeholderHandler(town).forEach { hoverText.append(it.text) }
 		val command = textConfig.townClickCommand.replace(town.placeholder)
 		return displayText(text, hoverText, command)
 	}
 
 	override fun townShortNameText(town: Town, origin: String): T {
 		if (town == Town.NONE) return "".text
-		val text = origin.replace("name", town.shortName).text
+		val text = origin.replace("townShortName", town.shortName).text
 		val hoverText = "".text
-		textConfig.townHover.placeholderHandler(town).forEach { hoverText.addSiblings(it.text) }
+		textConfig.townHover.placeholderHandler(town).forEach { hoverText.append(it.text) }
 		val command = textConfig.townClickCommand.replace(town.placeholder)
 		return displayText(text, hoverText, command)
 	}
@@ -71,7 +71,7 @@ abstract class AbstractPlatform<T, P, S>(protected val commonConfig: CommonConfi
 	override fun serverNameText(serverInfo: ServerInfo, origin: String): T {
 		val text = origin.replace("serverName", serverInfo.serverName).text
 		val hoverText = "".text
-		serverInfo.description.placeholderHandler(serverInfo).forEach { hoverText.addSiblings(it.text) }
+		serverInfo.description.placeholderHandler(serverInfo).forEach { hoverText.append(it.text) }
 		val command = textConfig.serverInfoClickCommand.replace(serverInfo.placeholder)
 		return displayText(text, hoverText, command)
 	}
@@ -79,7 +79,7 @@ abstract class AbstractPlatform<T, P, S>(protected val commonConfig: CommonConfi
 	override fun serverIdText(serverInfo: ServerInfo, origin: String): T {
 		val text = origin.replace("serverID", serverInfo.serverID).text
 		val hoverText = "".text
-		serverInfo.description.placeholderHandler(serverInfo).forEach { hoverText.addSiblings(it.text) }
+		serverInfo.description.placeholderHandler(serverInfo).forEach { hoverText.append(it.text) }
 		val command = textConfig.serverInfoClickCommand.replace(serverInfo.placeholder)
 		return displayText(text, hoverText, command)
 	}
@@ -112,7 +112,7 @@ abstract class AbstractPlatform<T, P, S>(protected val commonConfig: CommonConfi
 				this["%name%"] = this@placeholder.name
 				this["%shortName%"] = this@placeholder.shortName
 				this["%createTime%"] = this@placeholder.formatTime()
-				this["%mayor%"] = this@placeholder.mayor.first.name
+				this["%mayor%"] = if (mayor.isNotEmpty()) this@placeholder.mayor.first.name else ""
 				this["%admin%"] = this@placeholder.admin.map { it.name }.format(5, prefix = "[", suffix = "]")
 				this["%member%"] = this@placeholder.member.map { it.name }.format(5, prefix = "[", suffix = "]")
 			}

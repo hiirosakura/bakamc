@@ -5,7 +5,6 @@ import cn.bakamc.common.chat.MessageHandler
 import cn.bakamc.common.config.common.CommonConfig
 import cn.bakamc.common.config.common.ServerConfig
 import cn.bakamc.fabric.common.FabricPlatform
-import cn.bakamc.fabric.config.FabricConfig
 import net.minecraft.item.ItemStack
 import net.minecraft.network.MessageType.CHAT
 import net.minecraft.server.MinecraftServer
@@ -47,8 +46,12 @@ class FabricMessageHandler(config: ServerConfig, override val commonConfig: Comm
 		}
 
 		@JvmStatic
-		fun init(server: MinecraftServer, commonConfig: CommonConfig): MessageHandler<MutableText, ServerPlayerEntity, MinecraftServer> {
-			INSTANCE = FabricMessageHandler(FabricConfig.Server, commonConfig, server)
+		fun init(
+			serverConfig: ServerConfig,
+			commonConfig: CommonConfig,
+			server: MinecraftServer
+		): MessageHandler<MutableText, ServerPlayerEntity, MinecraftServer> {
+			INSTANCE = FabricMessageHandler(serverConfig, commonConfig, server)
 			INSTANCE.connect()
 			return INSTANCE
 		}
@@ -56,8 +59,8 @@ class FabricMessageHandler(config: ServerConfig, override val commonConfig: Comm
 
 	override fun ServerPlayerEntity.getItemText(index: Int): MutableText {
 		val item = when (index) {
-			-2   -> this.offHandStack
-			-1   -> this.mainHandStack
+			-2 -> this.offHandStack
+			-1 -> this.mainHandStack
 			else -> this.inventory.getStack(index)
 		}
 		if (item.isEmpty) {

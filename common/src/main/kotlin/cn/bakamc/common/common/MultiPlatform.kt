@@ -24,7 +24,7 @@ interface MultiPlatform<T, P, S> {
 	 * @param text T
 	 * @return T
 	 */
-	fun addSiblings(origin: T, vararg sibling: T): T
+	fun addSiblings(origin: T, sibling: T): T
 
 	/**
 	 * 将Text转换为可解析的Json文本

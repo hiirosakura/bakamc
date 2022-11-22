@@ -20,7 +20,7 @@
 	"main": [
 	  {
 		"adapter": "kotlin",
-		"value": "cn.bakamc.fabric.BakaMc"
+		"value": "cn.bakamc.fabric.BakaMC"
 	  }
 	]
   },

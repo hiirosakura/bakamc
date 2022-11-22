@@ -36,6 +36,16 @@ dependencies {
 	compileOnly(fileTree(dir: "libs",includes: ["*.jar"]))
 }
 
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 17
+	it.options.encoding = "UTF-8"
+}
+
+java {
+	withSourcesJar()
+	toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+}
+
 
 publishing {
 	publications {

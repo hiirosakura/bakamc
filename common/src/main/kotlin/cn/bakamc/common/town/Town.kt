@@ -74,6 +74,8 @@ class Town(
 
 	fun formatTime(format: String = "yyyy-MM-dd HH:mm:ss"): String = SimpleDateFormat(format).format(createTime)
 
+
+
 	override val serialization: JsonElement
 		get() = jsonObject {
 			"id" at id
@@ -87,6 +89,28 @@ class Town(
 
 	override fun toString(): String {
 		return "Town(id=$id, name='$name', shortName='$shortName', createTime=${formatTime()}, mayor=${mayor.map { it.name }}, admin=${admin.map { it.name }}, member=${member.map { it.name }})"
+	}
+
+	override fun equals(other: Any?): Boolean {
+		if (this === other) return true
+		if (javaClass != other?.javaClass) return false
+
+		other as Town
+
+		if (id != other.id) return false
+		if (name != other.name) return false
+		if (shortName != other.shortName) return false
+		if (createTime != other.createTime) return false
+
+		return true
+	}
+
+	override fun hashCode(): Int {
+		var result = id
+		result = 31 * result + name.hashCode()
+		result = 31 * result + shortName.hashCode()
+		result = 31 * result + createTime.hashCode()
+		return result
 	}
 
 

@@ -32,11 +32,14 @@ import javax.websocket.server.ServerEndpoint
  */
 @ServerEndpoint("/town")
 @Component
-class TownServer(@Autowired val townServices: TownServices) {
+class TownServer {
+
+	@Autowired
+	private lateinit var townServices: TownServices
 
 	companion object {
 
-		private val log = LoggerFactory.getLogger(ChatServer::class.java)
+		private val log = LoggerFactory.getLogger(TownServer::class.java)
 
 		private val sessions: MutableList<Session> = ArrayList()
 

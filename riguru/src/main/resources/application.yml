@@ -18,7 +18,7 @@ bakamc:
       - "玩家等级 : %level%\n"
       - "玩家总经验 : %experience%\n"
       - "生命值 : %health%/%maxHealth%\n"
-      - "所在纬度 : %dimension%\n"
+      - "所在维度 : %dimension%\n"
       - "点击私聊"
     playerInfoClickCommand: "/bakamc:chat msg %name% "
     townHover:

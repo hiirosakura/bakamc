@@ -1,6 +1,8 @@
 package cn.bakamc.common.config.modconfig.impl
 
 import cn.bakamc.common.api.impl.ServerSavable
+import cn.bakamc.common.config.modconfig.ConfigCategory
+import kotlin.reflect.full.isSubclassOf
 
 /**
  *
@@ -23,6 +25,11 @@ abstract class RemoteServerModConfig<S>(
 ) : RemoteModConfig(saveUrl, loadUrl), ServerSavable<S> {
 
 	override fun init(server: S) {
+		this::class.nestedClasses.forEach {
+			if (it.objectInstance != null && it.isSubclassOf(ConfigCategory::class)) {
+				addCategory(it.objectInstance as ConfigCategory)
+			}
+		}
 		this.server = server
 		allCategory.forEach { configCategory ->
 			configCategory.allConfigs.forEach {

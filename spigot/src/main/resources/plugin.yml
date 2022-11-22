@@ -1,0 +1,5 @@
+name: BakaMC
+version: 0.1.0
+main: cn.bakamc.spigot.BakaMC
+authors:
+  - forpleuvoir

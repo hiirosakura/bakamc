@@ -34,7 +34,7 @@ public abstract class MinecraftServerMixin {
 		CompletableFuture.runAsync(() -> {
 			FabricConfig.INSTANCE.init((MinecraftServer) (Object) this);
 			FabricCommonConfig.init(FabricConfig.Server.INSTANCE);
-			FabricMessageHandler.init((MinecraftServer) (Object) this, FabricCommonConfig.getINSTANCE());
+			FabricMessageHandler.init(FabricConfig.Server.INSTANCE, FabricCommonConfig.getINSTANCE(), (MinecraftServer) (Object) this);
 			FabricTownManager.init(FabricConfig.Server.INSTANCE);
 		});
 	}

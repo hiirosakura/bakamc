@@ -9,14 +9,14 @@ import net.fabricmc.api.ModInitializer
 
  * 包名 cn.bakamc.fabric
 
- * 文件名 BakaMc
+ * 文件名 BakaMC
 
  * 创建时间 2022/9/6 13:07
 
  * @author forpleuvoir
 
  */
-object BakaMc : ModInitializer {
+object BakaMC : ModInitializer {
 
 	const val ID = "bakamc"
 	const val NAME = "BakaMC"
