@@ -63,8 +63,8 @@ object FabricPlatform : AbstractPlatform<MutableText, ServerPlayerEntity, Minecr
 	override fun playerCurrentInfo(player: ServerPlayerEntity): PlayerCurrentInfo {
 		return PlayerCurrentInfo(
 			player.uuid,
-			player.displayName.string,
 			player.name.string,
+			player.displayName.string,
 			FabricTownManager.INSTANCE.getByPlayerID(player.uuid),
 			player.experienceLevel,
 			player.totalExperience,

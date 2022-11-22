@@ -30,7 +30,7 @@ abstract class AbstractPlatform<T, P, S>(protected val commonConfig: CommonConfi
 
 	protected val String.text: T get() = stringToText(this)
 
-	protected fun T.addSiblings(vararg sibling: T): T = addSiblings(this, *sibling)
+	protected fun T.addSiblings(sibling: T): T = addSiblings(this, sibling)
 
 	abstract fun displayText(display: T, hoverText: T? = null, command: String? = null): T
 

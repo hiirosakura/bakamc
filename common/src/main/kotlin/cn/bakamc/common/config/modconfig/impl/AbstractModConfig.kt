@@ -4,6 +4,7 @@ import cn.bakamc.common.config.modconfig.ConfigCategory
 import cn.bakamc.common.config.modconfig.ModConfig
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.reflect.full.isSubclassOf
 
 /**
  *
@@ -30,6 +31,11 @@ abstract class AbstractModConfig:ModConfig {
 	}
 
 	override fun init() {
+		this::class.nestedClasses.forEach {
+			if (it.objectInstance != null && it.isSubclassOf(ConfigCategory::class)) {
+				addCategory(it.objectInstance as ConfigCategory)
+			}
+		}
 		allCategory.forEach {
 			it.init()
 			it.allConfigs.forEach { c ->

@@ -80,7 +80,4 @@ object FabricConfig : LocalServerModConfig<MinecraftServer>(BakaMc.ID) {
 
 	override lateinit var server: MinecraftServer
 
-	init {
-		addCategory(Server)
-	}
 }

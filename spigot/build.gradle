@@ -32,6 +32,8 @@ dependencies {
 	implementation "org.java-websocket:Java-WebSocket:${rootProject.properties.java_webSocket_version}"
 
 	compileOnly "org.spigotmc:spigot-api:${rootProject.minecraft_version}-R0.1-SNAPSHOT"
+	compileOnly "org.spigotmc:spigot:${rootProject.minecraft_version}-R0.1-SNAPSHOT"
+	compileOnly(fileTree(dir: "libs",includes: ["*.jar"]))
 }
 
 
