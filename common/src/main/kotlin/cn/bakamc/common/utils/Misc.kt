@@ -1,5 +1,9 @@
 package cn.bakamc.common.utils
 
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.util.*
+
 /**
  *
 
@@ -51,4 +55,12 @@ fun Iterable<String>.format(length: Long, ellipsis: String = "...", separator: S
 	}
 	sb.append(suffix)
 	return sb.toString()
+}
+
+fun LocalDateTime.toDate(): Date {
+	return Date.from(this.atZone(ZoneId.systemDefault()).toInstant())
+}
+
+fun Date.toLocalDateTime(): LocalDateTime {
+	return this.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
 }

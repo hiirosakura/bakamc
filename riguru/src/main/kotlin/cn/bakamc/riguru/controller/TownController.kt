@@ -10,10 +10,8 @@ import cn.bakamc.riguru.util.broadcast
 import cn.bakamc.riguru.websocket.TownServer
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.ResponseBody
+import org.springframework.web.bind.annotation.*
+import java.util.*
 
 /**
  *
@@ -38,10 +36,22 @@ class TownController {
 
 	@PostMapping("application")
 	@ResponseBody
-	fun application(@RequestBody application:String):Boolean{
-		println(TownApplication.deserialize(application.parseToJsonObject))
-		return true
-//		return townServices.application(application)
+	fun application(@RequestBody application: String): Boolean {
+		return townServices.application(TownApplication.deserialize(application.parseToJsonObject))
+	}
+
+	@GetMapping("application")
+	@ResponseBody
+	fun getApplications(@RequestParam("town_id") townID: Int): String {
+		return jsonArray(townServices.applicationList(townID)).toString()
+	}
+
+	@PostMapping("approve_application")
+	@ResponseBody
+	fun approveApplication(@RequestParam("town_id") townID: Int, @RequestParam("applicant_uuid") applicantUUID: String): Boolean {
+		val success = townServices.join(townID, UUID.fromString(applicantUUID))
+		if(success) syncData()
+		return success
 	}
 
 	fun syncData() {

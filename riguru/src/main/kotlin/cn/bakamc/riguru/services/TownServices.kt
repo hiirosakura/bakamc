@@ -5,6 +5,7 @@ import cn.bakamc.common.town.Town
 import cn.bakamc.common.town.TownApplication
 import cn.bakamc.common.town.TownMember
 import cn.bakamc.riguru.entity.PlayerInfoVO
+import cn.bakamc.riguru.entity.TownApplicationVO
 import cn.bakamc.riguru.entity.TownApplicationVO.Companion.toVO
 import cn.bakamc.riguru.entity.TownMemberVO
 import cn.bakamc.riguru.entity.TownMemberVO.Companion.roleVO
@@ -18,6 +19,7 @@ import cn.bakamc.riguru.mapper.TownMemberMapper.Companion.getAllByTownIDAsVO
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.util.*
 import java.util.concurrent.ConcurrentLinkedDeque
 
 /**
@@ -79,8 +81,8 @@ class TownServices(
 	 * @param town [Town] 如果为空则判断是否加入了任何小镇
 	 * @return [Boolean] [PlayerInfoVO] [TownMemberVO]
 	 */
-	fun isInTown(player: PlayerInfo, town: Town? = null): Pair<Boolean, TownMemberVO?> {
-		val memberVO: TownMemberVO? = townMemberMapper.selectOne(QueryWrapper<TownMemberVO>().eq("player_id", player.uuid()))
+	fun isInTown(player: UUID, town: Town? = null): Pair<Boolean, TownMemberVO?> {
+		val memberVO: TownMemberVO? = townMemberMapper.selectOne(QueryWrapper<TownMemberVO>().eq("player_id", player.toString()))
 		return if (town != null) (memberVO != null && memberVO.townId == town.id) to memberVO
 		else (memberVO != null && memberVO.townId != 0) to memberVO
 	}
@@ -94,17 +96,17 @@ class TownServices(
 	 * @param joiner [PlayerInfo] 加入者的信息
 	 * @return [Boolean] 是否成功
 	 */
-	fun join(townID: Int, joiner: PlayerInfo): Boolean {
+	fun join(townID: Int, joiner: UUID): Boolean {
 		val isInTown = isInTown(joiner)
 		if (isInTown.first) return false
 		val memberVO: TownMemberVO? = isInTown.second
 		val member = TownMemberVO().apply {
-			playerID = joiner.uuid()
+			playerID = joiner.toString()
 			townId = townID
 			role = TownRole.Member
 		}
 		val result = if (memberVO == null) townMemberMapper.insert(member)
-		else townMemberMapper.update(member, QueryWrapper<TownMemberVO?>().eq("player_id", joiner.uuid()))
+		else townMemberMapper.update(member, QueryWrapper<TownMemberVO?>().eq("player_id", joiner.toString()))
 		return result == 1
 	}
 
@@ -115,8 +117,12 @@ class TownServices(
 	 * @return [Boolean] 是否成功
 	 */
 	fun application(application: TownApplication): Boolean {
-		val isInTown = isInTown(application.applicant)
+		val isInTown = isInTown(application.applicant.uuid)
 		if (isInTown.first) return false
+		val empty = townApplicationMapper.selectList(
+			QueryWrapper<TownApplicationVO?>().eq("town_id", application.townID).eq("applicant_id", application.applicant.uuid())
+		).isEmpty()
+		if (!empty) return false
 		val result = townApplicationMapper.insert(application.toVO(true))
 		return result == 1
 	}
@@ -127,7 +133,7 @@ class TownServices(
 	 */
 	fun approveApplication(application: TownApplication): Boolean {
 		townApplicationMapper.selectById(application.id) ?: return false
-		val returnValue = join(application.townID, application.applicant)
+		val returnValue = join(application.townID, application.applicant.uuid)
 		if (returnValue) townApplicationMapper.deleteById(application.id)
 		return returnValue
 	}

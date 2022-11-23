@@ -2,11 +2,12 @@ package cn.bakamc.riguru.mapper
 
 import cn.bakamc.common.common.PlayerInfo
 import cn.bakamc.common.town.TownApplication
-import cn.bakamc.riguru.entity.PlayerInfoVO
+import cn.bakamc.common.utils.toDate
 import cn.bakamc.riguru.entity.TownApplicationVO
 import com.baomidou.mybatisplus.core.mapper.BaseMapper
 import org.apache.ibatis.annotations.Mapper
 import org.apache.ibatis.annotations.Select
+import java.time.LocalDateTime
 import java.util.*
 
 /**
@@ -43,7 +44,7 @@ interface TownApplicationMapper : BaseMapper<TownApplicationVO> {
 					townID = it["town_id"] as Int,
 					applicant = playerInfo,
 					message = it["message"] as String,
-					applicationTime = it["application_time"] as Date
+					applicationTime = (it["application_time"] as LocalDateTime).toDate()
 				)
 			}
 		}

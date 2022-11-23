@@ -100,10 +100,10 @@ class HttpHelper<T>(
 
 	/**
 	 * url参数
-	 * @param params Array<out Pair<String, String>>
+	 * @param params Array<out Pair<String, Any>>
 	 * @return HttpGetter<T>
 	 */
-	fun params(vararg params: Pair<String, String>): HttpHelper<T> {
+	fun params(vararg params: Pair<String, Any>): HttpHelper<T> {
 		val str = StringBuilder(uri)
 		str.append("?")
 		params.forEachIndexed { index, pair ->

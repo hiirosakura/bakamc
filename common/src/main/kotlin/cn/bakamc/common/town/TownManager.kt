@@ -2,9 +2,14 @@ package cn.bakamc.common.town
 
 import cn.bakamc.common.api.WSMessageType.Town.TOWN_SYNC_ALL_DATA
 import cn.bakamc.common.api.parseToWSMessage
+import cn.bakamc.common.common.PlayerInfo
 import cn.bakamc.common.common.SimpleWebSocketClient
 import cn.bakamc.common.config.common.ServerConfig
+import cn.bakamc.common.utils.isIn
+import cn.bakamc.common.utils.net.httpGet
+import cn.bakamc.common.utils.net.httpPost
 import cn.bakamc.common.utils.parseToJsonArray
+import cn.bakamc.common.utils.toJsonStr
 import com.google.common.collect.ImmutableList
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -71,7 +76,33 @@ abstract class TownManager(val config: ServerConfig) {
 	}
 
 	fun application(application: TownApplication, callback: (Boolean) -> Unit) {
+		httpPost("${config.riguruHttpAddress}/town/application", application.toJsonStr())
+			.sendAsyncGetBody {
+				callback(it.toBoolean())
+			}
+	}
 
+	fun applicationList(town: Town, callback: (Iterable<TownApplication>) -> Unit) {
+		httpGet("${config.riguruHttpAddress}/town/application")
+			.params("town_id" to town.id)
+			.sendAsyncGetBody { body ->
+				callback(body.parseToJsonArray.map { TownApplication.deserialize(it) })
+			}
+	}
+
+	fun approveApplication(town: Town, approver: PlayerInfo, isOP: Boolean, applicantUUID: UUID, callback: (Boolean) -> Unit) {
+		if (approver.isIn(town.admin) || isOP) {
+			httpPost("${config.riguruHttpAddress}/town/approve_application")
+				.params(
+					"town_id" to town.id,
+					"applicant_uuid" to applicantUUID.toString()
+				)
+				.sendAsyncGetBody {
+					callback(it.toBoolean())
+				}
+		} else {
+			callback(false)
+		}
 	}
 
 }
