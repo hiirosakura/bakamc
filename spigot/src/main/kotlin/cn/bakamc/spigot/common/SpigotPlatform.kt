@@ -51,6 +51,10 @@ object SpigotPlatform : AbstractPlatform<IChatMutableComponent, Player, Server>(
 		return ChatSerializer.a(text)
 	}
 
+	override fun textToPlainString(text: IChatMutableComponent): String {
+		return text.string
+	}
+
 	override fun textFromJson(json: String): IChatMutableComponent {
 		return ChatSerializer.a(json)!!
 	}

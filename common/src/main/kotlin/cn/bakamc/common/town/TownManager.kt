@@ -54,7 +54,7 @@ abstract class TownManager(val config: ServerConfig) {
 		} ?: Town.NONE
 	}
 
-	protected val webSocketClient = SimpleWebSocketClient("${config.riguruWebSocketAddress}/town", ::onMessage)
+	protected val webSocketClient = SimpleWebSocketClient("${config.riguruWebSocketAddress}/town/${config.serverInfo.serverID}", ::onMessage)
 
 	fun connect() = webSocketClient.connect()
 
@@ -68,6 +68,10 @@ abstract class TownManager(val config: ServerConfig) {
 				TOWN_SYNC_ALL_DATA -> update(data.parseToJsonArray.map { Town.deserialize(it) })
 			}
 		}
+	}
+
+	fun application(application: TownApplication, callback: (Boolean) -> Unit) {
+
 	}
 
 }

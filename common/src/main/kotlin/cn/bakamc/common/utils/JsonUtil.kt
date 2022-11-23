@@ -108,6 +108,10 @@ class JsonObjectScope {
 	infix fun String.at(value: JsonElement) {
 		jsonObject.add(this, value)
 	}
+
+	infix fun String.at(value: JsonSerializer) {
+		jsonObject.add(this, value.serialization)
+	}
 }
 
 fun jsonObject(scope: JsonObjectScope.() -> Unit): JsonObject {

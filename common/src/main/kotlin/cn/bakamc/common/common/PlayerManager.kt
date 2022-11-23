@@ -41,7 +41,7 @@ abstract class PlayerManager<T, P, S>(val config: ServerConfig, val multiPlatfor
 
 
 	fun syncData() {
-		webSocketClient.send(WSMessage(PLAYER_SYNC_ALL_DATA, "").toJsonStr())
+		webSocketClient.send(WSMessage(PLAYER_SYNC_ALL_DATA).toJsonStr())
 	}
 
 	fun onPlayerJoin(player: P) {

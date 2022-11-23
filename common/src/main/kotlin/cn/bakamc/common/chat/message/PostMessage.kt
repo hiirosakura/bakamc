@@ -41,6 +41,8 @@ class PostMessage(
 	/**
 	 * 数据包括消息内容以及@列表
 	 *
+	 * finalMessage : [String] 处理之后的纯文本消息
+	 *
 	 * finalText : [String] 普通消息
 	 *
 	 * finalSenderText : [String] 若为私聊消息则为发送者看到的格式
@@ -51,6 +53,8 @@ class PostMessage(
 	 */
 	val data: Map<String, Any>
 ) : Message(type, sender, serverInfo, receiver, message) {
+
+	val finalMessage:String? get() =data[FINAL_MESSAGE] as String?
 
 	val finalText: String? get() = data[FINAL_TEXT] as String?
 
@@ -75,9 +79,10 @@ class PostMessage(
 		}
 
 	companion object {
-		const val FINAL_TEXT = "finalText"
-		const val FINAL_SENDER_TEXT = "finalSenderText"
-		const val FINAL_RECEIVER_TEXT = "finalReceiverText"
-		const val AT_LIST = "atList"
+		const val FINAL_MESSAGE = "final_message"
+		const val FINAL_TEXT = "final_text"
+		const val FINAL_SENDER_TEXT = "final_sender_text"
+		const val FINAL_RECEIVER_TEXT = "final_receiver_text"
+		const val AT_LIST = "at_list"
 	}
 }

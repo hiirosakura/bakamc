@@ -29,7 +29,7 @@ class SimpleWebSocketClient(uri: String, var onMessage: (String) -> Unit) : WebS
 	}
 
 	override fun onOpen(handshakedata: ServerHandshake) {
-		println("[BakaChat]服务已连接")
+		println("[BakaMC]服务已连接")
 		onOpen?.invoke(handshakedata)
 	}
 
@@ -42,12 +42,12 @@ class SimpleWebSocketClient(uri: String, var onMessage: (String) -> Unit) : WebS
 	}
 
 	override fun onClose(code: Int, reason: String, remote: Boolean) {
-		println("[BakaChat]服务断开{code:$code,reason:$reason,remote:$remote}")
+		println("[BakaMC]服务断开{code:$code,reason:$reason,remote:$remote}")
 		onClose?.invoke(code, reason, remote)
 	}
 
 	override fun onError(ex: Exception) {
-		println("[BakaChat]服务出错")
+		println("[BakaMC]服务出错")
 		onError?.invoke(ex)
 	}
 }

@@ -18,7 +18,7 @@ import cn.bakamc.common.utils.gson
  */
 data class WSMessage(
 	val type: String,
-	val data: String
+	val data: String = ""
 ) {
 	companion object {
 		fun parse(json: String, wsMessage: WSMessage.() -> Unit, onException: (Exception) -> Unit) {

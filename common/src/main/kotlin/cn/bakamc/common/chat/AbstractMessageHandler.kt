@@ -8,6 +8,7 @@ import cn.bakamc.common.chat.message.MessageType.Chat
 import cn.bakamc.common.chat.message.MessageType.Whisper
 import cn.bakamc.common.chat.message.PostMessage
 import cn.bakamc.common.chat.message.PostMessage.Companion.AT_LIST
+import cn.bakamc.common.chat.message.PostMessage.Companion.FINAL_MESSAGE
 import cn.bakamc.common.chat.message.PostMessage.Companion.FINAL_RECEIVER_TEXT
 import cn.bakamc.common.chat.message.PostMessage.Companion.FINAL_SENDER_TEXT
 import cn.bakamc.common.chat.message.PostMessage.Companion.FINAL_TEXT
@@ -105,12 +106,21 @@ abstract class AbstractMessageHandler<T, P, S>(
 		)
 		val data = buildMap {
 			when (type) {
-				Chat    ->
-					this[FINAL_TEXT] = parse(chatConfig.chatFormat, formatHandlers).toJson()
+				Chat -> {
+					val finalText = parse(chatConfig.chatFormat, formatHandlers)
+					this[FINAL_TEXT] = finalText.toJson()
+					this[FINAL_MESSAGE] = MessageUtil.cleanFormatting(multiplatform.textToPlainString(finalText))
+				}
 
 				Whisper -> {
 					this[FINAL_SENDER_TEXT] = parse(chatConfig.whisperSenderFormat, formatHandlers).toJson()
 					this[FINAL_RECEIVER_TEXT] = parse(chatConfig.whisperReceiverFormat, formatHandlers).toJson()
+					this[FINAL_MESSAGE] = MessageUtil.cleanFormatting(multiplatform.textToPlainString(kotlin.run {
+						multiplatform.serverNameText(serverInfo)
+							.addSiblings("=>".text)
+							.addSiblings("[$receiver]: ".text)
+							.addSiblings(multiplatform.textFromJson(msg))
+					}))
 				}
 			}
 			this[AT_LIST] = getAtList()

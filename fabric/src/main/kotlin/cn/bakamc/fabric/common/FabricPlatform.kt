@@ -38,11 +38,12 @@ object FabricPlatform : AbstractPlatform<MutableText, ServerPlayerEntity, Minecr
 		return display
 	}
 
-	override fun addSiblings(origin: MutableText,  sibling: MutableText): MutableText {
+	override fun addSiblings(origin: MutableText, sibling: MutableText): MutableText {
 		return origin.append(sibling)
 	}
 
 	override fun textToJson(text: MutableText): String = Text.Serializer.toJson(text)
+	override fun textToPlainString(text: MutableText): String = text.string
 
 	override fun textFromJson(json: String): MutableText = Text.Serializer.fromJson(json)!!
 

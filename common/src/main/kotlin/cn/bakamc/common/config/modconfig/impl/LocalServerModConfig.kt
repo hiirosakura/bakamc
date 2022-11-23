@@ -21,11 +21,6 @@ import kotlin.reflect.full.isSubclassOf
 abstract class LocalServerModConfig<S>(override val modId: String) : LocalModConfig(modId), ServerSavable<S> {
 
 	override fun init(server: S) {
-		this::class.nestedClasses.forEach {
-			if (it.objectInstance != null && it.isSubclassOf(ConfigCategory::class)) {
-				addCategory(it.objectInstance as ConfigCategory)
-			}
-		}
 		this.server = server
 		allCategory.forEach { configCategory ->
 			configCategory.allConfigs.forEach {

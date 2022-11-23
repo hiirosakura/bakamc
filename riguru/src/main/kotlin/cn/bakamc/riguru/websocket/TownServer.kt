@@ -14,6 +14,7 @@ import javax.websocket.OnClose
 import javax.websocket.OnMessage
 import javax.websocket.OnOpen
 import javax.websocket.Session
+import javax.websocket.server.PathParam
 import javax.websocket.server.ServerEndpoint
 
 /**
@@ -30,7 +31,7 @@ import javax.websocket.server.ServerEndpoint
  * @author forpleuvoir
 
  */
-@ServerEndpoint("/town")
+@ServerEndpoint("/town/{server_id}")
 @Component
 class TownServer {
 
@@ -41,29 +42,29 @@ class TownServer {
 
 		private val log = LoggerFactory.getLogger(TownServer::class.java)
 
-		private val sessions: MutableList<Session> = ArrayList()
+		val sessions: MutableList<Session> = ArrayList()
 
 	}
 
 	@OnOpen
-	fun onOpen(session: Session) {
+	fun onOpen(session: Session, @PathParam("server_id") id: String) {
 		sessions.add(session)
-		log.info("有人订阅了小镇系统服务！")
+		log.info("[{}]有人订阅了小镇系统服务！", id)
 	}
 
 	@OnClose
-	fun onClose(session: Session) {
+	fun onClose(session: Session, @PathParam("server_id") id: String) {
 		if (sessions.remove(session)) {
-			log.info("有人退订了小镇系统服务!")
+			log.info("[{}]有人退订了小镇系统服务!", id)
 		}
 	}
 
 	@OnMessage
-	fun onMessage(message: String, session: Session) {
+	fun onMessage(message: String, session: Session, @PathParam("server_id") id: String) {
 		message.parseToWSMessage(
 			wsMessage = {
 				when (type) {
-					TOWN_SYNC_ALL_DATA -> syncData(session)
+					TOWN_SYNC_ALL_DATA -> syncData(session,id)
 					else               -> log.error("[${message}]无法解析的消息格式")
 				}
 			},
@@ -73,14 +74,12 @@ class TownServer {
 		)
 	}
 
-	fun syncData(session: Session) {
+	fun syncData(session: Session, id: String) {
 		val towns = townServices.getAll().values
 		session.sendMessage(WSMessage(TOWN_SYNC_ALL_DATA, jsonArray(towns).toString()))
+		log.info("[{}]",id)
 	}
 
-	fun syncData() {
-		val towns = townServices.getAll().values
-		sessions.broadcast(WSMessage(TOWN_SYNC_ALL_DATA, jsonArray(towns).toString()))
-	}
+
 
 }

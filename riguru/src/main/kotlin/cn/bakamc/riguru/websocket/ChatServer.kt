@@ -4,6 +4,8 @@ import cn.bakamc.common.api.WSMessage
 import cn.bakamc.common.api.WSMessageType.Chat.CHAT_MESSAGE
 import cn.bakamc.common.api.WSMessageType.Chat.WHISPER_MESSAGE
 import cn.bakamc.common.api.parseToWSMessage
+import cn.bakamc.common.chat.message.PostMessage
+import cn.bakamc.common.utils.gson
 import cn.bakamc.riguru.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -72,12 +74,14 @@ class ChatServer {
 
 	private fun chatMessage(json: String, session: Session, id: String) {
 		sessions.broadcast(WSMessage(CHAT_MESSAGE, json))
-		log.info("[({})chat]{}", id, json)
+		val fromJson = gson.fromJson(json, PostMessage::class.java)
+		log.info("[({})chat]{}", id, fromJson.finalMessage)
 	}
 
 	private fun whisperMessage(json: String, session: Session, id: String) {
 		sessions.broadcast(WSMessage(WHISPER_MESSAGE, json))
-		log.info("[({})chat]{}", id, json)
+		val fromJson = gson.fromJson(json, PostMessage::class.java)
+		log.info("[({})whisper]{}", id, fromJson.finalMessage)
 	}
 
 	companion object {

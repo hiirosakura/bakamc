@@ -34,6 +34,13 @@ interface MultiPlatform<T, P, S> {
 	fun textToJson(text: T): String
 
 	/**
+	 * 将Text转换为纯字符串
+	 * @param text T
+	 * @return String
+	 */
+	fun textToPlainString(text: T): String
+
+	/**
 	 * 将Json文本解析为当前环境的Text
 	 * @receiver String
 	 * @return T
@@ -55,29 +62,29 @@ interface MultiPlatform<T, P, S> {
 	/**
 	 * 将玩家转换为对应环境的Text
 	 */
-	fun playerNameText(playerCurrentInfo: PlayerCurrentInfo, origin: String): T
+	fun playerNameText(playerCurrentInfo: PlayerCurrentInfo, origin: String = "playerName"): T
 
 	/**
 	 * 将玩家转换为对应环境的Text 且以[PlayerCurrentInfo.displayName]为显示文本
 	 */
-	fun playerDisplayNameText(playerCurrentInfo: PlayerCurrentInfo, origin: String): T
+	fun playerDisplayNameText(playerCurrentInfo: PlayerCurrentInfo, origin: String = "playerDisplayName"): T
 
 	/**
 	 * 将小镇信息转换为对应环境的Text
 	 */
-	fun townNameText(town: Town, origin: String): T
+	fun townNameText(town: Town, origin: String = "townName"): T
 
-	fun townShortNameText(town: Town, origin: String): T
-
-	/**
-	 * 将服务器信息转换为对应环境的Text
-	 */
-	fun serverNameText(serverInfo: ServerInfo, origin: String): T
+	fun townShortNameText(town: Town, origin: String = "townShortName"): T
 
 	/**
 	 * 将服务器信息转换为对应环境的Text
 	 */
-	fun serverIdText(serverInfo: ServerInfo, origin: String): T
+	fun serverNameText(serverInfo: ServerInfo, origin: String = "serverName"): T
+
+	/**
+	 * 将服务器信息转换为对应环境的Text
+	 */
+	fun serverIdText(serverInfo: ServerInfo, origin: String = "serverID"): T
 
 	/**
 	 * 获取当前服务器所有在线的玩家

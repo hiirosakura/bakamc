@@ -43,17 +43,6 @@ open class Message(
 	 */
 	var message: String,
 ) {
-	companion object {
-		@JvmStatic
-		fun fromJsonStr(json: String): Message {
-			return gson.fromJson(json, Message::class.java)
-		}
-
-		@JvmStatic
-		fun fromJson(json: JsonElement): Message {
-			return gson.fromJson(json, Message::class.java)
-		}
-	}
 
 	val senderUUID: UUID
 		get() = sender.uuid
