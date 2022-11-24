@@ -1,5 +1,6 @@
 package cn.bakamc.spigot.command
 
+import cn.bakamc.spigot.BakaMC
 import cn.bakamc.spigot.chat.SpigotMessageHandler
 import cn.bakamc.spigot.config.SpigotCommonConfig
 import cn.bakamc.spigot.config.SpigotConfig
@@ -35,12 +36,14 @@ object ConfigCommand {
 		)
 		dispatcher.register(
 			literal("bakamc:reload").requires { it.bukkitSender.isOp }
-				.executes {
+				.executes { context ->
 					SpigotConfig.load()
 					SpigotCommonConfig.init(SpigotConfig.Server)
-					SpigotMessageHandler.INSTANCE.reconnect()
-					SpigotTownManager.INSTANCE.reconnect()
-					it.source.bukkitSender.sendMessage("§b[BakaMC]§a插件已重新加载")
+					SpigotMessageHandler.hasHandler { it.close() }
+					SpigotTownManager.hasManager { it.close() }
+					SpigotMessageHandler.init(SpigotConfig.Server, SpigotCommonConfig.INSTANCE, BakaMC.INSTANCE.server)
+					SpigotTownManager.init(SpigotConfig.Server)
+					context.source.bukkitSender.sendMessage("§b[BakaMC]§a插件已重新加载")
 					1
 				}
 		)

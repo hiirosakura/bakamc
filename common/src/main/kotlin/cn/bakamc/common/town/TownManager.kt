@@ -75,6 +75,10 @@ abstract class TownManager(val config: ServerConfig) {
 		}
 	}
 
+	fun syncData(){
+
+	}
+
 	fun application(application: TownApplication, callback: (Boolean) -> Unit) {
 		httpPost("${config.riguruHttpAddress}/town/application", application.toJsonStr())
 			.sendAsyncGetBody {

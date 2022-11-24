@@ -26,6 +26,7 @@ class BakaMC : JavaPlugin() {
 
 	companion object {
 		const val ID = "bakamc"
+		lateinit var INSTANCE: JavaPlugin
 	}
 
 	private fun registerEvent() {
@@ -35,6 +36,7 @@ class BakaMC : JavaPlugin() {
 	}
 
 	override fun onEnable() {
+		INSTANCE = this
 		SpigotConfig.init(this)
 		SpigotCommonConfig.init(SpigotConfig.Server)
 		SpigotMessageHandler.init(SpigotConfig.Server, SpigotCommonConfig.INSTANCE, server)
@@ -44,7 +46,7 @@ class BakaMC : JavaPlugin() {
 	}
 
 	override fun onDisable() {
-		SpigotConfig.saveAsync()
+		SpigotConfig.save()
 		SpigotMessageHandler.hasHandler { it.close() }
 		SpigotTownManager.hasManager { it.close() }
 	}

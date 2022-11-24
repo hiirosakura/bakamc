@@ -37,7 +37,7 @@ object Commands {
 			dedicatedServer.vanillaCommandDispatcher.a().apply {
 				ChatCommand.register(this)
 				ConfigCommand.register(this)
-
+				TownCommand.register(this)
 			}
 		} catch (e: NoSuchMethodException) {
 			e.printStackTrace()

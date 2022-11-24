@@ -37,25 +37,32 @@ object TownCommand {
 	fun register(dispatcher: CommandDispatcher<CommandListenerWrapper>) {
 		dispatcher.register(
 			literal("bakamc:town")
+//				.then(
+//					literal("application").requires { true }
+//						.then(
+//							argument("town", StringArgumentType.string()).suggests(this::townSuggests)
+//								.then(
+//									argument("message", StringArgumentType.string())
+//										.executes(this::application)
+//								)
+//						)
+//				)
+//				.then(
+//					literal("approveApplication").requires { true }
+//						.then(
+//							argument("town", StringArgumentType.string())
+//								.then(
+//									argument("applicant_uuid", StringArgumentType.string())
+//										.executes(this::approveApplication)
+//								)
+//						)
+//				)
 				.then(
-					literal("application").requires { true }
-						.then(
-							argument("town", StringArgumentType.string()).suggests(this::townSuggests)
-								.then(
-									argument("message", StringArgumentType.string())
-										.executes(this::application)
-								)
-						)
-				)
-				.then(
-					literal("approveApplication").requires { true }
-						.then(
-							argument("town", StringArgumentType.string())
-								.then(
-									argument("applicant_uuid", StringArgumentType.string())
-										.executes(this::approveApplication)
-								)
-						)
+					literal("syncData").requires { it.bukkitSender.isOp }
+						.executes {
+							SpigotTownManager.hasManager{it.syncData()}
+							1
+						}
 				)
 		)
 	}
@@ -70,6 +77,7 @@ object TownCommand {
 
 
 	private fun application(context: CommandContext<CommandListenerWrapper>): Int {
+		//todo 未完成
 		val sender = context.source.bukkitSender
 		if (sender is Player) {
 			val townName = StringArgumentType.getString(context, "town")

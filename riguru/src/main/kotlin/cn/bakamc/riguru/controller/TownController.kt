@@ -34,6 +34,12 @@ class TownController {
 	@Autowired
 	private lateinit var townServices: TownServices
 
+	@GetMapping
+	@ResponseBody
+	fun getData(){
+		syncData()
+	}
+
 	@PostMapping("application")
 	@ResponseBody
 	fun application(@RequestBody application: String): Boolean {

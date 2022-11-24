@@ -1,6 +1,8 @@
 package cn.bakamc.fabric
 
+import cn.bakamc.fabric.command.Commands
 import net.fabricmc.api.ModInitializer
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback
 
 /**
  *
@@ -22,6 +24,9 @@ object BakaMC : ModInitializer {
 	const val NAME = "BakaMC"
 
 	override fun onInitialize() {
+		CommandRegistrationCallback.EVENT.register { dispatcher, registryAccess ->
+			Commands.register(dispatcher)
+		}
 	}
 
 

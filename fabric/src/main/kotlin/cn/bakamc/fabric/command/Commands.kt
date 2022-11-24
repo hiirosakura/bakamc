@@ -1,5 +1,8 @@
 package cn.bakamc.fabric.command
 
+import com.mojang.brigadier.CommandDispatcher
+import net.minecraft.server.command.ServerCommandSource
+
 /**
  *
 
@@ -15,4 +18,11 @@ package cn.bakamc.fabric.command
 
  */
 object Commands {
+
+	fun register(dispatcher: CommandDispatcher<ServerCommandSource>) {
+		ConfigCommand.register(dispatcher)
+		ChatCommand.register(dispatcher)
+		TownCommand.register(dispatcher)
+	}
+
 }
