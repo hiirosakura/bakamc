@@ -49,6 +49,7 @@ class TownServer {
 	@OnOpen
 	fun onOpen(session: Session, @PathParam("server_id") id: String) {
 		sessions.add(session)
+		syncData(session, id)
 		log.info("[{}]有人订阅了小镇系统服务！", id)
 	}
 
@@ -64,7 +65,7 @@ class TownServer {
 		message.parseToWSMessage(
 			wsMessage = {
 				when (type) {
-					TOWN_SYNC_ALL_DATA -> syncData(session,id)
+					TOWN_SYNC_ALL_DATA -> syncData(session, id)
 					else               -> log.error("[${message}]无法解析的消息格式")
 				}
 			},
@@ -77,9 +78,8 @@ class TownServer {
 	fun syncData(session: Session, id: String) {
 		val towns = townServices.getAll().values
 		session.sendMessage(WSMessage(TOWN_SYNC_ALL_DATA, jsonArray(towns).toString()))
-		log.info("[{}]",id)
+		log.info("[{}]", id)
 	}
-
 
 
 }

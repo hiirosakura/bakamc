@@ -1,6 +1,10 @@
 package cn.bakamc.fabric.common
 
 import cn.bakamc.common.common.AbstractPlatform
+import cn.bakamc.common.common.MultiPlatform.ClickAction
+import cn.bakamc.common.common.MultiPlatform.ClickAction.SUGGEST_COMMAND
+import cn.bakamc.common.common.MultiPlatform.HoverAction
+import cn.bakamc.common.common.MultiPlatform.HoverAction.*
 import cn.bakamc.common.common.PlayerCurrentInfo
 import cn.bakamc.common.common.PlayerInfo
 import cn.bakamc.common.town.Town
@@ -9,8 +13,10 @@ import cn.bakamc.fabric.town.FabricTownManager
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.*
-import net.minecraft.text.ClickEvent.Action.SUGGEST_COMMAND
-import net.minecraft.text.HoverEvent.Action
+import net.minecraft.text.ClickEvent.Action as Click
+import net.minecraft.text.HoverEvent.Action as Hover
+import net.minecraft.text.HoverEvent.EntityContent
+import net.minecraft.text.HoverEvent.ItemStackContent
 
 /**
  *
@@ -29,18 +35,32 @@ import net.minecraft.text.HoverEvent.Action
 object FabricPlatform : AbstractPlatform<MutableText, ServerPlayerEntity, MinecraftServer>(FabricCommonConfig.INSTANCE) {
 
 	override fun displayText(display: MutableText, hoverText: MutableText?, command: String?): MutableText {
-		display.styled {
-			var style = it
-			hoverText?.let { style = style.withHoverEvent(HoverEvent((Action.SHOW_TEXT), hoverText)) }
-			command?.let { style = style.withClickEvent(ClickEvent(SUGGEST_COMMAND, command)) }
-			style
-		}
+		hoverText?.let { withHover(display, SHOW_TEXT, hoverText) }
+		command?.let { withClick(display, SUGGEST_COMMAND, command) }
 		return display
 	}
 
 	override fun addSiblings(origin: MutableText, sibling: MutableText): MutableText {
 		return origin.append(sibling)
 	}
+
+	override fun withClick(text: MutableText, action: ClickAction, value: String): MutableText {
+		return text.styled {
+			it.withClickEvent(ClickEvent(Click.valueOf(action.name), value))
+		}
+	}
+
+	override fun withHover(text: MutableText, action: HoverAction, content: Any): MutableText {
+		val event = when (action) {
+			SHOW_TEXT   -> HoverEvent(Hover.SHOW_TEXT, content as MutableText)
+			SHOW_ITEM   -> HoverEvent(Hover.SHOW_ITEM, content as ItemStackContent)
+			SHOW_ENTITY -> HoverEvent(Hover.SHOW_ENTITY, content as EntityContent)
+		}
+		return text.styled {
+			it.withHoverEvent(event)
+		}
+	}
+
 
 	override fun textToJson(text: MutableText): String = Text.Serializer.toJson(text)
 	override fun textToPlainString(text: MutableText): String = text.string

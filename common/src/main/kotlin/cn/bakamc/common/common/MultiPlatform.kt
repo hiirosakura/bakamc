@@ -18,6 +18,21 @@ import cn.bakamc.common.town.Town
  */
 interface MultiPlatform<T, P, S> {
 
+	enum class ClickAction(val id: String) {
+		OPEN_URL("open_url"),
+		OPEN_FILE("open_file"),
+		RUN_COMMAND("run_command"),
+		SUGGEST_COMMAND("suggest_command"),
+		CHANGE_PAGE("change_page"),
+		COPY_TO_CLIPBOARD("copy_to_clipboard")
+	}
+
+	enum class HoverAction(val id: String) {
+		SHOW_TEXT("show_text"),
+		SHOW_ITEM("show_item"),
+		SHOW_ENTITY("show_entity")
+	}
+
 	/**
 	 * 在当前文本后添加文本
 	 * @receiver T
@@ -25,6 +40,24 @@ interface MultiPlatform<T, P, S> {
 	 * @return T
 	 */
 	fun addSiblings(origin: T, sibling: T): T
+
+	/**
+	 * 为文本添加点击事件
+	 * @param text T
+	 * @param action ClickAction
+	 * @param value String
+	 * @return T
+	 */
+	fun withClick(text: T, action: ClickAction, value: String): T
+
+	/**
+	 * 为文本添加悬浮事件
+	 * @param text T
+	 * @param action HoverAction
+	 * @param content Any
+	 * @return T
+	 */
+	fun withHover(text: T, action: HoverAction, content: Any): T
 
 	/**
 	 * 将Text转换为可解析的Json文本
