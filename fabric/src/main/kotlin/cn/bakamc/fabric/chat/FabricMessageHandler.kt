@@ -2,8 +2,10 @@ package cn.bakamc.fabric.chat
 
 import cn.bakamc.common.chat.AbstractMessageHandler
 import cn.bakamc.common.chat.MessageHandler
+import cn.bakamc.common.chat.config.ChatConfig
 import cn.bakamc.common.config.common.CommonConfig
 import cn.bakamc.common.config.common.ServerConfig
+import cn.bakamc.common.config.common.TextConfig
 import cn.bakamc.fabric.common.FabricPlatform
 import net.minecraft.item.ItemStack
 import net.minecraft.network.MessageType.CHAT
@@ -31,7 +33,7 @@ import java.util.function.Consumer
 
  */
 class FabricMessageHandler(config: ServerConfig, override val commonConfig: CommonConfig, override val server: MinecraftServer) :
-	AbstractMessageHandler<MutableText, ServerPlayerEntity, MinecraftServer>(config, FabricPlatform, commonConfig) {
+	AbstractMessageHandler<MutableText, ServerPlayerEntity, MinecraftServer>(config, commonConfig), FabricPlatform {
 
 	companion object {
 		@JvmStatic
@@ -57,10 +59,13 @@ class FabricMessageHandler(config: ServerConfig, override val commonConfig: Comm
 		}
 	}
 
+	override val textConfig: TextConfig
+		get() = this.commonConfig.textConfig
+
 	override fun ServerPlayerEntity.getItemText(index: Int): MutableText {
 		val item = when (index) {
-			-2 -> this.offHandStack
-			-1 -> this.mainHandStack
+			-2   -> this.offHandStack
+			-1   -> this.mainHandStack
 			else -> this.inventory.getStack(index)
 		}
 		if (item.isEmpty) {
@@ -90,5 +95,6 @@ class FabricMessageHandler(config: ServerConfig, override val commonConfig: Comm
 	override fun ServerPlayerEntity.sendMessage(message: MutableText, uuid: UUID) {
 		this.sendMessage(message, CHAT, uuid)
 	}
+
 
 }

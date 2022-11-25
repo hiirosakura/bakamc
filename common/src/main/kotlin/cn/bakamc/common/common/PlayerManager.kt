@@ -27,34 +27,38 @@ import java.util.concurrent.ConcurrentLinkedDeque
  * @author forpleuvoir
 
  */
-abstract class PlayerManager<T, P, S>(val config: ServerConfig, val multiPlatform: MultiPlatform<T, P, S>) {
+abstract class PlayerManager<T, P, S>(val config: ServerConfig, val server: S) : MultiPlatform<T, P, S> {
 
 	/**
-	 * 所有服务器的玩家
+	 * 所有服务器在线的玩家
 	 */
 	protected val players: Deque<PlayerInfo> = ConcurrentLinkedDeque()
 
 	/**
-	 * 当前服务器的玩家
+	 * 当前服务器在线的玩家
 	 */
 	protected val currentPlayers: Deque<P> = ConcurrentLinkedDeque()
 
 
 	fun syncData() {
-		webSocketClient.send(WSMessage(PLAYER_SYNC_ALL_DATA).toJsonStr())
+		webSocketClient.send(WSMessage(PLAYER_SYNC_ALL_DATA))
+		currentPlayers.clear()
+		server.players().forEach {
+			currentPlayers.add(it)
+		}
 	}
 
 	fun onPlayerJoin(player: P) {
-		webSocketClient.send(WSMessage(PLAYER_JOIN, multiPlatform.playerInfo(player).toJsonStr()).toJsonStr())
+		webSocketClient.send(WSMessage(PLAYER_JOIN, player.playerInfo()))
 		currentPlayers.add(player)
 	}
 
 	fun onPlayerLeft(player: P) {
-		webSocketClient.send(WSMessage(PLAYER_LEFT, multiPlatform.playerInfo(player).toJsonStr()).toJsonStr())
+		webSocketClient.send(WSMessage(PLAYER_LEFT, player.playerInfo()))
 		currentPlayers.remove(player)
 	}
 
-	protected val webSocketClient = SimpleWebSocketClient("${config.riguruWebSocketAddress}/player", ::onMessage)
+	protected val webSocketClient = SimpleWebSocketClient("${config.riguruWebSocketAddress}/player/${config.serverId}", ::onMessage)
 
 	fun connect() = webSocketClient.connect()
 

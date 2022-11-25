@@ -34,6 +34,14 @@ import javax.websocket.server.ServerEndpoint
 @Component
 class ChatServer {
 
+	companion object {
+
+		private val log = LoggerFactory.getLogger(ChatServer::class.java)
+
+		private val sessions: MutableList<Session> = ArrayList()
+
+	}
+
 	@OnOpen
 	fun onOpen(
 		session: Session,
@@ -49,7 +57,7 @@ class ChatServer {
 		@PathParam("server_id") id: String
 	) {
 		sessions.remove(session)
-		log.info("[{}]有人订阅了昆虫通知服务！", id)
+		log.info("[{}]有人退订了昆虫通知服务！", id)
 	}
 
 	@OnMessage
@@ -82,14 +90,6 @@ class ChatServer {
 		sessions.broadcast(WSMessage(WHISPER_MESSAGE, json))
 		val fromJson = gson.fromJson(json, PostMessage::class.java)
 		log.info("[({})whisper]{}", id, fromJson.finalMessage)
-	}
-
-	companion object {
-
-		private val log = LoggerFactory.getLogger(ChatServer::class.java)
-
-		private val sessions: MutableList<Session> = ArrayList()
-
 	}
 
 }

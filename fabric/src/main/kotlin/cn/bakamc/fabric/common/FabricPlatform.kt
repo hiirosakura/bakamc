@@ -2,13 +2,11 @@ package cn.bakamc.fabric.common
 
 import cn.bakamc.common.common.AbstractPlatform
 import cn.bakamc.common.common.MultiPlatform.ClickAction
-import cn.bakamc.common.common.MultiPlatform.ClickAction.SUGGEST_COMMAND
 import cn.bakamc.common.common.MultiPlatform.HoverAction
 import cn.bakamc.common.common.MultiPlatform.HoverAction.*
 import cn.bakamc.common.common.PlayerCurrentInfo
 import cn.bakamc.common.common.PlayerInfo
 import cn.bakamc.common.town.Town
-import cn.bakamc.fabric.config.FabricCommonConfig
 import cn.bakamc.fabric.town.FabricTownManager
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
@@ -32,66 +30,60 @@ import net.minecraft.text.HoverEvent.ItemStackContent
  * @author forpleuvoir
 
  */
-object FabricPlatform : AbstractPlatform<MutableText, ServerPlayerEntity, MinecraftServer>(FabricCommonConfig.INSTANCE) {
+interface FabricPlatform : AbstractPlatform<MutableText, ServerPlayerEntity, MinecraftServer> {
 
-	override fun displayText(display: MutableText, hoverText: MutableText?, command: String?): MutableText {
-		hoverText?.let { withHover(display, SHOW_TEXT, hoverText) }
-		command?.let { withClick(display, SUGGEST_COMMAND, command) }
-		return display
+	override fun MutableText.addSibling(sibling: MutableText): MutableText {
+		return this.append(sibling)
 	}
 
-	override fun addSiblings(origin: MutableText, sibling: MutableText): MutableText {
-		return origin.append(sibling)
-	}
-
-	override fun withClick(text: MutableText, action: ClickAction, value: String): MutableText {
-		return text.styled {
-			it.withClickEvent(ClickEvent(Click.valueOf(action.name), value))
+	override fun MutableText.withClick(action: ClickAction, content: String): MutableText {
+		return this.styled {
+			it.withClickEvent(ClickEvent(Click.byName(action.name), content))
 		}
 	}
 
-	override fun withHover(text: MutableText, action: HoverAction, content: Any): MutableText {
+	override fun MutableText.withHover(action: HoverAction, content: Any): MutableText {
 		val event = when (action) {
-			SHOW_TEXT   -> HoverEvent(Hover.SHOW_TEXT, content as MutableText)
+			SHOW_TEXT   -> HoverEvent(Hover.SHOW_TEXT, content as Text)
 			SHOW_ITEM   -> HoverEvent(Hover.SHOW_ITEM, content as ItemStackContent)
 			SHOW_ENTITY -> HoverEvent(Hover.SHOW_ENTITY, content as EntityContent)
 		}
-		return text.styled {
+		return this.styled {
 			it.withHoverEvent(event)
 		}
 	}
 
+	override fun MutableText.toJson(): String = Text.Serializer.toJson(this)
 
-	override fun textToJson(text: MutableText): String = Text.Serializer.toJson(text)
-	override fun textToPlainString(text: MutableText): String = text.string
+	override fun MutableText.toPlain(): String = this.string
 
-	override fun textFromJson(json: String): MutableText = Text.Serializer.fromJson(json)!!
+	override fun String.fromJson(): MutableText = Text.Serializer.fromJson(this)!!
 
-	override fun stringToText(str: String): MutableText = LiteralText(str)
+	override fun String.toText(): MutableText = LiteralText(this)
 
-	override fun players(server: MinecraftServer): Iterable<ServerPlayerEntity> = server.playerManager.playerList
+	override fun MinecraftServer.players(): Iterable<ServerPlayerEntity> = this.playerManager.playerList
 
-	override fun playerInfo(player: ServerPlayerEntity): PlayerInfo {
+	override fun ServerPlayerEntity.playerInfo(): PlayerInfo {
 		return PlayerInfo(
-			player.uuid,
-			player.displayName.string,
-			player.name.string
+			this.uuid,
+			this.displayName.string,
+			this.name.string
 		)
 	}
 
-	override fun playerCurrentInfo(player: ServerPlayerEntity): PlayerCurrentInfo {
+	override fun ServerPlayerEntity.playerCurrentInfo(): PlayerCurrentInfo {
 		var town: Town = Town.NONE
-		FabricTownManager.hasManager { town = it.getByPlayerID(player.uuid) }
+		FabricTownManager.hasManager { town = it.getByPlayerID(this.uuid) }
 		return PlayerCurrentInfo(
-			player.uuid,
-			player.name.string,
-			player.displayName.string,
+			this.uuid,
+			this.name.string,
+			this.displayName.string,
 			town,
-			player.experienceLevel,
-			player.totalExperience,
-			player.maxHealth,
-			player.health,
-			player.world.registryKey.value.toString(),
+			this.experienceLevel,
+			this.totalExperience,
+			this.maxHealth,
+			this.health,
+			this.world.registryKey.value.toString(),
 		)
 	}
 

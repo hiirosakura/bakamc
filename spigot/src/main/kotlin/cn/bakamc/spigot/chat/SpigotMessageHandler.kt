@@ -4,6 +4,7 @@ import cn.bakamc.common.chat.AbstractMessageHandler
 import cn.bakamc.common.chat.MessageHandler
 import cn.bakamc.common.config.common.CommonConfig
 import cn.bakamc.common.config.common.ServerConfig
+import cn.bakamc.common.config.common.TextConfig
 import cn.bakamc.spigot.common.SpigotPlatform
 import net.minecraft.EnumChatFormat
 import net.minecraft.network.chat.*
@@ -32,7 +33,7 @@ import java.util.function.Consumer
 
  */
 class SpigotMessageHandler(config: ServerConfig, override val commonConfig: CommonConfig, override val server: Server) :
-	AbstractMessageHandler<IChatMutableComponent, Player, Server>(config, SpigotPlatform, commonConfig) {
+	AbstractMessageHandler<IChatMutableComponent, Player, Server>(config, commonConfig), SpigotPlatform {
 
 	companion object {
 		@JvmStatic
@@ -53,6 +54,9 @@ class SpigotMessageHandler(config: ServerConfig, override val commonConfig: Comm
 			return INSTANCE
 		}
 	}
+
+	override val textConfig: TextConfig
+		get() = this.commonConfig.textConfig
 
 	override fun Player.getItemText(index: Int): IChatMutableComponent {
 		val item = when (index) {
@@ -93,4 +97,6 @@ class SpigotMessageHandler(config: ServerConfig, override val commonConfig: Comm
 			}
 		}
 	}
+
+
 }

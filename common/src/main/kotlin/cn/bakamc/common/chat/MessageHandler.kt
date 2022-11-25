@@ -30,7 +30,7 @@ import java.util.*
  * @author forpleuvoir
 
  */
-interface MessageHandler<T, P, S> {
+interface MessageHandler<T, P, S> : MultiPlatform<T, P, S> {
 
 	/**
 	 * 配置
@@ -80,14 +80,7 @@ interface MessageHandler<T, P, S> {
 	 * @param player P
 	 * @param message String
 	 */
-	fun sendChatMessage(player: P, message: String) {
-		postMessage(
-			WSMessage(
-				WSMessageType.Chat.CHAT_MESSAGE,
-				Message(Chat, multiplatform.playerCurrentInfo(player), serverInfo, "", message).toFinalMessage(player).toJsonStr()
-			)
-		)
-	}
+	fun sendChatMessage(player: P, message: String)
 
 	/**
 	 * 当前服务器玩家发布私聊消息给指定玩家
@@ -95,14 +88,7 @@ interface MessageHandler<T, P, S> {
 	 * @param message String
 	 * @param receiver String
 	 */
-	fun sendWhisperMessage(player: P, message: String, receiver: String) {
-		postMessage(
-			WSMessage(
-				WSMessageType.Chat.WHISPER_MESSAGE,
-				Message(Whisper, multiplatform.playerCurrentInfo(player), serverInfo, receiver, message).toFinalMessage(player).toJsonStr()
-			)
-		)
-	}
+	fun sendWhisperMessage(player: P, message: String, receiver: String)
 
 	/**
 	 * 消息发送前的预处理
@@ -140,11 +126,5 @@ interface MessageHandler<T, P, S> {
 	 */
 	fun whisper(message: PostMessage)
 
-	val multiplatform: MultiPlatform<T, P, S>
 
-	fun T.toJson(): String = multiplatform.textToJson(this)
-
-	val String.text: T get() = multiplatform.stringToText(this)
-
-	fun T.addSiblings(sibling: T): T = multiplatform.addSiblings(this, sibling)
 }

@@ -1,6 +1,8 @@
 package cn.bakamc.common.common
 
 import cn.bakamc.common.chat.config.ChatConfig
+import cn.bakamc.common.common.MultiPlatform.ClickAction.SUGGEST_COMMAND
+import cn.bakamc.common.common.MultiPlatform.HoverAction.SHOW_TEXT
 import cn.bakamc.common.config.common.CommonConfig
 import cn.bakamc.common.config.common.TextConfig
 import cn.bakamc.common.town.Town
@@ -23,68 +25,69 @@ import java.text.DecimalFormat
  * @author forpleuvoir
 
  */
-abstract class AbstractPlatform<T, P, S>(protected val commonConfig: CommonConfig) : MultiPlatform<T, P, S> {
-	protected val chatConfig: ChatConfig get() = commonConfig.chatConfig
+interface AbstractPlatform<T, P, S> : MultiPlatform<T, P, S> {
 
-	protected val textConfig: TextConfig get() = commonConfig.textConfig
+	val textConfig: TextConfig
 
-	protected val String.text: T get() = stringToText(this)
+	val String.text: T get() = this.toText()
 
-	private fun T.append(sibling: T): T = addSiblings(this, sibling)
-
-	abstract fun displayText(display: T, hoverText: T? = null, command: String? = null): T
-
-	override fun playerNameText(playerCurrentInfo: PlayerCurrentInfo, origin: String): T {
-		val text = origin.replace("playerName", playerCurrentInfo.name).text
-		val hoverText = "".text
-		textConfig.playerInfoHover.placeholderHandler(playerCurrentInfo).forEach { hoverText.append(it.text) }
-		val command = textConfig.playerInfoClickCommand.replace(playerCurrentInfo.placeholder)
-		return displayText(text, hoverText, command)
+	fun T.displayText(hoverText: T? = null, command: String? = null): T {
+		hoverText?.let { this.withHover(SHOW_TEXT, hoverText) }
+		command?.let { this.withClick(SUGGEST_COMMAND, command) }
+		return this
 	}
 
-	override fun playerDisplayNameText(playerCurrentInfo: PlayerCurrentInfo, origin: String): T {
-		val text = origin.replace("playerDisplayName", playerCurrentInfo.displayName).text
+	override fun PlayerCurrentInfo.nameText(origin: String): T {
+		val text = origin.replace("playerName", this.name).text
 		val hoverText = "".text
-		textConfig.playerInfoHover.placeholderHandler(playerCurrentInfo).forEach { hoverText.append(it.text) }
-		val command = textConfig.playerInfoClickCommand.replace(playerCurrentInfo.placeholder)
-		return displayText(text, hoverText, command)
+		textConfig.playerInfoHover.placeholderHandler(this).forEach { hoverText.addSibling(it.text) }
+		val command = textConfig.playerInfoClickCommand.replace(this.placeholder)
+		return text.displayText(hoverText, command)
 	}
 
-	override fun townNameText(town: Town, origin: String): T {
-		if (town == Town.NONE) return "".text
-		val text = origin.replace("townName", town.name).text
+	override fun PlayerCurrentInfo.displayNameText(origin: String): T {
+		val text = origin.replace("playerDisplayName", this.displayName).text
 		val hoverText = "".text
-		textConfig.townHover.placeholderHandler(town).forEach { hoverText.append(it.text) }
-		val command = textConfig.townClickCommand.replace(town.placeholder)
-		return displayText(text, hoverText, command)
+		textConfig.playerInfoHover.placeholderHandler(this).forEach { hoverText.addSibling(it.text) }
+		val command = textConfig.playerInfoClickCommand.replace(this.placeholder)
+		return text.displayText(hoverText, command)
 	}
 
-	override fun townShortNameText(town: Town, origin: String): T {
-		if (town == Town.NONE) return "".text
-		val text = origin.replace("townShortName", town.shortName).text
+	override fun Town.nameText(origin: String): T {
+		if (this == Town.NONE) return "".text
+		val text = origin.replace("townName", this.name).text
 		val hoverText = "".text
-		textConfig.townHover.placeholderHandler(town).forEach { hoverText.append(it.text) }
-		val command = textConfig.townClickCommand.replace(town.placeholder)
-		return displayText(text, hoverText, command)
+		textConfig.townHover.placeholderHandler(this).forEach { hoverText.addSibling(it.text) }
+		val command = textConfig.townClickCommand.replace(this.placeholder)
+		return text.displayText(hoverText, command)
 	}
 
-	override fun serverNameText(serverInfo: ServerInfo, origin: String): T {
-		val text = origin.replace("serverName", serverInfo.serverName).text
+	override fun Town.shortNameText(origin: String): T {
+		if (this == Town.NONE) return "".text
+		val text = origin.replace("townShortName", this.shortName).text
 		val hoverText = "".text
-		serverInfo.description.placeholderHandler(serverInfo).forEach { hoverText.append(it.text) }
-		val command = textConfig.serverInfoClickCommand.replace(serverInfo.placeholder)
-		return displayText(text, hoverText, command)
+		textConfig.townHover.placeholderHandler(this).forEach { hoverText.addSibling(it.text) }
+		val command = textConfig.townClickCommand.replace(this.placeholder)
+		return text.displayText(hoverText, command)
 	}
 
-	override fun serverIdText(serverInfo: ServerInfo, origin: String): T {
-		val text = origin.replace("serverID", serverInfo.serverID).text
+	override fun ServerInfo.nameText(origin: String): T {
+		val text = origin.replace("serverName", this.serverName).text
 		val hoverText = "".text
-		serverInfo.description.placeholderHandler(serverInfo).forEach { hoverText.append(it.text) }
-		val command = textConfig.serverInfoClickCommand.replace(serverInfo.placeholder)
-		return displayText(text, hoverText, command)
+		this.description.placeholderHandler(this).forEach { hoverText.addSibling(it.text) }
+		val command = textConfig.serverInfoClickCommand.replace(this.placeholder)
+		return text.displayText(hoverText, command)
 	}
 
-	protected val PlayerCurrentInfo.placeholder: Map<String, String>
+	override fun ServerInfo.idText(origin: String): T {
+		val text = origin.replace("serverID", this.serverID).text
+		val hoverText = "".text
+		this.description.placeholderHandler(this).forEach { hoverText.addSibling(it.text) }
+		val command = textConfig.serverInfoClickCommand.replace(this.placeholder)
+		return text.displayText(hoverText, command)
+	}
+
+	val PlayerCurrentInfo.placeholder: Map<String, String>
 		get() {
 			val format = DecimalFormat("#.##")
 			format.roundingMode = HALF_UP
@@ -101,11 +104,11 @@ abstract class AbstractPlatform<T, P, S>(protected val commonConfig: CommonConfi
 			}
 		}
 
-	protected fun List<String>.placeholderHandler(playerInfo: PlayerCurrentInfo): List<String> = buildList {
+	fun List<String>.placeholderHandler(playerInfo: PlayerCurrentInfo): List<String> = buildList {
 		this@placeholderHandler.forEach { add(it.replace(playerInfo.placeholder)) }
 	}
 
-	protected val Town.placeholder: Map<String, String>
+	val Town.placeholder: Map<String, String>
 		get() {
 			return buildMap {
 				this["%id%"] = this@placeholder.id.toString()
@@ -118,11 +121,11 @@ abstract class AbstractPlatform<T, P, S>(protected val commonConfig: CommonConfi
 			}
 		}
 
-	protected fun List<String>.placeholderHandler(town: Town): List<String> = buildList {
+	fun List<String>.placeholderHandler(town: Town): List<String> = buildList {
 		this@placeholderHandler.forEach { add(it.replace(town.placeholder)) }
 	}
 
-	protected val ServerInfo.placeholder: Map<String, String>
+	val ServerInfo.placeholder: Map<String, String>
 		get() {
 			return buildMap {
 				this["%serverID%"] = serverID
@@ -130,7 +133,7 @@ abstract class AbstractPlatform<T, P, S>(protected val commonConfig: CommonConfi
 			}
 		}
 
-	protected fun List<String>.placeholderHandler(serverInfo: ServerInfo): List<String> = buildList {
+	fun List<String>.placeholderHandler(serverInfo: ServerInfo): List<String> = buildList {
 		this@placeholderHandler.forEach { add(it.replace(serverInfo.placeholder)) }
 	}
 }

@@ -1,19 +1,18 @@
 package cn.bakamc.spigot.common
 
 import cn.bakamc.common.common.AbstractPlatform
+import cn.bakamc.common.common.MultiPlatform.ClickAction
+import cn.bakamc.common.common.MultiPlatform.HoverAction
+import cn.bakamc.common.common.MultiPlatform.HoverAction.*
 import cn.bakamc.common.common.PlayerCurrentInfo
 import cn.bakamc.common.common.PlayerInfo
 import cn.bakamc.common.town.Town
 import cn.bakamc.common.utils.f
-import cn.bakamc.spigot.config.SpigotCommonConfig
 import cn.bakamc.spigot.town.SpigotTownManager
-import net.minecraft.network.chat.ChatClickable
+import net.minecraft.network.chat.*
 import net.minecraft.network.chat.ChatClickable.EnumClickAction
-import net.minecraft.network.chat.ChatComponentText
-import net.minecraft.network.chat.ChatHoverable
 import net.minecraft.network.chat.ChatHoverable.EnumHoverAction
 import net.minecraft.network.chat.IChatBaseComponent.ChatSerializer
-import net.minecraft.network.chat.IChatMutableComponent
 import org.bukkit.Server
 import org.bukkit.attribute.Attribute
 import org.bukkit.entity.Player
@@ -32,62 +31,71 @@ import org.bukkit.entity.Player
  * @author forpleuvoir
 
  */
-object SpigotPlatform : AbstractPlatform<IChatMutableComponent, Player, Server>(SpigotCommonConfig.INSTANCE) {
-	override fun displayText(display: IChatMutableComponent, hoverText: IChatMutableComponent?, command: String?): IChatMutableComponent {
-		display.a {
+interface SpigotPlatform : AbstractPlatform<IChatMutableComponent, Player, Server> {
+	override fun IChatMutableComponent.displayText(hoverText: IChatMutableComponent?, command: String?): IChatMutableComponent {
+		this.a {
 			var style = it
 			hoverText?.let { style = style.a(ChatHoverable((EnumHoverAction.a), hoverText)) }
 			command?.let { style = style.a(ChatClickable(EnumClickAction.d, command)) }
 			style
 		}
-		return display
+		return this
 	}
 
-	override fun addSiblings(origin: IChatMutableComponent,sibling: IChatMutableComponent): IChatMutableComponent {
-		return origin.a(sibling)
+	override fun IChatMutableComponent.addSibling(sibling: IChatMutableComponent): IChatMutableComponent {
+		return this.a(sibling)
 	}
 
-	override fun textToJson(text: IChatMutableComponent): String {
-		return ChatSerializer.a(text)
+	override fun IChatMutableComponent.withClick(action: ClickAction, content: String): IChatMutableComponent {
+		return this.a {
+			it.a(ChatClickable(EnumClickAction.a(action.id), content))
+		}
 	}
 
-	override fun textToPlainString(text: IChatMutableComponent): String {
-		return text.string
+	override fun IChatMutableComponent.withHover(action: HoverAction, content: Any): IChatMutableComponent {
+		val event = when (action) {
+			SHOW_TEXT   -> ChatHoverable(EnumHoverAction.a, content as IChatBaseComponent)
+			SHOW_ITEM   -> ChatHoverable(EnumHoverAction.b, content as ChatHoverable.c)
+			SHOW_ENTITY -> ChatHoverable(EnumHoverAction.c, content as ChatHoverable.b)
+		}
+		return this.a {
+			it.a(event)
+		}
 	}
 
-	override fun textFromJson(json: String): IChatMutableComponent {
-		return ChatSerializer.a(json)!!
+	override fun IChatMutableComponent.toJson(): String = ChatSerializer.a(this)
+
+	override fun IChatMutableComponent.toPlain(): String = this.string
+
+	override fun String.fromJson(): IChatMutableComponent = ChatSerializer.a(this)!!
+
+	override fun String.toText(): IChatMutableComponent = ChatComponentText(this)
+
+	override fun Server.players(): Iterable<Player> {
+		return this.onlinePlayers
 	}
 
-	override fun stringToText(str: String): IChatMutableComponent {
-		return ChatComponentText(str)
-	}
-
-	override fun players(server: Server): Iterable<Player> {
-		return server.onlinePlayers
-	}
-
-	override fun playerInfo(player: Player): PlayerInfo {
+	override fun Player.playerInfo(): PlayerInfo {
 		return PlayerInfo(
-			player.uniqueId,
-			player.name,
-			player.displayName
+			this.uniqueId,
+			this.name,
+			this.displayName
 		)
 	}
 
-	override fun playerCurrentInfo(player: Player): PlayerCurrentInfo {
+	override fun Player.playerCurrentInfo(): PlayerCurrentInfo {
 		var town: Town = Town.NONE
-		SpigotTownManager.hasManager { town = it.getByPlayerID(player.uniqueId) }
+		SpigotTownManager.hasManager { town = it.getByPlayerID(this.uniqueId) }
 		return PlayerCurrentInfo(
-			player.uniqueId,
-			player.name,
-			player.displayName,
+			this.uniqueId,
+			this.name,
+			this.displayName,
 			town,
-			player.level,
-			player.totalExperience,
-			player.getAttribute(Attribute.GENERIC_MAX_HEALTH)?.value?.f ?: 20f,
-			player.health.f,
-			player.world.key.toString(),
+			this.level,
+			this.totalExperience,
+			this.getAttribute(Attribute.GENERIC_MAX_HEALTH)?.value?.f ?: 20f,
+			this.health.f,
+			this.world.key.toString(),
 		)
 	}
 }

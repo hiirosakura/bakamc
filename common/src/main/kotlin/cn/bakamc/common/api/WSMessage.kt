@@ -1,6 +1,9 @@
 package cn.bakamc.common.api
 
+import cn.bakamc.common.api.serialization.JsonSerializer
 import cn.bakamc.common.utils.gson
+import cn.bakamc.common.utils.toJsonStr
+import com.google.gson.JsonElement
 
 /**
  *
@@ -20,6 +23,11 @@ data class WSMessage(
 	val type: String,
 	val data: String = ""
 ) {
+
+	constructor(type: String, data: JsonSerializer) : this(type, data.toJsonStr())
+
+	constructor(type: String, data: JsonElement) : this(type, data.toString())
+
 	companion object {
 		fun parse(json: String, wsMessage: WSMessage.() -> Unit, onException: (Exception) -> Unit) {
 			try {

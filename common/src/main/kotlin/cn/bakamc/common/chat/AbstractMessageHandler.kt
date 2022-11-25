@@ -1,6 +1,7 @@
 package cn.bakamc.common.chat
 
 import cn.bakamc.common.api.WSMessage
+import cn.bakamc.common.api.WSMessageType
 import cn.bakamc.common.api.WSMessageType.Chat.CHAT_MESSAGE
 import cn.bakamc.common.api.WSMessageType.Chat.WHISPER_MESSAGE
 import cn.bakamc.common.chat.message.Message
@@ -38,9 +39,8 @@ import java.util.*
  */
 abstract class AbstractMessageHandler<T, P, S>(
 	final override val config: ServerConfig,
-	override val multiplatform: MultiPlatform<T, P, S>,
 	override val commonConfig: CommonConfig
-) : MessageHandler<T, P, S> {
+) : MessageHandler<T, P, S>, MultiPlatform<T, P, S> {
 
 	protected val webSocketClient = SimpleWebSocketClient("${config.riguruWebSocketAddress}/chat/${config.serverInfo.serverID}") {
 		try {
@@ -72,8 +72,26 @@ abstract class AbstractMessageHandler<T, P, S>(
 
 	override fun close() = webSocketClient.close()
 
+	override fun sendChatMessage(player: P, message: String) {
+		postMessage(
+			WSMessage(
+				CHAT_MESSAGE,
+				Message(Chat, player.playerCurrentInfo(), serverInfo, "", message).toFinalMessage(player).toJsonStr()
+			)
+		)
+	}
+
+	override fun sendWhisperMessage(player: P, message: String, receiver: String) {
+		postMessage(
+			WSMessage(
+				WHISPER_MESSAGE,
+				Message(Whisper, player.playerCurrentInfo(), serverInfo, receiver, message).toFinalMessage(player).toJsonStr()
+			)
+		)
+	}
+
 	override fun postMessage(message: WSMessage) {
-		webSocketClient.send(message.toJsonStr())
+		webSocketClient.send(message)
 	}
 
 	override fun Message.toFinalMessage(player: P): PostMessage {
@@ -95,32 +113,33 @@ abstract class AbstractMessageHandler<T, P, S>(
 	 */
 	protected open fun Message.format(msg: String): PostMessage {
 		val formatHandlers = mapOf<String, (String) -> T>(
-			"serverName" to { multiplatform.serverNameText(serverInfo, it) },
-			"serverID" to { multiplatform.serverIdText(serverInfo, it) },
-			"playerName" to { multiplatform.playerNameText(sender, it) },
-			"playerDisplayName" to { multiplatform.playerDisplayNameText(sender, it) },
-			"townName" to { multiplatform.townNameText(sender.town, it) },
-			"townShortName" to { multiplatform.townShortNameText(sender.town, it) },
-			"message" to { multiplatform.textFromJson(msg) },
-			"receiver" to { multiplatform.stringToText(it.replace("receiver", receiver)) }
+			"serverName" to { serverInfo.nameText(it) },
+			"serverID" to { serverInfo.idText(it) },
+			"playerName" to { sender.nameText(it) },
+			"playerDisplayName" to { sender.displayNameText(it) },
+			"townName" to { sender.town.nameText(it) },
+			"townShortName" to { sender.town.shortNameText(it) },
+			"message" to { msg.fromJson() },
+			"receiver" to { it.replace("receiver", receiver).toText() }
 		)
 		val data = buildMap {
 			when (type) {
 				Chat -> {
 					val finalText = parse(chatConfig.chatFormat, formatHandlers)
 					this[FINAL_TEXT] = finalText.toJson()
-					this[FINAL_MESSAGE] = MessageUtil.cleanFormatting(multiplatform.textToPlainString(finalText))
+					this[FINAL_MESSAGE] = MessageUtil.cleanFormatting(finalText.toPlain())
 				}
 
 				Whisper -> {
 					this[FINAL_SENDER_TEXT] = parse(chatConfig.whisperSenderFormat, formatHandlers).toJson()
 					this[FINAL_RECEIVER_TEXT] = parse(chatConfig.whisperReceiverFormat, formatHandlers).toJson()
-					this[FINAL_MESSAGE] = MessageUtil.cleanFormatting(multiplatform.textToPlainString(kotlin.run {
-						multiplatform.serverNameText(serverInfo)
-							.addSiblings("=>".text)
-							.addSiblings("[$receiver]: ".text)
-							.addSiblings(multiplatform.textFromJson(msg))
-					}))
+					this[FINAL_MESSAGE] = MessageUtil.cleanFormatting(
+						serverInfo.nameText()
+							.addSibling("=>".toText())
+							.addSibling("[$receiver]: ".toText())
+							.addSibling(msg.fromJson())
+							.toPlain()
+					)
 				}
 			}
 			this[AT_LIST] = getAtList()
@@ -130,7 +149,7 @@ abstract class AbstractMessageHandler<T, P, S>(
 
 
 	protected open fun Message.parse(msgForMatting: String, formatHandlers: Map<String, (String) -> T>): T {
-		val finalText: T = "".text
+		val finalText: T = "".toText()
 		val texts = ArrayList<T>()
 		val regex = Regex("#\\{.+?}")
 		val toEmpty = arrayOf("#{", "}")
@@ -138,7 +157,7 @@ abstract class AbstractMessageHandler<T, P, S>(
 			val str = it.value.replace(toEmpty, "")
 			texts.add(
 				run {
-					var text = str.text
+					var text = str.toText()
 					formatHandlers.forEach { (k, v) ->
 						if (str.contains(k)) text = v(str)
 					}
@@ -147,10 +166,10 @@ abstract class AbstractMessageHandler<T, P, S>(
 			)
 			it.value
 		}.split(regex).toMutableList().apply {
-			finalText.addSiblings(this[0].text)
+			finalText.addSibling(this[0].toText())
 			texts.forEachIndexed { index, t ->
-				finalText.addSiblings(t)
-				finalText.addSiblings(this[index + 1].text)
+				finalText.addSibling(t)
+				finalText.addSibling(this[index + 1].toText())
 			}
 		}
 		return finalText
@@ -164,18 +183,18 @@ abstract class AbstractMessageHandler<T, P, S>(
 	}
 
 	override fun broadcast(message: PostMessage) {
-		multiplatform.players(server).forEach { it.sendMessage(message.finalText { multiplatform.textFromJson(this) }!!, message.senderUUID) }
+		server.players().forEach { it.sendMessage(message.finalText { this.fromJson() }!!, message.senderUUID) }
 	}
 
 	override fun whisper(message: PostMessage) {
-		multiplatform.players(server).findLast {
-			val p = multiplatform.playerCurrentInfo(it)
+		server.players().findLast {
+			val p = it.playerCurrentInfo()
 			p.name == message.receiver && p.displayName == message.receiver
-		}?.sendMessage(message.finalReceiverText { multiplatform.textFromJson(this) }!!, message.senderUUID)
-		multiplatform.players(server).findLast {
-			val p = multiplatform.playerCurrentInfo(it)
+		}?.sendMessage(message.finalReceiverText { this.fromJson() }!!, message.senderUUID)
+		server.players().findLast {
+			val p = it.playerCurrentInfo()
 			p.uuid == message.senderUUID
-		}?.sendMessage(message.finalSenderText { multiplatform.textFromJson(this) }!!, message.senderUUID)
+		}?.sendMessage(message.finalSenderText { this.fromJson() }!!, message.senderUUID)
 	}
 
 	/**
@@ -201,17 +220,17 @@ abstract class AbstractMessageHandler<T, P, S>(
 	open fun handleItemShow(message: String, player: P): String {
 		val regex = Regex("%(\\d|i|o)")
 		val itemTexts = ArrayList<T>()
-		val text: T = "".text
+		val text: T = "".toText()
 		message.replace(regex) {
 			val indexChar = it.value[1].toString()
 			val index = if (indexChar == "i") -1 else if (indexChar == "o") -2 else indexChar.toInt() - 1
 			itemTexts.add(player.getItemText(index))
 			it.value
 		}.split(regex).toMutableList().apply {
-			text.addSiblings(this[0].text)
+			text.addSibling(this[0].toText())
 			itemTexts.forEachIndexed { index, s ->
-				text.addSiblings(s)
-				text.addSiblings(this[index + 1].text)
+				text.addSibling(s)
+				text.addSibling(this[index + 1].toText())
 			}
 		}
 		return text.toJson()

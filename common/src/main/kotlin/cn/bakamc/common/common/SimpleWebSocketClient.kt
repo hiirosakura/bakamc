@@ -1,5 +1,7 @@
 package cn.bakamc.common.common
 
+import cn.bakamc.common.api.WSMessage
+import cn.bakamc.common.utils.toJsonStr
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import java.net.URI
@@ -31,6 +33,10 @@ class SimpleWebSocketClient(uri: String, var onMessage: (String) -> Unit) : WebS
 	override fun onOpen(handshakedata: ServerHandshake) {
 		println("[BakaMC]服务已连接")
 		onOpen?.invoke(handshakedata)
+	}
+
+	fun send(message: WSMessage) {
+		send(message.toJsonStr())
 	}
 
 	override fun onMessage(message: String) {
