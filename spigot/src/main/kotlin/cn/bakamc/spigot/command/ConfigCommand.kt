@@ -4,6 +4,7 @@ import cn.bakamc.spigot.BakaMC
 import cn.bakamc.spigot.chat.SpigotMessageHandler
 import cn.bakamc.spigot.config.SpigotCommonConfig
 import cn.bakamc.spigot.config.SpigotConfig
+import cn.bakamc.spigot.player.SpigotPlayerManager
 import cn.bakamc.spigot.town.SpigotTownManager
 import com.mojang.brigadier.CommandDispatcher
 import net.minecraft.commands.CommandListenerWrapper
@@ -41,8 +42,10 @@ object ConfigCommand {
 					SpigotCommonConfig.init(SpigotConfig.Server)
 					SpigotMessageHandler.hasHandler { it.close() }
 					SpigotTownManager.hasManager { it.close() }
+					SpigotPlayerManager.hasManager { it.close() }
 					SpigotMessageHandler.init(SpigotConfig.Server, SpigotCommonConfig.INSTANCE, BakaMC.INSTANCE.server)
 					SpigotTownManager.init(SpigotConfig.Server)
+					SpigotPlayerManager.init(SpigotConfig.Server, SpigotCommonConfig.INSTANCE, BakaMC.INSTANCE.server)
 					context.source.bukkitSender.sendMessage("§b[BakaMC]§a插件已重新加载")
 					1
 				}

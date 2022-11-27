@@ -1,18 +1,13 @@
 package cn.bakamc.common.chat
 
 import cn.bakamc.common.api.WSMessage
-import cn.bakamc.common.api.WSMessageType
 import cn.bakamc.common.chat.config.ChatConfig
 import cn.bakamc.common.chat.message.Message
-import cn.bakamc.common.chat.message.MessageType.Chat
-import cn.bakamc.common.chat.message.MessageType.Whisper
 import cn.bakamc.common.chat.message.PostMessage
 import cn.bakamc.common.common.MultiPlatform
 import cn.bakamc.common.common.ServerInfo
 import cn.bakamc.common.config.common.CommonConfig
 import cn.bakamc.common.config.common.ServerConfig
-import cn.bakamc.common.utils.toJsonStr
-import java.util.*
 
 /**
  * 消息处理器
@@ -94,13 +89,6 @@ interface MessageHandler<T, P, S> : MultiPlatform<T, P, S> {
 	 * 消息发送前的预处理
 	 */
 	fun Message.toFinalMessage(player: P): PostMessage
-
-	/**
-	 * 向当前服务器指定玩家发送消息
-	 * @receiver P
-	 * @param message Text[T]
-	 */
-	fun P.sendMessage(message: T, uuid: UUID)
 
 	/**
 	 * 向riguru服务器发送消息

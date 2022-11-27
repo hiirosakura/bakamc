@@ -4,6 +4,7 @@ package cn.bakamc.fabric.command
 import cn.bakamc.fabric.chat.FabricMessageHandler
 import cn.bakamc.fabric.config.FabricCommonConfig
 import cn.bakamc.fabric.config.FabricConfig
+import cn.bakamc.fabric.player.FabricPlayerManager
 import cn.bakamc.fabric.town.FabricTownManager
 import com.mojang.brigadier.CommandDispatcher
 import net.minecraft.server.command.CommandManager.literal
@@ -43,8 +44,10 @@ object ConfigCommand {
 					FabricCommonConfig.init(FabricConfig.Server)
 					FabricMessageHandler.hasHandler { it.close() }
 					FabricTownManager.hasManager { it.close() }
+					FabricPlayerManager.hasManager { it.close() }
 					FabricMessageHandler.init(FabricConfig.Server, FabricCommonConfig.INSTANCE, context.source.server)
 					FabricTownManager.init(FabricConfig.Server)
+					FabricPlayerManager.init(FabricConfig.Server, FabricCommonConfig.INSTANCE, context.source.server)
 					context.source.sendFeedback(Text.of("§b[BakaMC]§aMod已重新加载"), false)
 					1
 				}

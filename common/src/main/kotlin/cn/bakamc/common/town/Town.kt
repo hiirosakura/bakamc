@@ -1,7 +1,7 @@
 package cn.bakamc.common.town
 
 import cn.bakamc.common.api.serialization.JsonSerializer
-import cn.bakamc.common.common.PlayerInfo
+import cn.bakamc.common.player.PlayerInfo
 import cn.bakamc.common.utils.jsonArray
 import cn.bakamc.common.utils.jsonObject
 import com.google.gson.JsonElement
@@ -73,8 +73,6 @@ class Town(
 	}
 
 	fun formatTime(format: String = "yyyy-MM-dd HH:mm:ss"): String = SimpleDateFormat(format).format(createTime)
-
-
 
 	override val serialization: JsonElement
 		get() = jsonObject {

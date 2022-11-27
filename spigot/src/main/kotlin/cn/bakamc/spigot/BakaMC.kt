@@ -4,7 +4,8 @@ import cn.bakamc.spigot.chat.SpigotMessageHandler
 import cn.bakamc.spigot.command.Commands
 import cn.bakamc.spigot.config.SpigotCommonConfig
 import cn.bakamc.spigot.config.SpigotConfig
-import cn.bakamc.spigot.event.MessageEventHandler
+import cn.bakamc.spigot.event.PlayerEventHandler
+import cn.bakamc.spigot.player.SpigotPlayerManager
 import cn.bakamc.spigot.town.SpigotTownManager
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -31,7 +32,7 @@ class BakaMC : JavaPlugin() {
 
 	private fun registerEvent() {
 		server.pluginManager.apply {
-			registerEvents(MessageEventHandler, this@BakaMC)
+			registerEvents(PlayerEventHandler, this@BakaMC)
 		}
 	}
 
@@ -41,6 +42,7 @@ class BakaMC : JavaPlugin() {
 		SpigotCommonConfig.init(SpigotConfig.Server)
 		SpigotMessageHandler.init(SpigotConfig.Server, SpigotCommonConfig.INSTANCE, server)
 		SpigotTownManager.init(SpigotConfig.Server)
+		SpigotPlayerManager.init(SpigotConfig.Server, SpigotCommonConfig.INSTANCE, server)
 		Commands.registerCommand(this)
 		registerEvent()
 	}
@@ -49,6 +51,7 @@ class BakaMC : JavaPlugin() {
 		SpigotConfig.save()
 		SpigotMessageHandler.hasHandler { it.close() }
 		SpigotTownManager.hasManager { it.close() }
+		SpigotPlayerManager.hasManager { it.close() }
 	}
 
 }

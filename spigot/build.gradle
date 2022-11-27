@@ -41,6 +41,12 @@ tasks.withType(JavaCompile).configureEach {
 	it.options.encoding = "UTF-8"
 }
 
+task spigotJar(type:Sync){
+	mustRunAfter "shadowJar"
+	from "build/libs"
+	into "../out/spigot"
+}
+
 java {
 	withSourcesJar()
 	toolchain.languageVersion.set(JavaLanguageVersion.of(17))

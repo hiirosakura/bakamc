@@ -2,20 +2,17 @@ package cn.bakamc.fabric.chat
 
 import cn.bakamc.common.chat.AbstractMessageHandler
 import cn.bakamc.common.chat.MessageHandler
-import cn.bakamc.common.chat.config.ChatConfig
 import cn.bakamc.common.config.common.CommonConfig
 import cn.bakamc.common.config.common.ServerConfig
 import cn.bakamc.common.config.common.TextConfig
 import cn.bakamc.fabric.common.FabricPlatform
 import net.minecraft.item.ItemStack
-import net.minecraft.network.MessageType.CHAT
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.*
 import net.minecraft.text.HoverEvent.Action
 import net.minecraft.text.HoverEvent.ItemStackContent
 import net.minecraft.util.Formatting.ITALIC
-import java.util.*
 import java.util.function.Consumer
 
 /**
@@ -91,10 +88,5 @@ class FabricMessageHandler(config: ServerConfig, override val commonConfig: Comm
 		}
 		return mutableText2
 	}
-
-	override fun ServerPlayerEntity.sendMessage(message: MutableText, uuid: UUID) {
-		this.sendMessage(message, CHAT, uuid)
-	}
-
 
 }

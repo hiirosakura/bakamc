@@ -4,7 +4,7 @@ import cn.bakamc.common.api.WSMessage
 import cn.bakamc.common.api.WSMessageType.Player
 import cn.bakamc.common.api.WSMessageType.Player.PLAYER_SYNC_ALL_DATA
 import cn.bakamc.common.api.parseToWSMessage
-import cn.bakamc.common.common.PlayerInfo
+import cn.bakamc.common.player.PlayerInfo
 import cn.bakamc.common.utils.jsonArray
 import cn.bakamc.common.utils.parseToJsonObject
 import cn.bakamc.riguru.services.PlayerInfoServices
@@ -21,7 +21,6 @@ import javax.websocket.OnOpen
 import javax.websocket.Session
 import javax.websocket.server.PathParam
 import javax.websocket.server.ServerEndpoint
-import kotlin.collections.ArrayList
 
 /**
  *
@@ -49,6 +48,8 @@ class PlayerServer {
 
 		private val players: Deque<PlayerInfo> = ConcurrentLinkedDeque()
 
+		@Autowired
+		lateinit var playerServices: PlayerInfoServices
 		fun syncData() {
 			sessions.broadcast(WSMessage(PLAYER_SYNC_ALL_DATA, jsonArray(players)))
 		}
@@ -56,7 +57,9 @@ class PlayerServer {
 	}
 
 	@Autowired
-	lateinit var playerServices: PlayerInfoServices
+	fun setPlayerServices(playerServices: PlayerInfoServices) {
+		PlayerServer.playerServices = playerServices
+	}
 
 	@OnOpen
 	fun onOpen(
@@ -64,6 +67,7 @@ class PlayerServer {
 		@PathParam("server_id") id: String
 	) {
 		sessions.add(session)
+		syncData(session)
 		log.info("[{}]有人订阅了玩家服务！", id)
 	}
 
@@ -101,12 +105,14 @@ class PlayerServer {
 		val player = PlayerInfo.deserialize(data.parseToJsonObject)
 		playerServices.saveOrUpdate(player)
 		players.add(player)
+		syncData()
 		log.info("[{}]有玩家({})加入服务器了", id, player.name)
 	}
 
 	fun onPlayerLeft(data: String, session: Session, id: String) {
 		val player = PlayerInfo.deserialize(data.parseToJsonObject)
 		players.remove(player)
+		syncData()
 		log.info("[{}]有玩家({})离开服务器了", id, player.name)
 	}
 

@@ -1,10 +1,11 @@
 package cn.bakamc.common.town
 
+import cn.bakamc.common.api.WSMessage
 import cn.bakamc.common.api.WSMessageType.Town.TOWN_SYNC_ALL_DATA
 import cn.bakamc.common.api.parseToWSMessage
-import cn.bakamc.common.common.PlayerInfo
 import cn.bakamc.common.common.SimpleWebSocketClient
 import cn.bakamc.common.config.common.ServerConfig
+import cn.bakamc.common.player.PlayerInfo
 import cn.bakamc.common.utils.isIn
 import cn.bakamc.common.utils.net.httpGet
 import cn.bakamc.common.utils.net.httpPost
@@ -76,7 +77,7 @@ abstract class TownManager(val config: ServerConfig) {
 	}
 
 	fun syncData(){
-
+		webSocketClient.send(WSMessage(TOWN_SYNC_ALL_DATA))
 	}
 
 	fun application(application: TownApplication, callback: (Boolean) -> Unit) {

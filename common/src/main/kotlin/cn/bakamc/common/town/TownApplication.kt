@@ -1,11 +1,9 @@
 package cn.bakamc.common.town
 
 import cn.bakamc.common.api.serialization.JsonSerializer
-import cn.bakamc.common.common.PlayerInfo
+import cn.bakamc.common.player.PlayerInfo
 import cn.bakamc.common.utils.jsonObject
-import cn.bakamc.common.utils.toJsonObject
 import com.google.gson.JsonElement
-import com.google.gson.annotations.SerializedName
 import java.util.*
 
 /**

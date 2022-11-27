@@ -1,4 +1,4 @@
-package cn.bakamc.common.common
+package cn.bakamc.common.player
 
 import cn.bakamc.common.api.serialization.JsonSerializer
 import cn.bakamc.common.utils.jsonObject
@@ -10,7 +10,7 @@ import java.util.*
 
  * 项目名 bakamc
 
- * 包名 cn.bakamc.common.common
+ * 包名 cn.bakamc.common.player
 
  * 文件名 PlayerInfo
 

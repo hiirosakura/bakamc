@@ -1,6 +1,6 @@
 package cn.bakamc.riguru.services
 
-import cn.bakamc.common.common.PlayerInfo
+import cn.bakamc.common.player.PlayerInfo
 import cn.bakamc.common.town.Town
 import cn.bakamc.common.town.TownApplication
 import cn.bakamc.common.town.TownMember

@@ -7,15 +7,15 @@ import cn.bakamc.common.config.common.ServerConfig
 import cn.bakamc.common.config.common.TextConfig
 import cn.bakamc.spigot.common.SpigotPlatform
 import net.minecraft.EnumChatFormat
-import net.minecraft.network.chat.*
+import net.minecraft.network.chat.ChatComponentText
+import net.minecraft.network.chat.ChatComponentUtils
+import net.minecraft.network.chat.ChatHoverable
 import net.minecraft.network.chat.ChatHoverable.EnumHoverAction
-import net.minecraft.network.protocol.game.PacketPlayOutChat
+import net.minecraft.network.chat.IChatMutableComponent
 import net.minecraft.world.item.ItemStack
 import org.bukkit.Server
-import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer
 import org.bukkit.craftbukkit.v1_18_R2.inventory.CraftItemStack
 import org.bukkit.entity.Player
-import java.util.*
 import java.util.function.Consumer
 
 /**
@@ -87,16 +87,5 @@ class SpigotMessageHandler(config: ServerConfig, override val commonConfig: Comm
 		}
 		return mutableText2
 	}
-
-	override fun Player.sendMessage(message: IChatMutableComponent, uuid: UUID) {
-		println(message.string)
-		(this as CraftPlayer).apply {
-			if (this.handle.b != null) {
-				val packet = PacketPlayOutChat(message, ChatMessageType.a, uuid)
-				this.handle.b.a(packet)
-			}
-		}
-	}
-
 
 }

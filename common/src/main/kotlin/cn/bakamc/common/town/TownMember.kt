@@ -1,6 +1,6 @@
 package cn.bakamc.common.town
 
-import cn.bakamc.common.common.PlayerInfo
+import cn.bakamc.common.player.PlayerInfo
 
 /**
  * 小镇镇民

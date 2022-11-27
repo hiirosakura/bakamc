@@ -1,6 +1,9 @@
 package cn.bakamc.common.common
 
+import cn.bakamc.common.player.PlayerCurrentInfo
+import cn.bakamc.common.player.PlayerInfo
 import cn.bakamc.common.town.Town
+import java.util.*
 
 /**
  * 多平台方法
@@ -43,7 +46,6 @@ interface MultiPlatform<T, P, S> {
 
 	/**
 	 * 为文本添加点击事件
-	 * @param text T
 	 * @param action ClickAction
 	 * @param content String
 	 * @return T
@@ -52,9 +54,8 @@ interface MultiPlatform<T, P, S> {
 
 	/**
 	 * 为文本添加悬浮事件
-	 * @param text T
 	 * @param action HoverAction
-	 * @param content Any
+	 * @param content Any 注意参数类型 必须和[action]的参数类型一致
 	 * @return T
 	 */
 	fun T.withHover(action: HoverAction, content: Any): T
@@ -124,5 +125,11 @@ interface MultiPlatform<T, P, S> {
 	 */
 	fun S.players(): Iterable<P>
 
+	/**
+	 * 向当前服务器指定玩家发送消息
+	 * @receiver P
+	 * @param message Text[T]
+	 */
+	fun P.sendMessage(message: T, uuid: UUID)
 
 }

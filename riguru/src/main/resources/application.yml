@@ -35,7 +35,7 @@ bakamc:
   chat:
     chatFormat: "#{§6[§rserverName§6]}#{§6[§rtownShortName§6]}#{§6[§r§bplayerName§6]}§b:§r #{message}"
     whisperSenderFormat: "§7你悄悄对#{§6[§r§7receiver§6]}§7说§b:§r #{message}"
-    whisperReceiverFormat: "#{§6[§rserverName§6]}#{§6[§rtown§6]}#{§6[§r§bplayerName§6]}§7悄悄对你说§b:§r #{message}"
+    whisperReceiverFormat: "#{§6[§rserverName§6]}#{§6[§rtownShortName§6]}#{§6[§r§bplayerName§6]}§7悄悄对你说§b:§r #{message}"
     atFormat: "§b%at%§r"
     #只会替换原始消息文本
     messageMapping:

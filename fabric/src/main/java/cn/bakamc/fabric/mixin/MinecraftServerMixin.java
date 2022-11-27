@@ -1,10 +1,12 @@
 package cn.bakamc.fabric.mixin;
 
 import cn.bakamc.common.chat.MessageHandler;
+import cn.bakamc.common.player.PlayerManager;
 import cn.bakamc.common.town.TownManager;
 import cn.bakamc.fabric.chat.FabricMessageHandler;
 import cn.bakamc.fabric.config.FabricCommonConfig;
 import cn.bakamc.fabric.config.FabricConfig;
+import cn.bakamc.fabric.player.FabricPlayerManager;
 import cn.bakamc.fabric.town.FabricTownManager;
 import net.minecraft.server.MinecraftServer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -36,6 +38,7 @@ public abstract class MinecraftServerMixin {
 			FabricCommonConfig.init(FabricConfig.Server.INSTANCE);
 			FabricMessageHandler.init(FabricConfig.Server.INSTANCE, FabricCommonConfig.getINSTANCE(), (MinecraftServer) (Object) this);
 			FabricTownManager.init(FabricConfig.Server.INSTANCE);
+			FabricPlayerManager.init(FabricConfig.Server.INSTANCE, FabricCommonConfig.getINSTANCE(), (MinecraftServer) (Object) this);
 		});
 	}
 
@@ -52,6 +55,7 @@ public abstract class MinecraftServerMixin {
 		FabricConfig.INSTANCE.saveAsync();
 		FabricMessageHandler.hasHandler(MessageHandler::close);
 		FabricTownManager.hasManager(TownManager::close);
+		FabricPlayerManager.hasManager(PlayerManager::close);
 	}
 
 }

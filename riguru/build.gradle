@@ -32,6 +32,12 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
+task riguruJar(type:Sync){
+	mustRunAfter "bootJar"
+	from "build/libs"
+	into "../out/riguru"
+}
+
 tasks.named('test') {
 	useJUnitPlatform()
 }

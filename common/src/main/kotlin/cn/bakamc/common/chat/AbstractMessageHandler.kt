@@ -1,7 +1,6 @@
 package cn.bakamc.common.chat
 
 import cn.bakamc.common.api.WSMessage
-import cn.bakamc.common.api.WSMessageType
 import cn.bakamc.common.api.WSMessageType.Chat.CHAT_MESSAGE
 import cn.bakamc.common.api.WSMessageType.Chat.WHISPER_MESSAGE
 import cn.bakamc.common.chat.message.Message

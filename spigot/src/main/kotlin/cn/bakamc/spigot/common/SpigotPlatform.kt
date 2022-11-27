@@ -2,20 +2,25 @@ package cn.bakamc.spigot.common
 
 import cn.bakamc.common.common.AbstractPlatform
 import cn.bakamc.common.common.MultiPlatform.ClickAction
+import cn.bakamc.common.common.MultiPlatform.ClickAction.*
 import cn.bakamc.common.common.MultiPlatform.HoverAction
 import cn.bakamc.common.common.MultiPlatform.HoverAction.*
-import cn.bakamc.common.common.PlayerCurrentInfo
-import cn.bakamc.common.common.PlayerInfo
+import cn.bakamc.common.player.PlayerCurrentInfo
+import cn.bakamc.common.player.PlayerInfo
 import cn.bakamc.common.town.Town
 import cn.bakamc.common.utils.f
 import cn.bakamc.spigot.town.SpigotTownManager
 import net.minecraft.network.chat.*
 import net.minecraft.network.chat.ChatClickable.EnumClickAction
 import net.minecraft.network.chat.ChatHoverable.EnumHoverAction
+import net.minecraft.network.chat.ChatMessageType.a
 import net.minecraft.network.chat.IChatBaseComponent.ChatSerializer
+import net.minecraft.network.protocol.game.PacketPlayOutChat
 import org.bukkit.Server
 import org.bukkit.attribute.Attribute
+import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer
 import org.bukkit.entity.Player
+import java.util.*
 
 /**
  *
@@ -47,8 +52,16 @@ interface SpigotPlatform : AbstractPlatform<IChatMutableComponent, Player, Serve
 	}
 
 	override fun IChatMutableComponent.withClick(action: ClickAction, content: String): IChatMutableComponent {
+		val a = when (action) {
+			OPEN_URL          -> EnumClickAction.a
+			OPEN_FILE         -> EnumClickAction.b
+			RUN_COMMAND       -> EnumClickAction.c
+			SUGGEST_COMMAND   -> EnumClickAction.d
+			CHANGE_PAGE       -> EnumClickAction.e
+			COPY_TO_CLIPBOARD -> EnumClickAction.f
+		}
 		return this.a {
-			it.a(ChatClickable(EnumClickAction.a(action.id), content))
+			it.a(ChatClickable(a, content))
 		}
 	}
 
@@ -73,6 +86,17 @@ interface SpigotPlatform : AbstractPlatform<IChatMutableComponent, Player, Serve
 
 	override fun Server.players(): Iterable<Player> {
 		return this.onlinePlayers
+	}
+
+
+	override fun Player.sendMessage(message: IChatMutableComponent, uuid: UUID) {
+		println(message.string)
+		(this as CraftPlayer).apply {
+			if (this.handle.b != null) {
+				val packet = PacketPlayOutChat(message, a, uuid)
+				this.handle.b.a(packet)
+			}
+		}
 	}
 
 	override fun Player.playerInfo(): PlayerInfo {

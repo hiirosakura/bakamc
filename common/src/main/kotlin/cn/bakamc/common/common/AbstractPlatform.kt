@@ -1,10 +1,9 @@
 package cn.bakamc.common.common
 
-import cn.bakamc.common.chat.config.ChatConfig
 import cn.bakamc.common.common.MultiPlatform.ClickAction.SUGGEST_COMMAND
 import cn.bakamc.common.common.MultiPlatform.HoverAction.SHOW_TEXT
-import cn.bakamc.common.config.common.CommonConfig
 import cn.bakamc.common.config.common.TextConfig
+import cn.bakamc.common.player.PlayerCurrentInfo
 import cn.bakamc.common.town.Town
 import cn.bakamc.common.utils.format
 import cn.bakamc.common.utils.replace

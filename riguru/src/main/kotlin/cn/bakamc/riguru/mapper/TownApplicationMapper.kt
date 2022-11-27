@@ -1,6 +1,6 @@
 package cn.bakamc.riguru.mapper
 
-import cn.bakamc.common.common.PlayerInfo
+import cn.bakamc.common.player.PlayerInfo
 import cn.bakamc.common.town.TownApplication
 import cn.bakamc.common.utils.toDate
 import cn.bakamc.riguru.entity.TownApplicationVO

@@ -23,6 +23,7 @@ object Commands {
 		ConfigCommand.register(dispatcher)
 		ChatCommand.register(dispatcher)
 		TownCommand.register(dispatcher)
+		TestCommand.register(dispatcher)
 	}
 
 }

@@ -3,6 +3,7 @@ package cn.bakamc.common.utils
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
+import java.util.concurrent.CompletableFuture
 
 /**
  *
@@ -63,4 +64,8 @@ fun LocalDateTime.toDate(): Date {
 
 fun Date.toLocalDateTime(): LocalDateTime {
 	return this.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
+}
+
+fun async(runnable: Runnable): CompletableFuture<Void> {
+	return CompletableFuture.runAsync(runnable)
 }

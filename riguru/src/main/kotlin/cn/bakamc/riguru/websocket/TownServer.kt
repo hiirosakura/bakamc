@@ -5,7 +5,6 @@ import cn.bakamc.common.api.WSMessageType.Town.TOWN_SYNC_ALL_DATA
 import cn.bakamc.common.api.parseToWSMessage
 import cn.bakamc.common.utils.jsonArray
 import cn.bakamc.riguru.services.TownServices
-import cn.bakamc.riguru.util.broadcast
 import cn.bakamc.riguru.util.sendMessage
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,7 +35,9 @@ import javax.websocket.server.ServerEndpoint
 class TownServer {
 
 	@Autowired
-	private lateinit var townServices: TownServices
+	fun setTownServices(townServices: TownServices) {
+		TownServer.townServices = townServices
+	}
 
 	companion object {
 
@@ -44,6 +45,7 @@ class TownServer {
 
 		val sessions: MutableList<Session> = ArrayList()
 
+		private lateinit var townServices: TownServices
 	}
 
 	@OnOpen

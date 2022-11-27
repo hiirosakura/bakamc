@@ -1,15 +1,15 @@
-package cn.bakamc.common.common
+package cn.bakamc.common.player
 
 import cn.bakamc.common.api.WSMessage
 import cn.bakamc.common.api.WSMessageType.Player.PLAYER_JOIN
 import cn.bakamc.common.api.WSMessageType.Player.PLAYER_LEFT
 import cn.bakamc.common.api.WSMessageType.Player.PLAYER_SYNC_ALL_DATA
 import cn.bakamc.common.api.parseToWSMessage
+import cn.bakamc.common.common.MultiPlatform
+import cn.bakamc.common.common.SimpleWebSocketClient
 import cn.bakamc.common.config.common.ServerConfig
 import cn.bakamc.common.utils.parseToJsonArray
-import cn.bakamc.common.utils.parseToJsonElement
 import cn.bakamc.common.utils.parseToJsonObject
-import cn.bakamc.common.utils.toJsonStr
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedDeque
 
@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentLinkedDeque
 
  * 项目名 bakamc
 
- * 包名 cn.bakamc.common.common
+ * 包名 cn.bakamc.common.player
 
  * 文件名 PlayerManager
 
@@ -39,6 +39,13 @@ abstract class PlayerManager<T, P, S>(val config: ServerConfig, val server: S) :
 	 */
 	protected val currentPlayers: Deque<P> = ConcurrentLinkedDeque()
 
+	fun players(): List<PlayerInfo> {
+		return players.toList()
+	}
+
+	fun onlinePlayers(): List<P> {
+		return currentPlayers.toList()
+	}
 
 	fun syncData() {
 		webSocketClient.send(WSMessage(PLAYER_SYNC_ALL_DATA))
@@ -50,11 +57,13 @@ abstract class PlayerManager<T, P, S>(val config: ServerConfig, val server: S) :
 
 	fun onPlayerJoin(player: P) {
 		webSocketClient.send(WSMessage(PLAYER_JOIN, player.playerInfo()))
+		players.add(player.playerInfo())
 		currentPlayers.add(player)
 	}
 
 	fun onPlayerLeft(player: P) {
 		webSocketClient.send(WSMessage(PLAYER_LEFT, player.playerInfo()))
+		players.remove(player.playerInfo())
 		currentPlayers.remove(player)
 	}
 

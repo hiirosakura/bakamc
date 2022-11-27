@@ -33,6 +33,12 @@ dependencies {
 	include "org.java-websocket:Java-WebSocket:${rootProject.properties.java_webSocket_version}"
 }
 
+task fabriJar(type: Sync) {
+	mustRunAfter "remapJar"
+	from "build/libs"
+	into "../out/fabric"
+}
+
 processResources {
 	inputs.property "version", project.version
 

@@ -1,10 +1,13 @@
 package cn.bakamc.spigot.event
 
 import cn.bakamc.spigot.chat.SpigotMessageHandler
+import cn.bakamc.spigot.player.SpigotPlayerManager
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.AsyncPlayerChatEvent
+import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerQuitEvent
 import java.util.logging.Level
 
 /**
@@ -21,7 +24,7 @@ import java.util.logging.Level
  * @author forpleuvoir
 
  */
-object MessageEventHandler : Listener {
+object PlayerEventHandler : Listener {
 
 	private val log = Bukkit.getLogger()
 
@@ -35,6 +38,20 @@ object MessageEventHandler : Listener {
 			} catch (e: Exception) {
 				log.log(Level.SEVERE, "消息发送失败", e)
 			}
+		}
+	}
+
+	@EventHandler
+	fun onPlayerJoin(event: PlayerJoinEvent) {
+		SpigotPlayerManager.hasManager {
+			it.onPlayerJoin(event.player)
+		}
+	}
+
+	@EventHandler
+	fun onPlayerLeft(event: PlayerQuitEvent) {
+		SpigotPlayerManager.hasManager {
+			it.onPlayerLeft(event.player)
 		}
 	}
 

@@ -1,7 +1,7 @@
 package cn.bakamc.common.chat.message
 
-import cn.bakamc.common.common.PlayerCurrentInfo
 import cn.bakamc.common.common.ServerInfo
+import cn.bakamc.common.player.PlayerCurrentInfo
 
 /**
  * 最终被发送的消息

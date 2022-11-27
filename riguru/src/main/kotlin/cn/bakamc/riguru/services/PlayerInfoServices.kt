@@ -1,6 +1,6 @@
 package cn.bakamc.riguru.services
 
-import cn.bakamc.common.common.PlayerInfo
+import cn.bakamc.common.player.PlayerInfo
 import cn.bakamc.riguru.entity.PlayerInfoVO
 import cn.bakamc.riguru.entity.PlayerInfoVO.Companion.toVO
 import cn.bakamc.riguru.mapper.PlayerInfoMapper

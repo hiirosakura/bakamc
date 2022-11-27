@@ -10,7 +10,7 @@ import net.minecraft.server.command.ServerCommandSource
 
  * 项目名 bakamc
 
- * 包名 cn.bakamc.spigot.command
+ * 包名 cn.bakamc.fabric.command
 
  * 文件名 TownCommand
 

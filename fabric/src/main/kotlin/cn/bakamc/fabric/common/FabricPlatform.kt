@@ -2,19 +2,22 @@ package cn.bakamc.fabric.common
 
 import cn.bakamc.common.common.AbstractPlatform
 import cn.bakamc.common.common.MultiPlatform.ClickAction
+import cn.bakamc.common.common.MultiPlatform.ClickAction.*
 import cn.bakamc.common.common.MultiPlatform.HoverAction
 import cn.bakamc.common.common.MultiPlatform.HoverAction.*
-import cn.bakamc.common.common.PlayerCurrentInfo
-import cn.bakamc.common.common.PlayerInfo
+import cn.bakamc.common.player.PlayerCurrentInfo
+import cn.bakamc.common.player.PlayerInfo
 import cn.bakamc.common.town.Town
 import cn.bakamc.fabric.town.FabricTownManager
+import net.minecraft.network.MessageType.CHAT
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.*
-import net.minecraft.text.ClickEvent.Action as Click
-import net.minecraft.text.HoverEvent.Action as Hover
 import net.minecraft.text.HoverEvent.EntityContent
 import net.minecraft.text.HoverEvent.ItemStackContent
+import java.util.*
+import net.minecraft.text.ClickEvent.Action as Click
+import net.minecraft.text.HoverEvent.Action as Hover
 
 /**
  *
@@ -37,8 +40,16 @@ interface FabricPlatform : AbstractPlatform<MutableText, ServerPlayerEntity, Min
 	}
 
 	override fun MutableText.withClick(action: ClickAction, content: String): MutableText {
+		val a = when (action) {
+			OPEN_URL          -> Click.OPEN_URL
+			OPEN_FILE         -> Click.OPEN_FILE
+			RUN_COMMAND       -> Click.RUN_COMMAND
+			SUGGEST_COMMAND   -> Click.SUGGEST_COMMAND
+			CHANGE_PAGE       -> Click.CHANGE_PAGE
+			COPY_TO_CLIPBOARD -> Click.COPY_TO_CLIPBOARD
+		}
 		return this.styled {
-			it.withClickEvent(ClickEvent(Click.byName(action.name), content))
+			it.withClickEvent(ClickEvent(a, content))
 		}
 	}
 
@@ -62,6 +73,10 @@ interface FabricPlatform : AbstractPlatform<MutableText, ServerPlayerEntity, Min
 	override fun String.toText(): MutableText = LiteralText(this)
 
 	override fun MinecraftServer.players(): Iterable<ServerPlayerEntity> = this.playerManager.playerList
+
+	override fun ServerPlayerEntity.sendMessage(message: MutableText, uuid: UUID) {
+		this.sendMessage(message, CHAT, uuid)
+	}
 
 	override fun ServerPlayerEntity.playerInfo(): PlayerInfo {
 		return PlayerInfo(
