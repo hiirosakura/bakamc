@@ -20,18 +20,40 @@ import java.net.URI
  * @author forpleuvoir
 
  */
-class SimpleWebSocketClient(uri: String, var onMessage: (String) -> Unit) : WebSocketClient(URI.create(uri)) {
+class SimpleWebSocketClient(val name: String, uri: String) : WebSocketClient(URI.create(uri)) {
 
-	var onOpen: ((ServerHandshake) -> Unit)? = null
+	fun onMessage(action: (String) -> Unit): SimpleWebSocketClient {
+		onMessage = action
+		return this
+	}
 
-	var onClose: ((code: Int, reason: String, remote: Boolean) -> Unit)? = null
+	fun onOpen(action: (ServerHandshake) -> Unit): SimpleWebSocketClient {
+		onOpen = action
+		return this
+	}
 
-	var onError: ((Exception) -> Unit)? = {
+	fun onClose(action: (code: Int, reason: String, remote: Boolean) -> Unit): SimpleWebSocketClient {
+		onClose = action
+		return this
+	}
+
+	fun onError(action: (Exception) -> Unit): SimpleWebSocketClient {
+		onError = action
+		return this
+	}
+
+	private var onMessage: ((String) -> Unit)? = null
+
+	private var onOpen: ((ServerHandshake) -> Unit)? = null
+
+	private var onClose: ((code: Int, reason: String, remote: Boolean) -> Unit)? = null
+
+	private var onError: ((Exception) -> Unit)? = {
 		it.printStackTrace()
 	}
 
 	override fun onOpen(handshakedata: ServerHandshake) {
-		println("[BakaMC]服务已连接")
+		println("[BakaMC(${name})]服务已连接")
 		onOpen?.invoke(handshakedata)
 	}
 
@@ -41,19 +63,19 @@ class SimpleWebSocketClient(uri: String, var onMessage: (String) -> Unit) : WebS
 
 	override fun onMessage(message: String) {
 		try {
-			onMessage.invoke(message)
+			onMessage?.invoke(message)
 		} catch (e: Exception) {
 			e.printStackTrace()
 		}
 	}
 
 	override fun onClose(code: Int, reason: String, remote: Boolean) {
-		println("[BakaMC]服务断开{code:$code,reason:$reason,remote:$remote}")
+		println("[BakaMC(${name})]服务断开{code:$code,reason:$reason,remote:$remote}")
 		onClose?.invoke(code, reason, remote)
 	}
 
 	override fun onError(ex: Exception) {
-		println("[BakaMC]服务出错")
+		println("[BakaMC(${name})]服务出错")
 		onError?.invoke(ex)
 	}
 }

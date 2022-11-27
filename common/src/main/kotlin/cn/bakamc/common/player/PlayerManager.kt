@@ -32,12 +32,12 @@ abstract class PlayerManager<T, P, S>(val config: ServerConfig, val server: S) :
 	/**
 	 * 所有服务器在线的玩家
 	 */
-	protected val players: Deque<PlayerInfo> = ConcurrentLinkedDeque()
+	private val players: Deque<PlayerInfo> = ConcurrentLinkedDeque()
 
 	/**
 	 * 当前服务器在线的玩家
 	 */
-	protected val currentPlayers: Deque<P> = ConcurrentLinkedDeque()
+	private val currentPlayers: Deque<P> = ConcurrentLinkedDeque()
 
 	fun players(): List<PlayerInfo> {
 		return players.toList()
@@ -67,7 +67,9 @@ abstract class PlayerManager<T, P, S>(val config: ServerConfig, val server: S) :
 		currentPlayers.remove(player)
 	}
 
-	protected val webSocketClient = SimpleWebSocketClient("${config.riguruWebSocketAddress}/player/${config.serverId}", ::onMessage)
+	private val webSocketClient =
+		SimpleWebSocketClient("player", "${config.riguruWebSocketAddress}/player/${config.serverId}")
+			.onMessage(::onMessage)
 
 	fun connect() = webSocketClient.connect()
 

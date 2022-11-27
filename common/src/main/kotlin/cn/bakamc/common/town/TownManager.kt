@@ -35,15 +35,19 @@ import java.util.concurrent.ConcurrentHashMap
  */
 abstract class TownManager(val config: ServerConfig) {
 
-	protected val towns: MutableMap<Int, Town> = ConcurrentHashMap()
+	private val towns: MutableMap<Int, Town> = ConcurrentHashMap()
 
-	protected val townList: Collection<Town> get() = towns.values
+	private val townList: Collection<Town> get() = towns.values
 
 	val townNames: List<String> get() = buildList { towns.values.forEach { add(it.name) } }
 
 	operator fun get(townID: Int): Town? = towns[townID]
 
 	operator fun get(townName: String): Town? = towns.values.findLast { it.name == townName }
+
+	private fun url(path: String): String {
+		return "${config.riguruHttpAddress}/town/${path}"
+	}
 
 	fun update(towns: List<Town>) {
 		this.towns.clear()
@@ -60,7 +64,9 @@ abstract class TownManager(val config: ServerConfig) {
 		} ?: Town.NONE
 	}
 
-	protected val webSocketClient = SimpleWebSocketClient("${config.riguruWebSocketAddress}/town/${config.serverInfo.serverID}", ::onMessage)
+	protected val webSocketClient =
+		SimpleWebSocketClient("town", "${config.riguruWebSocketAddress}/town/${config.serverInfo.serverID}")
+			.onMessage(::onMessage)
 
 	fun connect() = webSocketClient.connect()
 
@@ -76,19 +82,26 @@ abstract class TownManager(val config: ServerConfig) {
 		}
 	}
 
-	fun syncData(){
+	fun syncData() {
 		webSocketClient.send(WSMessage(TOWN_SYNC_ALL_DATA))
 	}
 
+	fun createTown(town: Town, callback: (Boolean) -> Unit) {
+		httpPost(url("create_town"), town.toJsonStr())
+			.sendAsyncGetBody {
+				callback(it.toBoolean())
+			}
+	}
+
 	fun application(application: TownApplication, callback: (Boolean) -> Unit) {
-		httpPost("${config.riguruHttpAddress}/town/application", application.toJsonStr())
+		httpPost(url("application"), application.toJsonStr())
 			.sendAsyncGetBody {
 				callback(it.toBoolean())
 			}
 	}
 
 	fun applicationList(town: Town, callback: (Iterable<TownApplication>) -> Unit) {
-		httpGet("${config.riguruHttpAddress}/town/application")
+		httpGet(url("application"))
 			.params("town_id" to town.id)
 			.sendAsyncGetBody { body ->
 				callback(body.parseToJsonArray.map { TownApplication.deserialize(it) })
@@ -97,7 +110,7 @@ abstract class TownManager(val config: ServerConfig) {
 
 	fun approveApplication(town: Town, approver: PlayerInfo, isOP: Boolean, applicantUUID: UUID, callback: (Boolean) -> Unit) {
 		if (approver.isIn(town.admin) || isOP) {
-			httpPost("${config.riguruHttpAddress}/town/approve_application")
+			httpPost(url("/approve_application"))
 				.params(
 					"town_id" to town.id,
 					"applicant_uuid" to applicantUUID.toString()

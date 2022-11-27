@@ -41,18 +41,20 @@ abstract class AbstractMessageHandler<T, P, S>(
 	override val commonConfig: CommonConfig
 ) : MessageHandler<T, P, S>, MultiPlatform<T, P, S> {
 
-	protected val webSocketClient = SimpleWebSocketClient("${config.riguruWebSocketAddress}/chat/${config.serverInfo.serverID}") {
-		try {
-			gson.fromJson(it, WSMessage::class.java).run {
-				when (type) {
-					CHAT_MESSAGE, WHISPER_MESSAGE -> receivesMessage(gson.fromJson(data, PostMessage::class.java))
+	protected val webSocketClient =
+		SimpleWebSocketClient("chat", "${config.riguruWebSocketAddress}/chat/${config.serverInfo.serverID}")
+			.onMessage {
+				try {
+					gson.fromJson(it, WSMessage::class.java).run {
+						when (type) {
+							CHAT_MESSAGE, WHISPER_MESSAGE -> receivesMessage(gson.fromJson(data, PostMessage::class.java))
+						}
+					}
+				} catch (e: Exception) {
+					println("消息解析失败")
+					e.printStackTrace()
 				}
 			}
-		} catch (e: Exception) {
-			println("消息解析失败")
-			e.printStackTrace()
-		}
-	}
 
 	protected val messageHandlers: MutableList<(String, player: P) -> String> = mutableListOf(
 		//处理消息文本替换

@@ -16,4 +16,5 @@ include ':common'
 include ':fabric'
 include ':riguru'
 include ':spigot'
+include ":velocity"
 

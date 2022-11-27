@@ -39,23 +39,23 @@ class Town(
 	/**
 	 * 创建时间
 	 */
-	val createTime: Date,
+	val createTime: Date = Date(),
 	/**
 	 * 镇长
 	 */
-	val mayor: ConcurrentLinkedDeque<PlayerInfo>,
+	val mayor: ConcurrentLinkedDeque<PlayerInfo> = ConcurrentLinkedDeque(),
 	/**
 	 * 管理员
 	 */
-	val admin: ConcurrentLinkedDeque<PlayerInfo>,
+	val admin: ConcurrentLinkedDeque<PlayerInfo> = ConcurrentLinkedDeque(),
 	/**
 	 * 小镇成员
 	 */
-	val member: ConcurrentLinkedDeque<PlayerInfo>,
+	val member: ConcurrentLinkedDeque<PlayerInfo> = ConcurrentLinkedDeque(),
 ) : JsonSerializer {
 
 	companion object {
-		val NONE get() = Town(0, "none", "", Date(0), ConcurrentLinkedDeque(), ConcurrentLinkedDeque(), ConcurrentLinkedDeque())
+		val NONE get() = Town(0, "none", "", Date(0))
 
 		fun deserialize(serializedObject: JsonElement): Town {
 			serializedObject.asJsonObject.apply {

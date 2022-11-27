@@ -1,5 +1,6 @@
 package cn.bakamc.riguru.entity
 
+import cn.bakamc.common.town.Town
 import cn.bakamc.common.utils.exception.DataFormatException
 import com.baomidou.mybatisplus.annotation.IdType
 import com.baomidou.mybatisplus.annotation.TableField
@@ -41,5 +42,25 @@ class TownVO {
 		if (this.shortName == null) throw DataFormatException("小镇短名不能为空")
 		if (this.createTime == null) throw DataFormatException("小镇创建时间不能为空")
 		return this
+	}
+
+	companion object {
+		fun Town.toVO(asNewData: Boolean = true): TownVO {
+			return if (asNewData) {
+				TownVO().apply {
+					id = this@toVO.id
+					name = this@toVO.name
+					shortName = this@toVO.shortName
+					createTime = this@toVO.createTime
+				}.asNewData()
+			} else {
+				TownVO().apply {
+					id = this@toVO.id
+					name = this@toVO.name
+					shortName = this@toVO.shortName
+					createTime = this@toVO.createTime
+				}
+			}
+		}
 	}
 }
