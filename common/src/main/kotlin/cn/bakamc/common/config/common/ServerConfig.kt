@@ -35,6 +35,11 @@ interface ServerConfig {
 	 */
 	val description: List<String>
 
+	/**
+	 * 是否启用全服聊天
+	 */
+	val chatAcrossServers: Boolean
+
 	val serverInfo: ServerInfo get() = ServerInfo(serverId, serverName, description)
 
 	/**

@@ -4,7 +4,6 @@ import cn.bakamc.common.api.WSMessage
 import cn.bakamc.common.api.WSMessageType.Player.PLAYER_JOIN
 import cn.bakamc.common.api.WSMessageType.Player.PLAYER_LEFT
 import cn.bakamc.common.api.WSMessageType.Player.PLAYER_SYNC_ALL_DATA
-import cn.bakamc.common.api.parseToWSMessage
 import cn.bakamc.common.common.MultiPlatform
 import cn.bakamc.common.common.SimpleWebSocketClient
 import cn.bakamc.common.config.common.ServerConfig
@@ -67,7 +66,7 @@ abstract class PlayerManager<T, P, S>(val config: ServerConfig, val server: S) :
 		currentPlayers.remove(player)
 	}
 
-	private val webSocketClient =
+	protected open val webSocketClient =
 		SimpleWebSocketClient("player", "${config.riguruWebSocketAddress}/player/${config.serverId}")
 			.onMessage(::onMessage)
 
@@ -77,21 +76,19 @@ abstract class PlayerManager<T, P, S>(val config: ServerConfig, val server: S) :
 
 	fun close() = webSocketClient.close()
 
-	protected fun onMessage(message: String) {
-		message.parseToWSMessage {
-			when (type) {
-				PLAYER_SYNC_ALL_DATA -> {
-					players.clear()
-					players.addAll(data.parseToJsonArray.map { PlayerInfo.deserialize(it) })
-				}
+	protected open fun onMessage(message: WSMessage) {
+		when (message.type) {
+			PLAYER_SYNC_ALL_DATA -> {
+				players.clear()
+				players.addAll(message.data.parseToJsonArray.map { PlayerInfo.deserialize(it) })
+			}
 
-				PLAYER_JOIN          -> {
-					players.add(PlayerInfo.deserialize(data.parseToJsonObject))
-				}
+			PLAYER_JOIN          -> {
+				players.add(PlayerInfo.deserialize(message.data.parseToJsonObject))
+			}
 
-				PLAYER_LEFT          -> {
-					players.remove(PlayerInfo.deserialize(data.parseToJsonObject))
-				}
+			PLAYER_LEFT          -> {
+				players.remove(PlayerInfo.deserialize(message.data.parseToJsonObject))
 			}
 		}
 	}

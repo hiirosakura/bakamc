@@ -2,7 +2,6 @@ package cn.bakamc.common.town
 
 import cn.bakamc.common.api.WSMessage
 import cn.bakamc.common.api.WSMessageType.Town.TOWN_SYNC_ALL_DATA
-import cn.bakamc.common.api.parseToWSMessage
 import cn.bakamc.common.common.SimpleWebSocketClient
 import cn.bakamc.common.config.common.ServerConfig
 import cn.bakamc.common.player.PlayerInfo
@@ -49,7 +48,7 @@ abstract class TownManager(val config: ServerConfig) {
 		return "${config.riguruHttpAddress}/town/${path}"
 	}
 
-	fun update(towns: List<Town>) {
+	open fun update(towns: List<Town>) {
 		this.towns.clear()
 		towns.forEach {
 			this.towns[it.id] = it
@@ -64,7 +63,7 @@ abstract class TownManager(val config: ServerConfig) {
 		} ?: Town.NONE
 	}
 
-	protected val webSocketClient =
+	protected open val webSocketClient =
 		SimpleWebSocketClient("town", "${config.riguruWebSocketAddress}/town/${config.serverInfo.serverID}")
 			.onMessage(::onMessage)
 
@@ -74,11 +73,9 @@ abstract class TownManager(val config: ServerConfig) {
 
 	fun close() = webSocketClient.close()
 
-	protected fun onMessage(message: String) {
-		message.parseToWSMessage {
-			when (type) {
-				TOWN_SYNC_ALL_DATA -> update(data.parseToJsonArray.map { Town.deserialize(it) })
-			}
+	protected open fun onMessage(message: WSMessage) {
+		when (message.type) {
+			TOWN_SYNC_ALL_DATA -> update(message.data.parseToJsonArray.map { Town.deserialize(it) })
 		}
 	}
 

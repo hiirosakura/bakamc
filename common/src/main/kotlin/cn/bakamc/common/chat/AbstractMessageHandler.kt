@@ -41,22 +41,11 @@ abstract class AbstractMessageHandler<T, P, S>(
 	override val commonConfig: CommonConfig
 ) : MessageHandler<T, P, S>, MultiPlatform<T, P, S> {
 
-	protected val webSocketClient =
+	protected open val webSocketClient =
 		SimpleWebSocketClient("chat", "${config.riguruWebSocketAddress}/chat/${config.serverInfo.serverID}")
-			.onMessage {
-				try {
-					gson.fromJson(it, WSMessage::class.java).run {
-						when (type) {
-							CHAT_MESSAGE, WHISPER_MESSAGE -> receivesMessage(gson.fromJson(data, PostMessage::class.java))
-						}
-					}
-				} catch (e: Exception) {
-					println("消息解析失败")
-					e.printStackTrace()
-				}
-			}
+			.onMessage { if (config.chatAcrossServers) this.onMessage(it) }
 
-	protected val messageHandlers: MutableList<(String, player: P) -> String> = mutableListOf(
+	protected open val messageHandlers: MutableList<(String, player: P) -> String> = mutableListOf(
 		//处理消息文本替换
 		{ msg, _ -> MessageUtil.handleFormat(msg, chatConfig.messageMapping) },
 		//处理@格式
@@ -64,6 +53,12 @@ abstract class AbstractMessageHandler<T, P, S>(
 		//处理之后将变为可直接反序列化为对应环境的Text的Json文本 最好是放在最后添加
 		::handleItemShow
 	)
+
+	protected open fun onMessage(message: WSMessage) {
+		when (message.type) {
+			CHAT_MESSAGE, WHISPER_MESSAGE -> receivesMessage(gson.fromJson(message.data, PostMessage::class.java))
+		}
+	}
 
 	override fun connect() {
 		webSocketClient.connect()
@@ -92,7 +87,10 @@ abstract class AbstractMessageHandler<T, P, S>(
 	}
 
 	override fun postMessage(message: WSMessage) {
-		webSocketClient.send(message)
+		if (config.chatAcrossServers)
+			webSocketClient.send(message)
+		else
+			onMessage(message)
 	}
 
 	override fun Message.toFinalMessage(player: P): PostMessage {

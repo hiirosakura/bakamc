@@ -44,6 +44,9 @@ object FabricConfig : LocalServerModConfig<MinecraftServer>(BakaMC.ID) {
 		)
 
 		@JvmStatic
+		val CHAT_ACROSS_SERVERS = configBoolean("chat_across_servers", true)
+
+		@JvmStatic
 		val RIGURU_WEB_SOCKET_ADDRESS = configString("riguru_web_socket_address", "ws://127.0.0.1:3499")
 
 		@JvmStatic
@@ -58,7 +61,12 @@ object FabricConfig : LocalServerModConfig<MinecraftServer>(BakaMC.ID) {
 		override val description: List<String>
 			get() = DESCRIPTION.getValue()
 
-		override val riguruWebSocketAddress: String
+		override val chatAcrossServers: Boolean
+			get() = CHAT_ACROSS_SERVERS.getValue()
+
+
+		override
+		val riguruWebSocketAddress: String
 			get() = RIGURU_WEB_SOCKET_ADDRESS.getValue()
 
 		override val riguruHttpAddress: String

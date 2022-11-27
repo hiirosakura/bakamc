@@ -1,6 +1,7 @@
 package cn.bakamc.common.common
 
 import cn.bakamc.common.api.WSMessage
+import cn.bakamc.common.api.parseToWSMessage
 import cn.bakamc.common.utils.toJsonStr
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
@@ -22,7 +23,7 @@ import java.net.URI
  */
 class SimpleWebSocketClient(val name: String, uri: String) : WebSocketClient(URI.create(uri)) {
 
-	fun onMessage(action: (String) -> Unit): SimpleWebSocketClient {
+	fun onMessage(action: (WSMessage) -> Unit): SimpleWebSocketClient {
 		onMessage = action
 		return this
 	}
@@ -42,7 +43,7 @@ class SimpleWebSocketClient(val name: String, uri: String) : WebSocketClient(URI
 		return this
 	}
 
-	private var onMessage: ((String) -> Unit)? = null
+	private var onMessage: ((WSMessage) -> Unit)? = null
 
 	private var onOpen: ((ServerHandshake) -> Unit)? = null
 
@@ -62,10 +63,10 @@ class SimpleWebSocketClient(val name: String, uri: String) : WebSocketClient(URI
 	}
 
 	override fun onMessage(message: String) {
-		try {
-			onMessage?.invoke(message)
-		} catch (e: Exception) {
-			e.printStackTrace()
+		onMessage?.let {
+			message.parseToWSMessage {
+				it.invoke(this)
+			}
 		}
 	}
 
