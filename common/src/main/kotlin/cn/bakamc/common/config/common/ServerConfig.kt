@@ -42,6 +42,8 @@ interface ServerConfig {
 
 	val serverInfo: ServerInfo get() = ServerInfo(serverId, serverName, description)
 
+	val riguruSecret: String
+
 	/**
 	 * riguru WebSocket服务器地址
 	 */

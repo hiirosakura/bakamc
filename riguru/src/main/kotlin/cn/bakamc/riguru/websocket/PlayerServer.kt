@@ -48,7 +48,6 @@ class PlayerServer {
 
 		private val players: Deque<PlayerInfo> = ConcurrentLinkedDeque()
 
-		@Autowired
 		lateinit var playerServices: PlayerInfoServices
 		fun syncData() {
 			sessions.broadcast(WSMessage(PLAYER_SYNC_ALL_DATA, jsonArray(players)))
