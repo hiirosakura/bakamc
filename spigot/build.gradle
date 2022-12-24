@@ -33,7 +33,7 @@ dependencies {
 
 	compileOnly "org.spigotmc:spigot-api:${rootProject.minecraft_version}-R0.1-SNAPSHOT"
 	compileOnly "org.spigotmc:spigot:${rootProject.minecraft_version}-R0.1-SNAPSHOT"
-	compileOnly(fileTree(dir: "libs",includes: ["*.jar"]))
+	//compileOnly(fileTree(dir: "libs", includes: ["*.jar"]))
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -41,7 +41,7 @@ tasks.withType(JavaCompile).configureEach {
 	it.options.encoding = "UTF-8"
 }
 
-task spigotJar(type:Sync){
+task spigotJar(type: Sync) {
 	mustRunAfter "shadowJar"
 	from "build/libs"
 	into "../out/spigot"

@@ -44,6 +44,7 @@ abstract class AbstractMessageHandler<T, P, S>(
 	protected open val webSocketClient =
 		SimpleWebSocketClient("chat", "${config.riguruWebSocketAddress}/chat/${config.serverInfo.serverID}")
 			.onMessage { if (config.chatAcrossServers) this.onMessage(it) }
+			.salt(config.riguruSecret)
 
 	protected open val messageHandlers: MutableList<(String, player: P) -> String> = mutableListOf(
 		//处理消息文本替换

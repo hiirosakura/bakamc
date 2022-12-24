@@ -1,5 +1,6 @@
 package cn.bakamc.riguru
 
+import cn.bakamc.riguru.config.RiguruConfig
 import org.mybatis.spring.annotation.MapperScan
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
@@ -26,6 +27,8 @@ class RiguruApplication
 
 fun main(args: Array<String>) {
 	runApplication<RiguruApplication>(*args)
+	RiguruConfig.init()
+	RiguruConfig.saveAsync()
 }
 
 

@@ -1,18 +1,16 @@
 package cn.bakamc.common.config
 
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-import com.google.gson.JsonParser
 import cn.bakamc.common.config.modconfig.ConfigCategory
 import cn.bakamc.common.utils.getNestedObject
 import cn.bakamc.common.utils.getOr
 import cn.bakamc.common.utils.gson
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 import java.io.*
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import java.util.*
-import java.util.logging.LogManager
-import java.util.logging.Logger
 
 /**
  *
@@ -29,7 +27,6 @@ import java.util.logging.Logger
 
  */
 object ConfigUtil {
-
 
 	fun configFile(configFileName: String, path: Path, create: Boolean = true): File {
 		val file = File(path.toFile(), "${configFileName}.json")

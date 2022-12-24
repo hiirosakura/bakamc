@@ -69,6 +69,7 @@ abstract class PlayerManager<T, P, S>(val config: ServerConfig, val server: S) :
 	protected open val webSocketClient =
 		SimpleWebSocketClient("player", "${config.riguruWebSocketAddress}/player/${config.serverId}")
 			.onMessage(::onMessage)
+			.salt(config.riguruSecret)
 
 	fun connect() = webSocketClient.connect()
 

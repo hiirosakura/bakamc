@@ -1,6 +1,6 @@
 package cn.bakamc.riguru.controller
 
-import cn.bakamc.riguru.config.ServerCommonConfig
+import cn.bakamc.riguru.config.RiguruConfig
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -27,6 +27,6 @@ class CommonController {
 	@GetMapping
 	@ResponseBody
 	fun get(): String {
-		return ServerCommonConfig.serialization.toString()
+		return RiguruConfig.serialization.toString()
 	}
 }

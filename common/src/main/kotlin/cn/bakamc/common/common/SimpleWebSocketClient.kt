@@ -2,6 +2,7 @@ package cn.bakamc.common.common
 
 import cn.bakamc.common.api.WSMessage
 import cn.bakamc.common.api.parseToWSMessage
+import cn.bakamc.common.utils.AESUtil
 import cn.bakamc.common.utils.toJsonStr
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
@@ -28,6 +29,16 @@ class SimpleWebSocketClient(val name: String, uri: String) : WebSocketClient(URI
 		return this
 	}
 
+	/**
+	 * 加密盐，没有或者为空文本的话就不加密
+	 * @param salt String
+	 * @return SimpleWebSocketClient
+	 */
+	fun salt(salt: String): SimpleWebSocketClient {
+		this.salt = salt
+		return this
+	}
+
 	fun onOpen(action: (ServerHandshake) -> Unit): SimpleWebSocketClient {
 		onOpen = action
 		return this
@@ -42,6 +53,8 @@ class SimpleWebSocketClient(val name: String, uri: String) : WebSocketClient(URI
 		onError = action
 		return this
 	}
+
+	private var salt: String = ""
 
 	private var onMessage: ((WSMessage) -> Unit)? = null
 
@@ -59,7 +72,11 @@ class SimpleWebSocketClient(val name: String, uri: String) : WebSocketClient(URI
 	}
 
 	fun send(message: WSMessage) {
-		send(message.toJsonStr())
+		var msg = message.toJsonStr()
+		if (salt.isNotEmpty()) {
+			msg = AESUtil.encrypt(msg, salt)
+		}
+		send(msg)
 	}
 
 	override fun onMessage(message: String) {

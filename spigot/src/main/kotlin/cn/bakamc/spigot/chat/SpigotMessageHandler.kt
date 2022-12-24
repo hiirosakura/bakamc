@@ -64,10 +64,10 @@ class SpigotMessageHandler(config: ServerConfig, override val commonConfig: Comm
 			-1   -> this.inventory.itemInMainHand
 			else -> this.inventory.getItem(index)
 		}
-		if (item?.type?.isAir == true) {
+		if (item == null || item.type.isAir) {
 			return if (index == -2) "%i".text else if (index == -1) "%o".text else "%$index".text
 		}
-		return CraftItemStack.asNMSCopy(item!!).getHoverableText()
+		return CraftItemStack.asNMSCopy(item).getHoverableText()
 	}
 
 	private fun ItemStack.getHoverableText(): IChatMutableComponent {

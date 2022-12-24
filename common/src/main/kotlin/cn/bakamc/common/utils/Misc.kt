@@ -66,6 +66,6 @@ fun Date.toLocalDateTime(): LocalDateTime {
 	return this.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
 }
 
-fun async(runnable: Runnable): CompletableFuture<Void> {
+fun runAsync(runnable: Runnable): CompletableFuture<Void> {
 	return CompletableFuture.runAsync(runnable)
 }

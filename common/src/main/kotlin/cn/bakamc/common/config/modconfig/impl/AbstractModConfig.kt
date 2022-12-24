@@ -3,7 +3,6 @@ package cn.bakamc.common.config.modconfig.impl
 import cn.bakamc.common.config.modconfig.ConfigCategory
 import cn.bakamc.common.config.modconfig.ModConfig
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.reflect.full.isSubclassOf
 
@@ -48,5 +47,5 @@ abstract class AbstractModConfig : ModConfig {
 		load()
 	}
 
-	override val isChanged: AtomicBoolean = AtomicBoolean(false)
+	override val isChanged: AtomicBoolean = AtomicBoolean(true)
 }

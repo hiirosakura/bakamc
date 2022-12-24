@@ -66,6 +66,7 @@ abstract class TownManager(val config: ServerConfig) {
 	protected open val webSocketClient =
 		SimpleWebSocketClient("town", "${config.riguruWebSocketAddress}/town/${config.serverInfo.serverID}")
 			.onMessage(::onMessage)
+			.salt(config.riguruSecret)
 
 	fun connect() = webSocketClient.connect()
 
