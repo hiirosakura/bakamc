@@ -66,7 +66,7 @@ class FabricMessageHandler(config: ServerConfig, override val commonConfig: Comm
 			else -> this.inventory.getStack(index)
 		}
 		if (item.isEmpty) {
-			return if (index == -2) "%i".text else if (index == -1) "%o".text else "%$index".text
+			return if (index == -2) "%o".text else if (index == -1) "%i".text else "%$index".text
 		}
 		return item.getHoverableText()
 	}

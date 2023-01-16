@@ -158,7 +158,7 @@ object RiguruConfig : LocalModConfig("riguru"), CommonConfig {
 	}
 
 	override fun localConfigPath(): Path {
-		return Path(ApplicationHome(RiguruApplication::class.java).source.path)
+		return Path(ApplicationHome(RiguruApplication::class.java).source.parentFile.path)
 	}
 
 	override val chatConfig: ChatConfig
