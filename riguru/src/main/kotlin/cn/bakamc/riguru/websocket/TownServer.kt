@@ -1,16 +1,16 @@
 package cn.bakamc.riguru.websocket
 
-import cn.bakamc.common.api.WSMessage
-import cn.bakamc.common.api.WSMessageType.Town.TOWN_SYNC_ALL_DATA
-import cn.bakamc.common.api.parseToWSMessage
 import cn.bakamc.common.utils.jsonArray
+import cn.bakamc.riguru.config.RiguruConfig
 import cn.bakamc.riguru.services.TownServices
+import cn.bakamc.riguru.util.broadcast
 import cn.bakamc.riguru.util.sendMessage
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.scheduling.annotation.EnableScheduling
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import javax.websocket.OnClose
-import javax.websocket.OnMessage
 import javax.websocket.OnOpen
 import javax.websocket.Session
 import javax.websocket.server.PathParam
@@ -31,12 +31,21 @@ import javax.websocket.server.ServerEndpoint
 
  */
 @ServerEndpoint("/town/{server_id}")
+@EnableScheduling
 @Component
 class TownServer {
 
 	@Autowired
 	fun setTownServices(townServices: TownServices) {
 		TownServer.townServices = townServices
+	}
+
+	@Scheduled(fixedRate = 300000, initialDelay = 60000)
+	fun atuSyncData() {
+		if (RiguruConfig.needSave) {
+			log.info("[Riguru]自动同步小镇信息...")
+			syncData()
+		}
 	}
 
 	companion object {
@@ -46,6 +55,18 @@ class TownServer {
 		val sessions: MutableList<Session> = ArrayList()
 
 		private lateinit var townServices: TownServices
+
+		fun syncData() {
+			val towns = townServices.getAll().values
+			sessions.broadcast(jsonArray(towns).toString())
+			log.info("小镇信息同步")
+		}
+
+		fun syncData(session: Session, serverID: String) {
+			val towns = townServices.getAll().values
+			session.sendMessage(jsonArray(towns).toString())
+			log.info("[{}]小镇信息同步", serverID)
+		}
 	}
 
 	@OnOpen
@@ -61,27 +82,5 @@ class TownServer {
 			log.info("[{}]有人退订了小镇系统服务!", id)
 		}
 	}
-
-	@OnMessage
-	fun onMessage(message: String, session: Session, @PathParam("server_id") id: String) {
-		message.parseToWSMessage(
-			wsMessage = {
-				when (type) {
-					TOWN_SYNC_ALL_DATA -> syncData(session, id)
-					else               -> log.error("[${message}]无法解析的消息格式")
-				}
-			},
-			onException = {
-				log.error("[${message}]无法解析的消息格式", it)
-			}
-		)
-	}
-
-	fun syncData(session: Session, id: String) {
-		val towns = townServices.getAll().values
-		session.sendMessage(WSMessage(TOWN_SYNC_ALL_DATA, jsonArray(towns).toString()))
-		log.info("[{}]", id)
-	}
-
 
 }

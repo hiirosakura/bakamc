@@ -1,7 +1,6 @@
 package cn.bakamc.common.town
 
-import cn.bakamc.common.api.WSMessage
-import cn.bakamc.common.api.WSMessageType.Town.TOWN_SYNC_ALL_DATA
+import cn.bakamc.common.api.WebSocketHandler
 import cn.bakamc.common.common.SimpleWebSocketClient
 import cn.bakamc.common.config.common.ServerConfig
 import cn.bakamc.common.player.PlayerInfo
@@ -25,14 +24,14 @@ import java.util.concurrent.ConcurrentHashMap
 
  * 包名 cn.bakamc.common.town
 
- * 文件名 TownManager
+ * 文件名 TownHandler
 
  * 创建时间 2022/8/30 17:42
 
  * @author forpleuvoir
 
  */
-abstract class TownManager(val config: ServerConfig) {
+abstract class TownHandler(val config: ServerConfig) : WebSocketHandler {
 
 	private val towns: MutableMap<Int, Town> = ConcurrentHashMap()
 
@@ -45,7 +44,7 @@ abstract class TownManager(val config: ServerConfig) {
 	operator fun get(townName: String): Town? = towns.values.findLast { it.name == townName }
 
 	private fun url(path: String): String {
-		return "${config.riguruHttpAddress}/town/${path}"
+		return "${config.riguruHttpAddress}/town/${config.serverId}/${path}"
 	}
 
 	open fun update(towns: List<Town>) {
@@ -63,25 +62,22 @@ abstract class TownManager(val config: ServerConfig) {
 		} ?: Town.NONE
 	}
 
-	protected open val webSocketClient =
+	override val webSocketClient =
 		SimpleWebSocketClient("town", "${config.riguruWebSocketAddress}/town/${config.serverInfo.serverID}")
 			.onMessage(::onMessage)
 			.salt(config.riguruSecret)
 
-	fun connect() = webSocketClient.connect()
 
-	fun reconnect() = webSocketClient.reconnect()
-
-	fun close() = webSocketClient.close()
-
-	protected open fun onMessage(message: WSMessage) {
-		when (message.type) {
-			TOWN_SYNC_ALL_DATA -> update(message.data.parseToJsonArray.map { Town.deserialize(it) })
+	protected open fun onMessage(message: String) {
+		try {
+			update(message.parseToJsonArray.map { Town.deserialize(it) })
+		} catch (e: Exception) {
+			println("小镇信息解析失败:${message}")
 		}
 	}
 
 	fun syncData() {
-		webSocketClient.send(WSMessage(TOWN_SYNC_ALL_DATA))
+		httpGet(url("sync")).sendAsync {}
 	}
 
 	fun createTown(town: Town, callback: (Boolean) -> Unit) {
@@ -108,7 +104,7 @@ abstract class TownManager(val config: ServerConfig) {
 
 	fun approveApplication(town: Town, approver: PlayerInfo, isOP: Boolean, applicantUUID: UUID, callback: (Boolean) -> Unit) {
 		if (approver.isIn(town.admin) || isOP) {
-			httpPost(url("/approve_application"))
+			httpPost(url("approve_application"))
 				.params(
 					"town_id" to town.id,
 					"applicant_uuid" to applicantUUID.toString()

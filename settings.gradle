@@ -1,11 +1,11 @@
 pluginManagement{
 	repositories {
-		maven { url = uri("https://repo.spring.io/milestone") }
-		maven { url = uri("https://repo.spring.io/snapshot") }
 		maven {
 			name = 'Fabric'
 			url = 'https://maven.fabricmc.net/'
 		}
+		maven { url = uri("https://repo.spring.io/milestone") }
+		maven { url = uri("https://repo.spring.io/snapshot") }
 		mavenCentral()
 		gradlePluginPortal()
 	}
@@ -16,5 +16,4 @@ include ':common'
 include ':fabric'
 include ':riguru'
 include ':spigot'
-include ":velocity"
 

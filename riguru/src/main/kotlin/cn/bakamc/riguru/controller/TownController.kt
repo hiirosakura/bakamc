@@ -1,12 +1,9 @@
 package cn.bakamc.riguru.controller
 
-import cn.bakamc.common.api.WSMessage
-import cn.bakamc.common.api.WSMessageType.Town
 import cn.bakamc.common.town.TownApplication
 import cn.bakamc.common.utils.jsonArray
 import cn.bakamc.common.utils.parseToJsonObject
 import cn.bakamc.riguru.services.TownServices
-import cn.bakamc.riguru.util.broadcast
 import cn.bakamc.riguru.websocket.TownServer
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
@@ -28,7 +25,7 @@ import java.util.*
 
  */
 @Controller
-@RequestMapping("town")
+@RequestMapping("/town/{server_ID}")
 class TownController {
 
 	@Autowired
@@ -40,19 +37,19 @@ class TownController {
 		syncData()
 	}
 
-	@PostMapping("application")
+	@PostMapping("/application")
 	@ResponseBody
 	fun application(@RequestBody application: String): Boolean {
 		return townServices.application(TownApplication.deserialize(application.parseToJsonObject))
 	}
 
-	@GetMapping("application")
+	@GetMapping("/application")
 	@ResponseBody
 	fun getApplications(@RequestParam("town_id") townID: Int): String {
 		return jsonArray(townServices.applicationList(townID)).toString()
 	}
 
-	@PostMapping("approve_application")
+	@PostMapping("/approve_application")
 	@ResponseBody
 	fun approveApplication(@RequestParam("town_id") townID: Int, @RequestParam("applicant_uuid") applicantUUID: String): Boolean {
 		val success = townServices.join(townID, UUID.fromString(applicantUUID))
@@ -60,9 +57,10 @@ class TownController {
 		return success
 	}
 
+	@GetMapping("/sync")
+	@ResponseBody
 	fun syncData() {
-		val towns = townServices.getAll().values
-		TownServer.sessions.broadcast(WSMessage(Town.TOWN_SYNC_ALL_DATA, jsonArray(towns).toString()))
+		TownServer.syncData()
 	}
 
 

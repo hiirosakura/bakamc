@@ -1,7 +1,7 @@
 package cn.bakamc.spigot.command
 
 import cn.bakamc.common.player.PlayerInfo
-import cn.bakamc.spigot.player.SpigotPlayerManager
+import cn.bakamc.spigot.player.SpigotPlayerHandler
 import com.mojang.brigadier.CommandDispatcher
 import net.minecraft.commands.CommandListenerWrapper
 
@@ -37,7 +37,7 @@ object TestCommand {
 				.then(
 					literal("baka_players").executes {
 						var players: List<PlayerInfo> = emptyList()
-						SpigotPlayerManager.hasManager { players = it.players() }
+						SpigotPlayerHandler.hasHandler { players = it.players() }
 						it.source.bukkitSender.sendMessage("当前在线玩家数:${players.size}")
 						players.forEach { p ->
 							it.source.bukkitSender.sendMessage(p.name)

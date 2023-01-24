@@ -1,9 +1,5 @@
 package cn.bakamc.common.common
 
-import cn.bakamc.common.api.WSMessage
-import cn.bakamc.common.api.parseToWSMessage
-import cn.bakamc.common.utils.AESUtil
-import cn.bakamc.common.utils.toJsonStr
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import java.net.URI
@@ -24,7 +20,7 @@ import java.net.URI
  */
 class SimpleWebSocketClient(val name: String, uri: String) : WebSocketClient(URI.create(uri)) {
 
-	fun onMessage(action: (WSMessage) -> Unit): SimpleWebSocketClient {
+	fun onMessage(action: (String) -> Unit): SimpleWebSocketClient {
 		onMessage = action
 		return this
 	}
@@ -56,7 +52,7 @@ class SimpleWebSocketClient(val name: String, uri: String) : WebSocketClient(URI
 
 	private var salt: String = ""
 
-	private var onMessage: ((WSMessage) -> Unit)? = null
+	private var onMessage: ((String) -> Unit)? = null
 
 	private var onOpen: ((ServerHandshake) -> Unit)? = null
 
@@ -71,20 +67,8 @@ class SimpleWebSocketClient(val name: String, uri: String) : WebSocketClient(URI
 		onOpen?.invoke(handshakedata)
 	}
 
-	fun send(message: WSMessage) {
-		var msg = message.toJsonStr()
-		if (salt.isNotEmpty()) {
-			msg = AESUtil.encrypt(msg, salt)
-		}
-		send(msg)
-	}
-
 	override fun onMessage(message: String) {
-		onMessage?.let {
-			message.parseToWSMessage {
-				it.invoke(this)
-			}
-		}
+		onMessage?.invoke(message)
 	}
 
 	override fun onClose(code: Int, reason: String, remote: Boolean) {

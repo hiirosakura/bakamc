@@ -8,7 +8,7 @@ import cn.bakamc.common.common.MultiPlatform.HoverAction.*
 import cn.bakamc.common.player.PlayerCurrentInfo
 import cn.bakamc.common.player.PlayerInfo
 import cn.bakamc.common.town.Town
-import cn.bakamc.fabric.town.FabricTownManager
+import cn.bakamc.fabric.town.FabricTownHandler
 import net.minecraft.network.MessageType.CHAT
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
@@ -88,7 +88,7 @@ interface FabricPlatform : AbstractPlatform<MutableText, ServerPlayerEntity, Min
 
 	override fun ServerPlayerEntity.playerCurrentInfo(): PlayerCurrentInfo {
 		var town: Town = Town.NONE
-		FabricTownManager.hasManager { town = it.getByPlayerID(this.uuid) }
+		FabricTownHandler.hasHandler { town = it.getByPlayerID(this.uuid) }
 		return PlayerCurrentInfo(
 			this.uuid,
 			this.name.string,

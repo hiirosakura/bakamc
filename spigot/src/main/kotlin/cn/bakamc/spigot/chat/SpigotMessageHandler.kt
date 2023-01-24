@@ -43,7 +43,7 @@ class SpigotMessageHandler(config: ServerConfig, override val commonConfig: Comm
 		@JvmStatic
 		fun hasHandler(action: Consumer<MessageHandler<IChatMutableComponent, Player, Server>>) {
 			if (this::INSTANCE.isInitialized) {
-				action.accept(INSTANCE)
+				if (INSTANCE.isConnected()) action.accept(INSTANCE)
 			}
 		}
 
@@ -78,7 +78,7 @@ class SpigotMessageHandler(config: ServerConfig, override val commonConfig: Comm
 			mutableText.a(EnumChatFormat.o)
 		}
 		val mutableText2 = ChatComponentUtils.a(mutableText)
-		if (!this.s()) {
+		if (!this.b()) {
 			mutableText2.a(this.A().e).a { style ->
 				style.a(
 					ChatHoverable(EnumHoverAction.b, ChatHoverable.c(this))

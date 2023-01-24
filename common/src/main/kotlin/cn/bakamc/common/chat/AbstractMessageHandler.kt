@@ -1,8 +1,5 @@
 package cn.bakamc.common.chat
 
-import cn.bakamc.common.api.WSMessage
-import cn.bakamc.common.api.WSMessageType.Chat.CHAT_MESSAGE
-import cn.bakamc.common.api.WSMessageType.Chat.WHISPER_MESSAGE
 import cn.bakamc.common.chat.message.Message
 import cn.bakamc.common.chat.message.MessageType.Chat
 import cn.bakamc.common.chat.message.MessageType.Whisper
@@ -17,7 +14,7 @@ import cn.bakamc.common.common.SimpleWebSocketClient
 import cn.bakamc.common.config.common.CommonConfig
 import cn.bakamc.common.config.common.ServerConfig
 import cn.bakamc.common.utils.MessageUtil
-import cn.bakamc.common.utils.gson
+import cn.bakamc.common.utils.net.httpPost
 import cn.bakamc.common.utils.replace
 import cn.bakamc.common.utils.toJsonStr
 import java.util.*
@@ -41,9 +38,9 @@ abstract class AbstractMessageHandler<T, P, S>(
 	override val commonConfig: CommonConfig
 ) : MessageHandler<T, P, S>, MultiPlatform<T, P, S> {
 
-	protected open val webSocketClient =
+	override val webSocketClient =
 		SimpleWebSocketClient("chat", "${config.riguruWebSocketAddress}/chat/${config.serverInfo.serverID}")
-			.onMessage { if (config.chatAcrossServers) this.onMessage(it) }
+			.onMessage { if (config.chatAcrossServers) this.onMessage(PostMessage.fromJson(it)) }
 			.salt(config.riguruSecret)
 
 	protected open val messageHandlers: MutableList<(String, player: P) -> String> = mutableListOf(
@@ -55,42 +52,27 @@ abstract class AbstractMessageHandler<T, P, S>(
 		::handleItemShow
 	)
 
-	protected open fun onMessage(message: WSMessage) {
-		when (message.type) {
-			CHAT_MESSAGE, WHISPER_MESSAGE -> receivesMessage(gson.fromJson(message.data, PostMessage::class.java))
-		}
+	protected open fun onMessage(message: PostMessage) {
+		receivesMessage(message)
 	}
-
-	override fun connect() {
-		webSocketClient.connect()
-	}
-
-	override fun reconnect() = webSocketClient.reconnect()
-
-	override fun close() = webSocketClient.close()
 
 	override fun sendChatMessage(player: P, message: String) {
-		postMessage(
-			WSMessage(
-				CHAT_MESSAGE,
-				Message(Chat, player.playerCurrentInfo(), serverInfo, "", message).toFinalMessage(player).toJsonStr()
-			)
-		)
+		postMessage(Message(Chat, player.playerCurrentInfo(), serverInfo, "", message).toFinalMessage(player))
 	}
 
 	override fun sendWhisperMessage(player: P, message: String, receiver: String) {
-		postMessage(
-			WSMessage(
-				WHISPER_MESSAGE,
-				Message(Whisper, player.playerCurrentInfo(), serverInfo, receiver, message).toFinalMessage(player).toJsonStr()
-			)
-		)
+		postMessage(Message(Whisper, player.playerCurrentInfo(), serverInfo, receiver, message).toFinalMessage(player))
 	}
 
-	override fun postMessage(message: WSMessage) {
-		if (config.chatAcrossServers)
-			webSocketClient.send(message)
-		else
+	override fun postMessage(message: PostMessage) {
+		if (config.chatAcrossServers) {
+			httpPost("${config.riguruHttpAddress}/chat/${config.serverInfo.serverID}", message.toJsonStr()).sendAsync {
+				if (it.statusCode() != 200) {
+					println("消息发送失败${message.toJsonStr()}")
+					throw Exception("消息发送失败")
+				}
+			}
+		} else
 			onMessage(message)
 	}
 
@@ -176,6 +158,7 @@ abstract class AbstractMessageHandler<T, P, S>(
 	}
 
 	override fun receivesMessage(message: PostMessage) {
+		println(message.finalMessage)
 		when (message.type) {
 			Whisper -> whisper(message)
 			Chat    -> broadcast(message)

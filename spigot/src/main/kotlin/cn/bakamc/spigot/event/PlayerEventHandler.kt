@@ -1,7 +1,7 @@
 package cn.bakamc.spigot.event
 
 import cn.bakamc.spigot.chat.SpigotMessageHandler
-import cn.bakamc.spigot.player.SpigotPlayerManager
+import cn.bakamc.spigot.player.SpigotPlayerHandler
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -43,14 +43,14 @@ object PlayerEventHandler : Listener {
 
 	@EventHandler
 	fun onPlayerJoin(event: PlayerJoinEvent) {
-		SpigotPlayerManager.hasManager {
+		SpigotPlayerHandler.hasHandler {
 			it.onPlayerJoin(event.player)
 		}
 	}
 
 	@EventHandler
 	fun onPlayerLeft(event: PlayerQuitEvent) {
-		SpigotPlayerManager.hasManager {
+		SpigotPlayerHandler.hasHandler {
 			it.onPlayerLeft(event.player)
 		}
 	}

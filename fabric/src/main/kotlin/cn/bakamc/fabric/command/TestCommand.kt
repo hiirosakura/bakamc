@@ -1,7 +1,7 @@
 package cn.bakamc.fabric.command
 
 import cn.bakamc.common.player.PlayerInfo
-import cn.bakamc.fabric.player.FabricPlayerManager
+import cn.bakamc.fabric.player.FabricPlayerHandler
 import com.mojang.brigadier.CommandDispatcher
 import net.minecraft.server.command.CommandManager.literal
 import net.minecraft.server.command.ServerCommandSource
@@ -37,7 +37,7 @@ object TestCommand {
 				.then(
 					literal("baka_players").executes {
 						var players: List<PlayerInfo> = emptyList()
-						FabricPlayerManager.hasManager { players = it.players() }
+						FabricPlayerHandler.hasHandler { players = it.players() }
 						it.source.sendFeedback(Text.of("当前在线玩家数:${players.size}"), false)
 						players.forEach { p ->
 							it.source.sendFeedback(Text.of(p.name), false)

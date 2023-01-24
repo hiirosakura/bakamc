@@ -1,21 +1,13 @@
 package cn.bakamc.fabric.mixin;
 
-import cn.bakamc.common.chat.MessageHandler;
-import cn.bakamc.common.player.PlayerManager;
-import cn.bakamc.common.town.TownManager;
-import cn.bakamc.fabric.chat.FabricMessageHandler;
-import cn.bakamc.fabric.config.FabricCommonConfig;
+import cn.bakamc.fabric.BakaMC;
 import cn.bakamc.fabric.config.FabricConfig;
-import cn.bakamc.fabric.player.FabricPlayerManager;
-import cn.bakamc.fabric.town.FabricTownManager;
 import net.minecraft.server.MinecraftServer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * 项目名 bakamc
@@ -29,17 +21,13 @@ import java.util.concurrent.CompletableFuture;
  * @author forpleuvoir
  */
 @Mixin(MinecraftServer.class)
+@SuppressWarnings("DataFlowIssue")
+
 public abstract class MinecraftServerMixin {
 
 	@Inject(method = "runServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;setupServer()Z"))
 	private void beforeSetupServer(CallbackInfo info) {
-		CompletableFuture.runAsync(() -> {
-			FabricConfig.INSTANCE.init((MinecraftServer) (Object) this);
-			FabricCommonConfig.init(FabricConfig.Server.INSTANCE);
-			FabricMessageHandler.init(FabricConfig.Server.INSTANCE, FabricCommonConfig.getINSTANCE(), (MinecraftServer) (Object) this);
-			FabricTownManager.init(FabricConfig.Server.INSTANCE);
-			FabricPlayerManager.init(FabricConfig.Server.INSTANCE, FabricCommonConfig.getINSTANCE(), (MinecraftServer) (Object) this);
-		});
+		BakaMC.INSTANCE.init((MinecraftServer) (Object) this);
 	}
 
 
@@ -52,10 +40,7 @@ public abstract class MinecraftServerMixin {
 
 	@Inject(method = "shutdown", at = @At("HEAD"))
 	private void beforeShutdownServer(CallbackInfo info) {
-		FabricConfig.INSTANCE.saveAsync();
-		FabricMessageHandler.hasHandler(MessageHandler::close);
-		FabricTownManager.hasManager(TownManager::close);
-		FabricPlayerManager.hasManager(PlayerManager::close);
+		BakaMC.INSTANCE.close((MinecraftServer) (Object) this);
 	}
 
 }

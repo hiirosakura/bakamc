@@ -1,6 +1,6 @@
 package cn.bakamc.fabric.command
 
-import cn.bakamc.fabric.town.FabricTownManager
+import cn.bakamc.fabric.town.FabricTownHandler
 import com.mojang.brigadier.CommandDispatcher
 import net.minecraft.server.command.CommandManager.literal
 import net.minecraft.server.command.ServerCommandSource
@@ -27,7 +27,7 @@ object TownCommand {
 				.then(
 					literal("syncData").requires { it.hasPermissionLevel(4) }
 						.executes {
-							FabricTownManager.hasManager { it.syncData() }
+							FabricTownHandler.hasHandler { it.syncData() }
 							1
 						}
 				)

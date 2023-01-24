@@ -1,7 +1,5 @@
 package cn.bakamc.riguru.util
 
-import cn.bakamc.common.api.WSMessage
-import cn.bakamc.common.utils.toJsonStr
 import javax.websocket.Session
 
 /**
@@ -23,14 +21,6 @@ fun Session.sendMessage(message: String) {
 	this.basicRemote.sendText(message)
 }
 
-fun Session.sendMessage(message: WSMessage) {
-	sendMessage(message.toJsonStr())
-}
-
 fun Iterable<Session>.broadcast(message: String) {
-	this.forEach { it.sendMessage(message) }
-}
-
-fun Iterable<Session>.broadcast(message: WSMessage) {
 	this.forEach { it.sendMessage(message) }
 }

@@ -1,6 +1,6 @@
 package cn.bakamc.fabric.mixin;
 
-import cn.bakamc.fabric.player.FabricPlayerManager;
+import cn.bakamc.fabric.player.FabricPlayerHandler;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -25,14 +25,14 @@ public class PlayerManagerMixin {
 
 	@Inject(method = "onPlayerConnect", at = @At("RETURN"))
 	public void onPlayerJoin(ClientConnection connection, ServerPlayerEntity player, CallbackInfo callbackInfo) {
-		FabricPlayerManager.hasManager(manager -> {
+		FabricPlayerHandler.hasHandler(manager -> {
 			manager.onPlayerJoin(player);
 		});
 	}
 
 	@Inject(method = "remove", at = @At("RETURN"))
 	public void onPlayerLeft(ServerPlayerEntity player, CallbackInfo callbackInfo) {
-		FabricPlayerManager.hasManager(manager -> {
+		FabricPlayerHandler.hasHandler(manager -> {
 			manager.onPlayerLeft(player);
 		});
 	}

@@ -1,6 +1,6 @@
 package cn.bakamc.common.chat
 
-import cn.bakamc.common.api.WSMessage
+import cn.bakamc.common.api.WebSocketHandler
 import cn.bakamc.common.chat.config.ChatConfig
 import cn.bakamc.common.chat.message.Message
 import cn.bakamc.common.chat.message.PostMessage
@@ -25,7 +25,7 @@ import cn.bakamc.common.config.common.ServerConfig
  * @author forpleuvoir
 
  */
-interface MessageHandler<T, P, S> : MultiPlatform<T, P, S> {
+interface MessageHandler<T, P, S> : MultiPlatform<T, P, S>, WebSocketHandler {
 
 	/**
 	 * 配置
@@ -56,21 +56,6 @@ interface MessageHandler<T, P, S> : MultiPlatform<T, P, S> {
 	fun reloadConfig() = config.reload()
 
 	/**
-	 * 链接riguru服务器
-	 */
-	fun connect()
-
-	/**
-	 * 重新连接至riguru服务器
-	 */
-	fun reconnect()
-
-	/**
-	 * 关闭连接
-	 */
-	fun close()
-
-	/**
 	 * 当前服务器玩家发布聊天信息
 	 * @param player P
 	 * @param message String
@@ -92,13 +77,13 @@ interface MessageHandler<T, P, S> : MultiPlatform<T, P, S> {
 
 	/**
 	 * 向riguru服务器发送消息
-	 * @param message Message
+	 * @param message PostMessage
 	 */
-	fun postMessage(message: WSMessage)
+	fun postMessage(message: PostMessage)
 
 	/**
 	 * 当从riguru服务器接收到消息时
-	 * @param message Message
+	 * @param message PostMessage
 	 */
 	fun receivesMessage(message: PostMessage)
 

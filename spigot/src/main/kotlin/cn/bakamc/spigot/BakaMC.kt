@@ -1,12 +1,14 @@
 package cn.bakamc.spigot
 
+import cn.bakamc.common.BakaMcApp
 import cn.bakamc.spigot.chat.SpigotMessageHandler
 import cn.bakamc.spigot.command.Commands
 import cn.bakamc.spigot.config.SpigotCommonConfig
 import cn.bakamc.spigot.config.SpigotConfig
 import cn.bakamc.spigot.event.PlayerEventHandler
-import cn.bakamc.spigot.player.SpigotPlayerManager
-import cn.bakamc.spigot.town.SpigotTownManager
+import cn.bakamc.spigot.player.SpigotPlayerHandler
+import cn.bakamc.spigot.town.SpigotTownHandler
+import org.bukkit.Server
 import org.bukkit.plugin.java.JavaPlugin
 
 /**
@@ -23,11 +25,11 @@ import org.bukkit.plugin.java.JavaPlugin
  * @author forpleuvoir
 
  */
-class BakaMC : JavaPlugin() {
+class BakaMC : JavaPlugin(), BakaMcApp<Server> {
 
 	companion object {
 		const val ID = "bakamc"
-		lateinit var INSTANCE: JavaPlugin
+		lateinit var INSTANCE: BakaMC
 	}
 
 	private fun registerEvent() {
@@ -38,20 +40,39 @@ class BakaMC : JavaPlugin() {
 
 	override fun onEnable() {
 		INSTANCE = this
-		SpigotConfig.init(this)
-		SpigotCommonConfig.init(SpigotConfig.Server)
-		SpigotMessageHandler.init(SpigotConfig.Server, SpigotCommonConfig.INSTANCE, server)
-		SpigotTownManager.init(SpigotConfig.Server)
-		SpigotPlayerManager.init(SpigotConfig.Server, SpigotCommonConfig.INSTANCE, server)
+		init(server)
 		Commands.registerCommand(this)
 		registerEvent()
 	}
 
 	override fun onDisable() {
+		close(server)
+	}
+
+	override fun init(server: Server) {
+		SpigotConfig.init(this)
+		SpigotCommonConfig.init(SpigotConfig.Server)
+		SpigotMessageHandler.init(SpigotConfig.Server, SpigotCommonConfig.INSTANCE, server)
+		SpigotTownHandler.init(SpigotConfig.Server)
+		SpigotPlayerHandler.init(SpigotConfig.Server, SpigotCommonConfig.INSTANCE, server)
+	}
+
+	override fun reload(server: Server) {
+		SpigotConfig.load()
+		SpigotCommonConfig.init(SpigotConfig.Server)
+		SpigotMessageHandler.hasHandler { it.close() }
+		SpigotTownHandler.hasHandler { it.close() }
+		SpigotPlayerHandler.hasHandler { it.close() }
+		SpigotMessageHandler.init(SpigotConfig.Server, SpigotCommonConfig.INSTANCE, server)
+		SpigotTownHandler.init(SpigotConfig.Server)
+		SpigotPlayerHandler.init(SpigotConfig.Server, SpigotCommonConfig.INSTANCE, server)
+	}
+
+	override fun close(server: Server) {
 		SpigotConfig.save()
 		SpigotMessageHandler.hasHandler { it.close() }
-		SpigotTownManager.hasManager { it.close() }
-		SpigotPlayerManager.hasManager { it.close() }
+		SpigotTownHandler.hasHandler { it.close() }
+		SpigotPlayerHandler.hasHandler { it.close() }
 	}
 
 }

@@ -2,6 +2,7 @@ package cn.bakamc.common.chat.message
 
 import cn.bakamc.common.common.ServerInfo
 import cn.bakamc.common.player.PlayerCurrentInfo
+import cn.bakamc.common.utils.gson
 
 /**
  * 最终被发送的消息
@@ -54,7 +55,7 @@ class PostMessage(
 	val data: Map<String, Any>
 ) : Message(type, sender, serverInfo, receiver, message) {
 
-	val finalMessage:String? get() =data[FINAL_MESSAGE] as String?
+	val finalMessage: String? get() = data[FINAL_MESSAGE] as String?
 
 	val finalText: String? get() = data[FINAL_TEXT] as String?
 
@@ -84,5 +85,9 @@ class PostMessage(
 		const val FINAL_SENDER_TEXT = "final_sender_text"
 		const val FINAL_RECEIVER_TEXT = "final_receiver_text"
 		const val AT_LIST = "at_list"
+
+		fun fromJson(json: String): PostMessage {
+			return gson.fromJson(json, PostMessage::class.java)
+		}
 	}
 }

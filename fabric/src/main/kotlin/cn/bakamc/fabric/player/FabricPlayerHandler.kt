@@ -3,7 +3,7 @@ package cn.bakamc.fabric.player
 import cn.bakamc.common.config.common.CommonConfig
 import cn.bakamc.common.config.common.ServerConfig
 import cn.bakamc.common.config.common.TextConfig
-import cn.bakamc.common.player.PlayerManager
+import cn.bakamc.common.player.PlayerHandler
 import cn.bakamc.fabric.common.FabricPlatform
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
@@ -17,25 +17,25 @@ import java.util.function.Consumer
 
  * 包名 cn.bakamc.fabric.player
 
- * 文件名 FabricPlayerManager
+ * 文件名 FabricPlayerHandler
 
  * 创建时间 2022/11/26 12:58
 
  * @author forpleuvoir
 
  */
-class FabricPlayerManager(config: ServerConfig, private val commonConfig: CommonConfig, server: MinecraftServer) :
-	PlayerManager<MutableText, ServerPlayerEntity, MinecraftServer>(config, server), FabricPlatform {
+class FabricPlayerHandler(config: ServerConfig, private val commonConfig: CommonConfig, server: MinecraftServer) :
+	PlayerHandler<MutableText, ServerPlayerEntity, MinecraftServer>(config, server), FabricPlatform {
 
 	companion object {
 		@JvmStatic
-		lateinit var INSTANCE: PlayerManager<MutableText, ServerPlayerEntity, MinecraftServer>
+		lateinit var INSTANCE: PlayerHandler<MutableText, ServerPlayerEntity, MinecraftServer>
 			private set
 
 		@JvmStatic
-		fun hasManager(action: Consumer<PlayerManager<MutableText, ServerPlayerEntity, MinecraftServer>>) {
+		fun hasHandler(action: Consumer<PlayerHandler<MutableText, ServerPlayerEntity, MinecraftServer>>) {
 			if (this::INSTANCE.isInitialized) {
-				action.accept(INSTANCE)
+				if (INSTANCE.isConnected()) action.accept(INSTANCE)
 			}
 		}
 
@@ -44,8 +44,8 @@ class FabricPlayerManager(config: ServerConfig, private val commonConfig: Common
 			serverConfig: ServerConfig,
 			commonConfig: CommonConfig,
 			server: MinecraftServer
-		): PlayerManager<MutableText, ServerPlayerEntity, MinecraftServer> {
-			INSTANCE = FabricPlayerManager(serverConfig, commonConfig, server)
+		): PlayerHandler<MutableText, ServerPlayerEntity, MinecraftServer> {
+			INSTANCE = FabricPlayerHandler(serverConfig, commonConfig, server)
 			INSTANCE.connect()
 			return INSTANCE
 		}

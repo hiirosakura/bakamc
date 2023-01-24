@@ -40,7 +40,7 @@ class FabricMessageHandler(config: ServerConfig, override val commonConfig: Comm
 		@JvmStatic
 		fun hasHandler(action: Consumer<MessageHandler<MutableText, ServerPlayerEntity, MinecraftServer>>) {
 			if (this::INSTANCE.isInitialized) {
-				action.accept(INSTANCE)
+				if (INSTANCE.isConnected()) action.accept(INSTANCE)
 			}
 		}
 

@@ -1,6 +1,6 @@
 package cn.bakamc.spigot.command
 
-import cn.bakamc.spigot.town.SpigotTownManager
+import cn.bakamc.spigot.town.SpigotTownHandler
 import com.mojang.brigadier.CommandDispatcher
 import net.minecraft.commands.CommandListenerWrapper
 
@@ -26,7 +26,7 @@ object TownCommand {
 				.then(
 					literal("syncData").requires { it.bukkitSender.isOp }
 						.executes {
-							SpigotTownManager.hasManager{it.syncData()}
+							SpigotTownHandler.hasHandler{it.syncData()}
 							1
 						}
 				)

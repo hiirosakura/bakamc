@@ -1,7 +1,7 @@
 package cn.bakamc.spigot.town
 
 import cn.bakamc.common.config.common.ServerConfig
-import cn.bakamc.common.town.TownManager
+import cn.bakamc.common.town.TownHandler
 import java.util.function.Consumer
 
 /**
@@ -11,29 +11,29 @@ import java.util.function.Consumer
 
  * 包名 cn.bakamc.spigot.town
 
- * 文件名 SpigotTownManager
+ * 文件名 SpigotTownHandler
 
  * 创建时间 2022/11/22 21:19
 
  * @author forpleuvoir
 
  */
-class SpigotTownManager(config: ServerConfig) : TownManager(config) {
+class SpigotTownHandler(config: ServerConfig) : TownHandler(config) {
 	companion object {
 		@JvmStatic
-		lateinit var INSTANCE: TownManager
+		lateinit var INSTANCE: TownHandler
 			private set
 
 		@JvmStatic
-		fun hasManager(action: Consumer<TownManager>) {
+		fun hasHandler(action: Consumer<TownHandler>) {
 			if (this::INSTANCE.isInitialized) {
-				action.accept(INSTANCE)
+				if (INSTANCE.isConnected()) action.accept(INSTANCE)
 			}
 		}
 
 		@JvmStatic
-		fun init(config: ServerConfig): TownManager {
-			INSTANCE = SpigotTownManager(config)
+		fun init(config: ServerConfig): TownHandler {
+			INSTANCE = SpigotTownHandler(config)
 			INSTANCE.connect()
 			return INSTANCE
 		}

@@ -9,7 +9,7 @@ import cn.bakamc.common.player.PlayerCurrentInfo
 import cn.bakamc.common.player.PlayerInfo
 import cn.bakamc.common.town.Town
 import cn.bakamc.common.utils.f
-import cn.bakamc.spigot.town.SpigotTownManager
+import cn.bakamc.spigot.town.SpigotTownHandler
 import net.minecraft.network.chat.*
 import net.minecraft.network.chat.ChatClickable.EnumClickAction
 import net.minecraft.network.chat.ChatHoverable.EnumHoverAction
@@ -88,9 +88,7 @@ interface SpigotPlatform : AbstractPlatform<IChatMutableComponent, Player, Serve
 		return this.onlinePlayers
 	}
 
-
 	override fun Player.sendMessage(message: IChatMutableComponent, uuid: UUID) {
-		println(message.string)
 		(this as CraftPlayer).apply {
 			if (this.handle.b != null) {
 				val packet = PacketPlayOutChat(message, a, uuid)
@@ -109,7 +107,7 @@ interface SpigotPlatform : AbstractPlatform<IChatMutableComponent, Player, Serve
 
 	override fun Player.playerCurrentInfo(): PlayerCurrentInfo {
 		var town: Town = Town.NONE
-		SpigotTownManager.hasManager { town = it.getByPlayerID(this.uniqueId) }
+		SpigotTownHandler.hasHandler { town = it.getByPlayerID(this.uniqueId) }
 		return PlayerCurrentInfo(
 			this.uniqueId,
 			this.name,

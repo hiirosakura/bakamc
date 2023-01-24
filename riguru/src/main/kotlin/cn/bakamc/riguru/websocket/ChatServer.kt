@@ -1,16 +1,13 @@
 package cn.bakamc.riguru.websocket
 
-import cn.bakamc.common.api.WSMessage
-import cn.bakamc.common.api.WSMessageType.Chat.CHAT_MESSAGE
-import cn.bakamc.common.api.WSMessageType.Chat.WHISPER_MESSAGE
-import cn.bakamc.common.api.parseToWSMessage
+import cn.bakamc.common.chat.message.MessageType.Chat
+import cn.bakamc.common.chat.message.MessageType.Whisper
 import cn.bakamc.common.chat.message.PostMessage
-import cn.bakamc.common.utils.gson
+import cn.bakamc.common.utils.toJsonStr
 import cn.bakamc.riguru.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import javax.websocket.OnClose
-import javax.websocket.OnMessage
 import javax.websocket.OnOpen
 import javax.websocket.Session
 import javax.websocket.server.PathParam
@@ -30,6 +27,7 @@ import javax.websocket.server.ServerEndpoint
  * @author forpleuvoir
 
  */
+@Suppress("unused")
 @ServerEndpoint("/chat/{server_id}")
 @Component
 class ChatServer {
@@ -39,6 +37,14 @@ class ChatServer {
 		private val log = LoggerFactory.getLogger(ChatServer::class.java)
 
 		private val sessions: MutableList<Session> = ArrayList()
+
+		fun broadcastMessage(message: PostMessage, serverID: String) {
+			sessions.broadcast(message.toJsonStr())
+			when (message.type) {
+				Chat    -> log.info("[({})chat]{}", serverID, message.finalMessage)
+				Whisper -> log.info("[({})whisper]{}", serverID, message.finalMessage)
+			}
+		}
 
 	}
 
@@ -60,36 +66,5 @@ class ChatServer {
 		log.info("[{}]有人退订了昆虫通知服务！", id)
 	}
 
-	@OnMessage
-	fun onMessage(
-		message: String,
-		session: Session,
-		@PathParam("server_id") id: String
-	) {
-		message.parseToWSMessage(
-			wsMessage = {
-				when (type) {
-					CHAT_MESSAGE -> chatMessage(data, session, id)
-					WHISPER_MESSAGE -> whisperMessage(data, session, id)
-					else -> log.error("[${message}]无法解析的消息格式")
-				}
-			},
-			onException = {
-				log.error("[${message}]无法解析的消息格式", it)
-			}
-		)
-	}
-
-	private fun chatMessage(json: String, session: Session, id: String) {
-		sessions.broadcast(WSMessage(CHAT_MESSAGE, json))
-		val fromJson = gson.fromJson(json, PostMessage::class.java)
-		log.info("[({})chat]{}", id, fromJson.finalMessage)
-	}
-
-	private fun whisperMessage(json: String, session: Session, id: String) {
-		sessions.broadcast(WSMessage(WHISPER_MESSAGE, json))
-		val fromJson = gson.fromJson(json, PostMessage::class.java)
-		log.info("[({})whisper]{}", id, fromJson.finalMessage)
-	}
 
 }
