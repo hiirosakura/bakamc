@@ -7,14 +7,14 @@ import cn.bakamc.common.config.common.ServerConfig
 import cn.bakamc.common.config.common.TextConfig
 import cn.bakamc.spigot.common.SpigotPlatform
 import net.minecraft.EnumChatFormat
-import net.minecraft.network.chat.ChatComponentText
 import net.minecraft.network.chat.ChatComponentUtils
 import net.minecraft.network.chat.ChatHoverable
 import net.minecraft.network.chat.ChatHoverable.EnumHoverAction
+import net.minecraft.network.chat.IChatBaseComponent
 import net.minecraft.network.chat.IChatMutableComponent
 import net.minecraft.world.item.ItemStack
 import org.bukkit.Server
-import org.bukkit.craftbukkit.v1_18_R2.inventory.CraftItemStack
+import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack
 import org.bukkit.entity.Player
 import java.util.function.Consumer
 
@@ -71,15 +71,15 @@ class SpigotMessageHandler(config: ServerConfig, override val commonConfig: Comm
 	}
 
 	private fun ItemStack.getHoverableText(): IChatMutableComponent {
-		val mutableText: IChatMutableComponent = ChatComponentText("").a(this.w())
+		val mutableText: IChatMutableComponent = IChatBaseComponent.h().b(this.x())
 		val count = this.J()
-		if (count > 1) mutableText.a(ChatComponentText(" x$count"))
-		if (this.y()) {
-			mutableText.a(EnumChatFormat.o)
+		if (count > 1) mutableText.addSibling(" x$count".text)
+		if (this.z()) {
+			mutableText.a(EnumChatFormat.u)
 		}
 		val mutableText2 = ChatComponentUtils.a(mutableText)
 		if (!this.b()) {
-			mutableText2.a(this.A().e).a { style ->
+			mutableText2.a(this.B().e).a { style ->
 				style.a(
 					ChatHoverable(EnumHoverAction.b, ChatHoverable.c(this))
 				)

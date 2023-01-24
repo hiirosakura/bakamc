@@ -1,7 +1,7 @@
 package cn.bakamc.fabric.mixin;
 
 import cn.bakamc.fabric.chat.FabricMessageHandler;
-import net.minecraft.server.filter.TextStream;
+import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.slf4j.Logger;
@@ -31,16 +31,15 @@ public abstract class ServerPlayNetworkHandlerMixin {
 	@Shadow
 	public ServerPlayerEntity player;
 
-	@Inject(method = "handleMessage", at = @At("HEAD"), cancellable = true)
-	public void handleMessage(TextStream.Message arg, CallbackInfo ci) {
-		if (!arg.getRaw().startsWith("/"))
-			FabricMessageHandler.hasHandler(handler -> {
-				try {
-					handler.sendChatMessage(player, arg.getRaw());
-					ci.cancel();
-				} catch (Exception e) {
-					log.error("消息发送失败", e);
-				}
-			});
+	@Inject(method = "onChatMessage", at = @At("HEAD"), cancellable = true)
+	public void handleMessage(ChatMessageC2SPacket packet, CallbackInfo ci) {
+		FabricMessageHandler.hasHandler(handler -> {
+			try {
+				handler.sendChatMessage(player, packet.chatMessage());
+				ci.cancel();
+			} catch (Exception e) {
+				log.error("消息发送失败", e);
+			}
+		});
 	}
 }

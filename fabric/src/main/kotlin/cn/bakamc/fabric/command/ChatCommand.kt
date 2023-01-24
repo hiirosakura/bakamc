@@ -49,7 +49,7 @@ object ChatCommand {
 	}
 
 	private fun whisper(context: CommandContext<ServerCommandSource>): Int {
-		val sender = context.source.player
+		val sender = context.source.player!!
 		val target = StringArgumentType.getString(context, "target")
 		val message = StringArgumentType.getString(context, "message")
 		if (sender.name.string == target && sender.displayName.string == target) {

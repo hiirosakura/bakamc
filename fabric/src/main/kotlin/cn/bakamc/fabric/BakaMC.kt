@@ -11,7 +11,7 @@ import cn.bakamc.fabric.config.FabricConfig.Server
 import cn.bakamc.fabric.player.FabricPlayerHandler
 import cn.bakamc.fabric.town.FabricTownHandler
 import net.fabricmc.api.ModInitializer
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.minecraft.server.MinecraftServer
 import java.util.concurrent.CompletableFuture
 
@@ -35,7 +35,7 @@ object BakaMC : ModInitializer, BakaMcApp<MinecraftServer> {
 	const val NAME = "BakaMC"
 
 	override fun onInitialize() {
-		CommandRegistrationCallback.EVENT.register { dispatcher, registryAccess ->
+		CommandRegistrationCallback.EVENT.register { dispatcher, registryAccess, conmmandManager ->
 			Commands.register(dispatcher)
 		}
 	}

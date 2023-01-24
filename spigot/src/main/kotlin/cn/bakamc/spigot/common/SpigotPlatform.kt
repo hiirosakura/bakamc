@@ -10,15 +10,16 @@ import cn.bakamc.common.player.PlayerInfo
 import cn.bakamc.common.town.Town
 import cn.bakamc.common.utils.f
 import cn.bakamc.spigot.town.SpigotTownHandler
-import net.minecraft.network.chat.*
+import net.minecraft.network.chat.ChatClickable
 import net.minecraft.network.chat.ChatClickable.EnumClickAction
+import net.minecraft.network.chat.ChatHoverable
 import net.minecraft.network.chat.ChatHoverable.EnumHoverAction
-import net.minecraft.network.chat.ChatMessageType.a
+import net.minecraft.network.chat.IChatBaseComponent
 import net.minecraft.network.chat.IChatBaseComponent.ChatSerializer
-import net.minecraft.network.protocol.game.PacketPlayOutChat
+import net.minecraft.network.chat.IChatMutableComponent
 import org.bukkit.Server
 import org.bukkit.attribute.Attribute
-import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer
+import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer
 import org.bukkit.entity.Player
 import java.util.*
 
@@ -48,7 +49,7 @@ interface SpigotPlatform : AbstractPlatform<IChatMutableComponent, Player, Serve
 	}
 
 	override fun IChatMutableComponent.addSibling(sibling: IChatMutableComponent): IChatMutableComponent {
-		return this.a(sibling)
+		return this.b(sibling)
 	}
 
 	override fun IChatMutableComponent.withClick(action: ClickAction, content: String): IChatMutableComponent {
@@ -82,7 +83,7 @@ interface SpigotPlatform : AbstractPlatform<IChatMutableComponent, Player, Serve
 
 	override fun String.fromJson(): IChatMutableComponent = ChatSerializer.a(this)!!
 
-	override fun String.toText(): IChatMutableComponent = ChatComponentText(this)
+	override fun String.toText(): IChatMutableComponent = IChatBaseComponent.b(this)
 
 	override fun Server.players(): Iterable<Player> {
 		return this.onlinePlayers
@@ -91,8 +92,7 @@ interface SpigotPlatform : AbstractPlatform<IChatMutableComponent, Player, Serve
 	override fun Player.sendMessage(message: IChatMutableComponent, uuid: UUID) {
 		(this as CraftPlayer).apply {
 			if (this.handle.b != null) {
-				val packet = PacketPlayOutChat(message, a, uuid)
-				this.handle.b.a(packet)
+				this.handle.b.a(message)
 			}
 		}
 	}

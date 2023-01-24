@@ -9,12 +9,14 @@ import cn.bakamc.common.player.PlayerCurrentInfo
 import cn.bakamc.common.player.PlayerInfo
 import cn.bakamc.common.town.Town
 import cn.bakamc.fabric.town.FabricTownHandler
-import net.minecraft.network.MessageType.CHAT
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.*
+import net.minecraft.text.ClickEvent
+import net.minecraft.text.HoverEvent
 import net.minecraft.text.HoverEvent.EntityContent
 import net.minecraft.text.HoverEvent.ItemStackContent
+import net.minecraft.text.MutableText
+import net.minecraft.text.Text
 import java.util.*
 import net.minecraft.text.ClickEvent.Action as Click
 import net.minecraft.text.HoverEvent.Action as Hover
@@ -70,12 +72,12 @@ interface FabricPlatform : AbstractPlatform<MutableText, ServerPlayerEntity, Min
 
 	override fun String.fromJson(): MutableText = Text.Serializer.fromJson(this)!!
 
-	override fun String.toText(): MutableText = LiteralText(this)
+	override fun String.toText(): MutableText = Text.literal(this)
 
 	override fun MinecraftServer.players(): Iterable<ServerPlayerEntity> = this.playerManager.playerList
 
 	override fun ServerPlayerEntity.sendMessage(message: MutableText, uuid: UUID) {
-		this.sendMessage(message, CHAT, uuid)
+		this.sendMessage(message)
 	}
 
 	override fun ServerPlayerEntity.playerInfo(): PlayerInfo {

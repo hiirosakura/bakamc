@@ -72,7 +72,7 @@ class FabricMessageHandler(config: ServerConfig, override val commonConfig: Comm
 	}
 
 	private fun ItemStack.getHoverableText(): MutableText {
-		val mutableText: MutableText = LiteralText("").append(this.name)
+		val mutableText: MutableText = Text.literal("").append(this.name)
 		val count = this.count
 		if (count > 1) mutableText.append(" x$count")
 		if (this.hasCustomName()) {

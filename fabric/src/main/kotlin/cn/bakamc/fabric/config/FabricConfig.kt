@@ -1,8 +1,6 @@
 package cn.bakamc.fabric.config
 
 import cn.bakamc.common.config.common.AbstractServerConfig
-import cn.bakamc.common.config.common.ServerConfig
-import cn.bakamc.common.config.modconfig.impl.ConfigCategoryImpl
 import cn.bakamc.common.config.modconfig.impl.LocalServerModConfig
 import cn.bakamc.fabric.BakaMC
 import net.minecraft.server.MinecraftServer
@@ -33,7 +31,7 @@ object FabricConfig : LocalServerModConfig<MinecraftServer>(BakaMC.ID) {
 
 	override fun localConfigPath(): Path {
 		val serverPath = server.session.directory
-		return File(serverPath.toFile(), modId).apply {
+		return File(serverPath.path.toFile(), modId).apply {
 			if (!exists()) {
 				this.mkdir()
 			}
