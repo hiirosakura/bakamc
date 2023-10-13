@@ -6,7 +6,6 @@ import cn.bakamc.folia.flight_energy.FlightEnergyManager
 import org.bukkit.plugin.java.JavaPlugin
 
 object BakaMCPlugin: JavaPlugin() {
-
     override fun onEnable() {
         Configs.init(dataFolder.toPath())
         FlightEnergyManager.init()
