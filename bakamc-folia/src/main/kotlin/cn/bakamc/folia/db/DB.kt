@@ -1,61 +1,60 @@
 package cn.bakamc.folia.db
 
-import cn.bakamc.folia.BakaMCPlugin
 import cn.bakamc.folia.config.Configs
-import com.baomidou.mybatisplus.annotation.DbType
 import com.baomidou.mybatisplus.core.MybatisConfiguration
-import com.baomidou.mybatisplus.core.incrementer.DefaultIdentifierGenerator
-import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector
-import com.baomidou.mybatisplus.core.mapper.BaseMapper
-import com.baomidou.mybatisplus.core.toolkit.GlobalConfigUtils
-import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor
-import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor
-import org.apache.ibatis.datasource.pooled.PooledDataSource
+import com.baomidou.mybatisplus.core.MybatisSqlSessionFactoryBuilder
+import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor
+import com.zaxxer.hikari.HikariDataSource
+import org.apache.ibatis.logging.slf4j.Slf4jImpl
 import org.apache.ibatis.mapping.Environment
-import org.apache.ibatis.plugin.Interceptor
 import org.apache.ibatis.session.SqlSession
-import org.apache.ibatis.session.SqlSessionFactoryBuilder
+import org.apache.ibatis.session.SqlSessionFactory
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory
 import javax.sql.DataSource
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
-
-fun init() {
-
-
+fun init(){
+    sqlSessionFactory.openSession().use {  }
 }
 
-
-fun initSession(): SqlSession {
-    return SqlSessionFactoryBuilder().build(MybatisConfiguration().apply {
-        addInterceptor(initInterceptor())
-        addMappers("cn.bakamc.folia.db.mapper")
-
-        GlobalConfigUtils.getGlobalConfig(this).apply {
-            sqlInjector = DefaultSqlInjector()
-            identifierGenerator = DefaultIdentifierGenerator.getInstance()
-            superMapperClass = BaseMapper::class.java
-        }
-
-        environment = Environment("BakaMC", JdbcTransactionFactory(), initDataSource())
-    }).openSession()
-
+val sqlSessionFactory: SqlSessionFactory by lazy {
+    initSqlSessionFactory()
 }
 
-private fun initDataSource(): DataSource {
-    return PooledDataSource().apply {
-        driver = "com.mysql.cj.jdbc.Driver"
-        url = Configs.Database.URL
+@OptIn(ExperimentalContracts::class)
+inline fun session(action: SqlSession.() -> Unit) {
+    contract {
+        callsInPlace(action, InvocationKind.EXACTLY_ONCE)
+    }
+    sqlSessionFactory.openSession(true).use(action)
+}
+
+private fun initSqlSessionFactory(): SqlSessionFactory {
+    return MybatisSqlSessionFactoryBuilder().build(MybatisConfiguration(environment()).apply { config() })
+}
+
+private fun environment(): Environment {
+    return Environment("Production", JdbcTransactionFactory(), dataSource())
+}
+
+private fun MybatisConfiguration.config(): MybatisConfiguration {
+
+    addMappers("cn.bakamc.folia.db.mapper")
+    addInterceptor(PaginationInterceptor())
+
+    logImpl = Slf4jImpl::class.java
+
+    return this
+}
+
+private fun dataSource(): DataSource {
+    return HikariDataSource().apply {
+        driverClassName = "com.mysql.cj.jdbc.Driver"
+        jdbcUrl = Configs.Database.URL
         username = Configs.Database.USER
         password = Configs.Database.PASSWORD
-    }
-}
 
-private fun initInterceptor(): Interceptor {
-    return MybatisPlusInterceptor().apply {
-        addInnerInterceptor(PaginationInnerInterceptor().apply {
-            dbType = DbType.MYSQL
-            isOverflow = true
-            maxLimit = 500L
-        })
     }
 }

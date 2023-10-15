@@ -1,9 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+    val kotlinVersion = "1.9.10"
     java
     signing
-    kotlin("jvm") version "1.9.10"
+    kotlin("jvm") version kotlinVersion
+    kotlin("plugin.noarg") version kotlinVersion
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("maven-publish")
 }
@@ -45,13 +47,16 @@ java {
 
 subprojects {
 
-    apply(plugin = "java")
-    apply(plugin = "kotlin")
-    apply(plugin = "signing")
-    apply(plugin = "com.github.johnrengelman.shadow")
-    apply(plugin = "maven-publish")
+    apply {
+        plugin("java")
+        plugin("kotlin")
+        plugin("signing")
+        plugin("com.github.johnrengelman.shadow")
+        plugin("maven-publish")
+        plugin("org.jetbrains.kotlin.plugin.noarg")
+    }
 
-    repositories{
+    repositories {
         mavenCentral()
         mavenLocal()
         maven { url = uri("https://maven.forpleuvoir.moe/snapshots") }
