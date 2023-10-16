@@ -55,6 +55,5 @@ private fun dataSource(): DataSource {
         jdbcUrl = Configs.Database.URL
         username = Configs.Database.USER
         password = Configs.Database.PASSWORD
-
     }
 }

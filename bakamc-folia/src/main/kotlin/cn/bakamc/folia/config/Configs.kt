@@ -1,6 +1,7 @@
 package cn.bakamc.folia.config
 
 import moe.forpleuvoir.nebula.common.util.minute
+import moe.forpleuvoir.nebula.common.util.second
 import moe.forpleuvoir.nebula.config.category.ConfigCategoryImpl
 import moe.forpleuvoir.nebula.config.item.impl.ConfigBoolean
 import moe.forpleuvoir.nebula.config.item.impl.ConfigDouble
@@ -42,7 +43,11 @@ object Configs : LocalConfigManager("bakamc"), JsonConfigManagerPersistence {
 
     object FlightEnergy : ConfigCategoryImpl("flight_energy") {
 
-        val ENERGY_COST by ConfigDouble("energy_cost", 0.001)
+        val CAL_PERIOD by ConfigInt("cal_period", 1.second.toInt())
+
+        val ENERGY_COST by ConfigDouble("energy_cost", 1.0)
+
+        val MAX_COST by ConfigDouble("max_cost", 5000.0)
 
         val SYNC_PERIOD by ConfigInt("sync_period", 5.minute.toInt())
 

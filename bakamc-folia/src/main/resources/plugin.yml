@@ -1,0 +1,16 @@
+name: BakaMC
+main: cn.bakamc.folia.BakaMCPlugin
+version: 0.1
+authors:
+  - forpleuvoir
+
+commands:
+  baka-fly:
+    description: baka-fly
+    usage: /baka-fly
+    permission: BakaMC.fly
+
+permissions:
+  BakaMC.fly:
+    description: baka-fly
+    default: true
