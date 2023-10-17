@@ -1,11 +1,12 @@
 package cn.bakamc.folia.command
 
-import cn.bakamc.folia.BakaMCPlugin
+import org.bukkit.plugin.java.JavaPlugin
 
-fun registerCommand(){
-    BakaMCPlugin.apply {
-        getCommand(FlyCommand.CMD)?.setExecutor(FlyCommand)
-
-
+fun JavaPlugin.registerCommand() {
+    getCommand(FlyCommand.CMD)?.apply {
+        setExecutor(FlyCommand)
+        tabCompleter = FlyCommand
     }
+
+
 }

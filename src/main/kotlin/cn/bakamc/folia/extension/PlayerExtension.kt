@@ -12,4 +12,4 @@ val Player.VO: PlayerVO
 val Player.uuid: String
     get() = this.uniqueId.toString()
 
-val onlinePlayers: Collection<Player> get() = BakaMCPlugin.server.onlinePlayers
+val onlinePlayers: Collection<Player> get() = BakaMCPlugin.insctence.server.onlinePlayers

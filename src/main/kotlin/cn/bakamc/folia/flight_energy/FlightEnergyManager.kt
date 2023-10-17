@@ -1,9 +1,9 @@
 package cn.bakamc.folia.flight_energy
 
 import cn.bakamc.folia.BakaMCPlugin
-import cn.bakamc.folia.config.Configs.FlightEnergy.TICK_PERIOD
 import cn.bakamc.folia.config.Configs.FlightEnergy.ENERGY_COST
 import cn.bakamc.folia.config.Configs.FlightEnergy.SYNC_PERIOD
+import cn.bakamc.folia.config.Configs.FlightEnergy.TICK_PERIOD
 import cn.bakamc.folia.extension.onlinePlayers
 import cn.bakamc.folia.service.PlayerService
 import cn.bakamc.folia.util.SimpleTimerTask
@@ -35,7 +35,7 @@ object FlightEnergyManager : Listener, Initializable {
             SimpleTimerTask(1.minute, SYNC_PERIOD.toLong(), ::sync)
         )
 
-        timer = Timer("[${BakaMCPlugin.name}]FlightEnergyManager").apply {
+        timer = Timer("[${BakaMCPlugin.insctence.name}]FlightEnergyManager").apply {
             tasks.forEach { this.schedule(it) }
         }
 

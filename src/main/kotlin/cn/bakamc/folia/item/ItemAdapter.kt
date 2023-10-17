@@ -1,5 +1,6 @@
 package cn.bakamc.folia.item
 
+import cn.bakamc.folia.util.completeEquals
 import cn.bakamc.folia.util.toSerializerObjet
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
@@ -22,12 +23,14 @@ class ItemAdapter(
             }
 
             ItemAdaptPattern.NbtComplete -> {
-                item.tag?.let {
-                    it.toSerializerObjet()
-
-                    true
-                }?:false
+                if (!value.isObject) false
+                else {
+                    item.tag?.toSerializerObjet()?.let {
+                        it completeEquals value
+                    } ?: false
+                }
             }
+
             ItemAdaptPattern.NbtPart     -> TODO()
         }
     }

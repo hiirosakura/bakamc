@@ -19,14 +19,13 @@ repositories {
     maven { url = uri("https://maven.forpleuvoir.moe/releases") }
 }
 
-val nebulaVersion = "0.2.5d"
 
 dependencies {
     implementation(kotlin("reflect"))
     implementation(kotlin("stdlib"))
     paperweight.foliaDevBundle("1.20.1-R0.1-SNAPSHOT")
 
-    api("moe.forpleuvoir:nebula:$nebulaVersion") {
+    api("moe.forpleuvoir:nebula:0.2.5d") {
         exclude("moe.forpleuvoir", "nebula-event")
     }
 
@@ -37,6 +36,7 @@ dependencies {
 
 group = "cn.bakamc"
 version = "0.1.0a"
+description = "这是什么插件"
 
 tasks.apply {
     withType<JavaCompile>().configureEach {
