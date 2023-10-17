@@ -2,7 +2,7 @@ package cn.bakamc.folia.item
 
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
-import org.bukkit.inventory.ItemStack
+import net.minecraft.world.item.ItemStack
 
 class SpecialItem(
     val adapters: Map<String, ItemAdapter>,
