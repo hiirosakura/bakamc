@@ -1,0 +1,60 @@
+{
+  "⑨币": {
+    "adapters": {
+      "id": {
+        "pattern": "Id",
+        "value": "minecraft:diamond"
+      },
+      "name": {
+        "pattern": "Name",
+        "value": "⑨币"
+      },
+      "tag": {
+        "pattern": "NbtPart",
+        "value": {
+          "CustomModelData": 1
+        }
+      }
+    },
+    "expression": "id && name && tag"
+  },
+  "冰辉石": {
+    "adapters": {
+      "id": {
+        "pattern": "Id",
+        "value": "minecraft:prismarine_crystals"
+      },
+      "name": {
+        "pattern": "Name",
+        "value": "冰辉石"
+      },
+      "tag": {
+        "pattern": "NbtPart",
+        "value": {
+          "Tags": [
+            "bhs"
+          ]
+        }
+      }
+    },
+    "expression": "id && name && tag"
+  },
+  "泥土": {
+    "adapters": {
+      "id": {
+        "pattern": "Id",
+        "value": "minecraft:dirt"
+      }
+    },
+    "expression": "id"
+  },
+  "不是泥土": {
+    "adapters": {
+      "id": {
+        "pattern": "Id",
+        "value": "minecraft:dirt"
+      }
+    },
+    "expression": "!id"
+  }
+}

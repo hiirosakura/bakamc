@@ -15,13 +15,12 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
-fun init(){
-    sqlSessionFactory.openSession().use {  }
+fun initDataBase() {
+    sqlSessionFactory = initSqlSessionFactory()
 }
 
-val sqlSessionFactory: SqlSessionFactory by lazy {
-    initSqlSessionFactory()
-}
+lateinit var sqlSessionFactory: SqlSessionFactory
+    private set
 
 @OptIn(ExperimentalContracts::class)
 inline fun session(action: SqlSession.() -> Unit) {

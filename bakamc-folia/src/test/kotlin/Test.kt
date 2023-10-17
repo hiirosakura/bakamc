@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page
 import java.nio.file.Path
 
 fun main() {
-    db()
+    test1()
 }
 
 
@@ -27,4 +27,10 @@ fun db() {
     }
 
 
+}
+
+fun test1(){
+    "id && name && tag".split(" ").forEach {
+        println(it)
+    }
 }

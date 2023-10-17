@@ -1,7 +1,7 @@
 package cn.bakamc.folia.flight_energy
 
 import cn.bakamc.folia.BakaMCPlugin
-import cn.bakamc.folia.config.Configs.FlightEnergy.CAL_PERIOD
+import cn.bakamc.folia.config.Configs.FlightEnergy.TICK_PERIOD
 import cn.bakamc.folia.config.Configs.FlightEnergy.ENERGY_COST
 import cn.bakamc.folia.config.Configs.FlightEnergy.SYNC_PERIOD
 import cn.bakamc.folia.extension.onlinePlayers
@@ -30,7 +30,7 @@ object FlightEnergyManager : Listener, Initializable {
     override fun init() {
         tasks = listOf(
             //tick
-            SimpleTimerTask(0L, CAL_PERIOD.toLong(), ::tick),
+            SimpleTimerTask(0L, TICK_PERIOD.toLong(), ::tick),
             //sync
             SimpleTimerTask(1.minute, SYNC_PERIOD.toLong(), ::sync)
         )
@@ -83,9 +83,10 @@ object FlightEnergyManager : Listener, Initializable {
         onlinePlayers.filter {
             it.gameMode == GameMode.SURVIVAL && it.isFlying && it.energy > 0.0
         }.forEach {
-            it.energy = (it.energy - (ENERGY_COST * CAL_PERIOD)).coerceAtLeast(0.0)
+            it.energy = (it.energy - (ENERGY_COST * TICK_PERIOD)).coerceAtLeast(0.0)
             if (it.energy <= 0.0) {
                 it.allowFlight = false
+                it.sendMessage("§c飞行能量已耗尽")
                 it.addPotionEffect(PotionEffect(PotionEffectType.SLOW_FALLING, 400, 1, false, true))
             }
         }
