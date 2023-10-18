@@ -30,9 +30,9 @@ object FlightEnergyManager : Listener, Initializable {
     override fun init() {
         tasks = listOf(
             //tick
-            SimpleTimerTask(0L, TICK_PERIOD.toLong(), ::tick),
+            SimpleTimerTask(0L, TICK_PERIOD, ::tick),
             //sync
-            SimpleTimerTask(1.minute, SYNC_PERIOD.toLong(), ::sync)
+            SimpleTimerTask(1.minute, SYNC_PERIOD, ::sync)
         )
 
         timer = Timer("[${BakaMCPlugin.insctence.name}]FlightEnergyManager").apply {
@@ -58,6 +58,11 @@ object FlightEnergyManager : Listener, Initializable {
 
     fun onPlayerJoin(player: Player) {
         energyCache[player] = PlayerService.getFlightEnergy(player)
+    }
+
+    fun onPlayerQuit(player: Player) {
+        PlayerService.updateFlightEnergy(player, energyCache[player]!!)
+        energyCache.remove(player)
     }
 
     fun sync() {
@@ -92,6 +97,8 @@ object FlightEnergyManager : Listener, Initializable {
         }
 
     }
+
+
 
 
 }

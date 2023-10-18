@@ -1,16 +1,14 @@
 package cn.bakamc.folia.item
 
-import cn.bakamc.folia.util.completeEquals
 import cn.bakamc.folia.util.toSerializerObjet
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
+import moe.forpleuvoir.nebula.serialization.extensions.completeEquals
+import moe.forpleuvoir.nebula.serialization.extensions.contains
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.world.item.ItemStack
 
-class ItemAdapter(
-    val pattern: ItemAdaptPattern,
-    val value: SerializeElement
-) {
+class ItemAdapter(val pattern: ItemAdaptPattern, val value: SerializeElement) {
 
     fun isMatch(item: ItemStack): Boolean {
         return when (pattern) {
@@ -31,7 +29,11 @@ class ItemAdapter(
                 }
             }
 
-            ItemAdaptPattern.NbtPart     -> TODO()
+            ItemAdaptPattern.NbtContains -> {
+                item.tag?.toSerializerObjet()?.let {
+                    it contains value
+                } ?: false
+            }
         }
     }
 

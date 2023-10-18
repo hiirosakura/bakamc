@@ -51,42 +51,6 @@ fun runNow(action: (ScheduledTask) -> Unit) {
     BakaMCPlugin.insctence.server.asyncScheduler.runNow(BakaMCPlugin.insctence, action)
 }
 
-infix fun SerializeElement.completeEquals(target: SerializeElement): Boolean {
-    if (this is SerializePrimitive && target is SerializePrimitive) {
-        return when {
-            isString && target.isString         -> asString == target.asString
-            isBoolean && target.isBoolean       -> asBoolean == target.asBoolean
-            isNumber && target.isNumber         -> asNumber.toDouble() == target.asNumber.toDouble()
-            isBigDecimal && target.isBigDecimal -> asBigDecimal == target.asBigDecimal
-            isBigInteger && target.isBigInteger -> asBigInteger == target.asBigInteger
-            else                                -> false
-        }
-    } else if (this is SerializeNull && target is SerializeNull) {
-        return true
-    } else if (this is SerializeArray && target is SerializeArray && this.size == target.size) {
-        var result = false
-        forEachIndexed { index, element ->
-            result = element completeEquals target[index]
-        }
-        return result
-    } else if (this is SerializeObject && target is SerializeObject && this.size == target.size && this.keys == target.keys) {
-        var result = false
-        forEach { k, v ->
-            result = v completeEquals target[k]!!
-        }
-        return result
-    } else return false
-}
-
-infix fun SerializeElement.partEquals(target: SerializeArray): Boolean {
-    target.contains(this)
-    if (this is SerializeArray) {
-        target.containsAll(this)
-    }else{
-        TODO("实现判断")
-    }
-}
-
 fun CompoundTag.toSerializerObjet(): SerializeObject {
     return serializeObject {
         tags.forEach { (k, v) ->
@@ -97,10 +61,20 @@ fun CompoundTag.toSerializerObjet(): SerializeObject {
 
 fun Tag.toSerializerElement(): SerializeElement {
     return when (this) {
-        is CompoundTag            -> toSerializerObjet()
-        is CollectionTag<out Tag> -> serializeArray { this@toSerializerElement.forEach { it.toSerializerElement() } }
-        is NumericTag             -> SerializePrimitive(this.asNumber)
+        is ShortTag               -> SerializePrimitive(this.asShort)
+        is DoubleTag              -> SerializePrimitive(this.asDouble)
+        is FloatTag               -> SerializePrimitive(this.asFloat)
+        is ByteTag                -> SerializePrimitive(this.asByte)
+        is IntTag                 -> SerializePrimitive(this.asInt)
+        is LongTag                -> SerializePrimitive(this.asLong)
         is StringTag              -> SerializePrimitive(this.asString)
+        is NumericTag             -> SerializePrimitive(this.asNumber)
+        is LongArrayTag           -> serializeArray { this@toSerializerElement.forEach { SerializePrimitive(it.asLong) } }
+        is ByteArrayTag           -> serializeArray { this@toSerializerElement.forEach { SerializePrimitive(it.asByte) } }
+        is IntArrayTag            -> serializeArray { this@toSerializerElement.forEach { SerializePrimitive(it.asInt) } }
+        is ListTag                -> serializeArray { this@toSerializerElement.forEach { it.toSerializerElement() } }
+        is CollectionTag<out Tag> -> serializeArray { this@toSerializerElement.forEach { it.toSerializerElement() } }
+        is CompoundTag            -> toSerializerObjet()
         else                      -> SerializeNull
     }
 }

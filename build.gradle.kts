@@ -25,7 +25,7 @@ dependencies {
     implementation(kotlin("stdlib"))
     paperweight.foliaDevBundle("1.20.1-R0.1-SNAPSHOT")
 
-    api("moe.forpleuvoir:nebula:0.2.5d") {
+    api("moe.forpleuvoir:nebula:0.2.5f") {
         exclude("moe.forpleuvoir", "nebula-event")
     }
 

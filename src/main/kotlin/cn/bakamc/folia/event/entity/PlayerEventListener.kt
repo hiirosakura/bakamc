@@ -6,6 +6,7 @@ import cn.bakamc.folia.util.logger
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerQuitEvent
 import java.util.logging.Level
 
 object PlayerEventListener : Listener {
@@ -19,6 +20,13 @@ object PlayerEventListener : Listener {
             logger.info("玩家加入游戏")
         }.onFailure {
             logger.log(Level.WARNING, "数据库错误", it)
+        }
+    }
+
+    @EventHandler
+    fun onPlayerQuit(event: PlayerQuitEvent){
+        runCatching {
+            FlightEnergyManager.onPlayerQuit(event.player)
         }
     }
 

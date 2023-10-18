@@ -48,7 +48,7 @@ object FlyCommand : CommandExecutor, TabCompleter {
                 //纪录扣费动作
                 val actions = mutableListOf<() -> Unit>()
 
-                inventory.filter {
+                inventory.filter {//过滤出对应的货币
                     val stack = CraftItemStack.asNMSCopy(it)
 
                     SpecialItem.specialItems[key]!!.isMatch(stack)
@@ -62,19 +62,22 @@ object FlyCommand : CommandExecutor, TabCompleter {
 
                 }
 
-                if (count == 0) {
+                if (count == 0) {//有足够的货币
                     val energy = MONEY_ITEM[key]!! * args[1].toInt()
                     FlightEnergyManager.apply {
-                        return if (energy + sender.energy > MAX_COST) {
+                        return if (energy + sender.energy > MAX_COST) {//超出了能量上限
                             sender.sendMessage("§c超出了能量上限[最大值:$MAX_COST,充值后会超出:${energy + sender.energy - MAX_COST}]")
                             false
-                        } else {
+                        } else {//购买成功
                             sender.energy += energy
+                            //执行扣费操作
                             actions.forEach { it.invoke() }
-                            sender.sendMessage("§a成功购买[${key}*${args[1].toInt()}]货币的能量($energy),当前能量[${sender.energy}]")
+                            sender.sendMessage("§a成功购买§e[${key}*${args[1].toInt()}]§a货币的能量§e($energy)§a,当前能量§e[${sender.energy}]")
                             true
                         }
                     }
+                }else{//没有足够的货币
+                    sender.sendMessage("§c你所拥有的对应货币§a[${args[0]}]§a数量不足(需要§a[${args[1].toInt()}]§c个,在背包中找到§6[${args[1].toInt()-count}])")
                 }
             }
             sender.sendMessage("§c无效的货币[${key}]类型!")

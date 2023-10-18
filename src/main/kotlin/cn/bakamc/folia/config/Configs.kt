@@ -4,10 +4,7 @@ import cn.bakamc.folia.config.base.ConfigStringDoubleMap
 import moe.forpleuvoir.nebula.common.util.minute
 import moe.forpleuvoir.nebula.common.util.second
 import moe.forpleuvoir.nebula.config.category.ConfigCategoryImpl
-import moe.forpleuvoir.nebula.config.item.impl.ConfigBoolean
-import moe.forpleuvoir.nebula.config.item.impl.ConfigDouble
-import moe.forpleuvoir.nebula.config.item.impl.ConfigInt
-import moe.forpleuvoir.nebula.config.item.impl.ConfigString
+import moe.forpleuvoir.nebula.config.item.impl.*
 import moe.forpleuvoir.nebula.config.manager.LocalConfigManager
 import moe.forpleuvoir.nebula.config.persistence.JsonConfigManagerPersistence
 import java.nio.file.Path
@@ -44,13 +41,13 @@ object Configs : LocalConfigManager("bakamc"), JsonConfigManagerPersistence {
 
     object FlightEnergy : ConfigCategoryImpl("flight_energy") {
 
-        val TICK_PERIOD by ConfigInt("tick_period", 1.second.toInt())
+        val TICK_PERIOD by ConfigLong("tick_period", 1.second)
 
         val ENERGY_COST by ConfigDouble("energy_cost", 1.0)
 
         val MAX_COST by ConfigDouble("max_cost", 5000.0)
 
-        val SYNC_PERIOD by ConfigInt("sync_period", 5.minute.toInt())
+        val SYNC_PERIOD by ConfigLong("sync_period", 5.minute)
 
         val MONEY_ITEM by ConfigStringDoubleMap(
             "money_item",
