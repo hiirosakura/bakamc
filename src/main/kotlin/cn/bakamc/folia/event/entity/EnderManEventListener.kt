@@ -16,7 +16,7 @@ object EnderManEventListener : Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     fun endermanCanBreakBlock(event: EntityChangeBlockEvent) {
         if (event.entityType == EntityType.ENDERMAN ) {
-            event.isCancelled = !Configs.Entity.ENDERMAN_CAN_BREAK_BLOCK
+            event.isCancelled = Configs.Entity.DISABLE_ENDERMAN_BREAK_BLOCK
         }
     }
 

@@ -76,8 +76,8 @@ object FlyCommand : CommandExecutor, TabCompleter {
                             true
                         }
                     }
-                }else{//没有足够的货币
-                    sender.sendMessage("§c你所拥有的对应货币§a[${args[0]}]§a数量不足(需要§a[${args[1].toInt()}]§c个,在背包中找到§6[${args[1].toInt()-count}])")
+                } else {//没有足够的货币
+                    sender.sendMessage("§c你所拥有的对应货币§a[${args[0]}]§a数量不足(需要§a[${args[1].toInt()}]§c个,在背包中找到§6[${args[1].toInt() - count}])")
                 }
             }
             sender.sendMessage("§c无效的货币[${key}]类型!")

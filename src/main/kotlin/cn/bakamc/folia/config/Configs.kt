@@ -59,9 +59,8 @@ object Configs : LocalConfigManager("bakamc"), JsonConfigManagerPersistence {
 
     }
 
-
     object Entity : ConfigCategoryImpl("entity") {
-        val ENDERMAN_CAN_BREAK_BLOCK by ConfigBoolean("enderman_can_break_block", true)
+        val DISABLE_ENDERMAN_BREAK_BLOCK by ConfigBoolean("disable_enderman_break_block", true)
     }
 
 }
