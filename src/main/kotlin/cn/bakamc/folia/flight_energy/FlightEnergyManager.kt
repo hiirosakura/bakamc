@@ -1,13 +1,12 @@
 package cn.bakamc.folia.flight_energy
 
-import cn.bakamc.folia.BakaMCPlugin
 import cn.bakamc.folia.config.Configs.FlightEnergy.ENERGY_COST
 import cn.bakamc.folia.config.Configs.FlightEnergy.SYNC_PERIOD
 import cn.bakamc.folia.config.Configs.FlightEnergy.TICK_PERIOD
 import cn.bakamc.folia.extension.onlinePlayers
 import cn.bakamc.folia.service.PlayerService
-import cn.bakamc.folia.util.SimpleTimerTask
-import cn.bakamc.folia.util.schedule
+import cn.bakamc.folia.util.AsyncTask
+import cn.bakamc.folia.util.runAtFixedRate
 import moe.forpleuvoir.nebula.common.api.Initializable
 import moe.forpleuvoir.nebula.common.util.minute
 import org.bukkit.GameMode
@@ -15,29 +14,25 @@ import org.bukkit.entity.Player
 import org.bukkit.event.Listener
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
-import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 
 object FlightEnergyManager : Listener, Initializable {
 
-    private lateinit var timer: Timer
 
     private lateinit var energyCache: MutableMap<Player, Double>
 
-    private lateinit var tasks: List<SimpleTimerTask>
+    private lateinit var tasks: List<AsyncTask>
 
     override fun init() {
         tasks = listOf(
             //tick
-            SimpleTimerTask(0L, TICK_PERIOD, ::tick),
+            AsyncTask(0L, TICK_PERIOD) { tick() },
             //sync
-            SimpleTimerTask(1.minute, SYNC_PERIOD, ::sync)
+            AsyncTask(1.minute, SYNC_PERIOD) { sync() }
         )
 
-        timer = Timer("[${BakaMCPlugin.insctence.name}]FlightEnergyManager").apply {
-            tasks.forEach { this.schedule(it) }
-        }
+        tasks.forEach { runAtFixedRate(it) }
 
         energyCache = ConcurrentHashMap()
         energyCache.putAll(PlayerService.getFlightEnergy(onlinePlayers))
@@ -45,9 +40,6 @@ object FlightEnergyManager : Listener, Initializable {
     }
 
     fun onDisable() {
-        if (this::timer.isInitialized) {
-            timer.cancel()
-        }
         if (this::energyCache.isInitialized) {
             sync()
         }
@@ -88,7 +80,7 @@ object FlightEnergyManager : Listener, Initializable {
         onlinePlayers.filter {
             it.gameMode == GameMode.SURVIVAL && it.isFlying && it.energy > 0.0
         }.forEach {
-            it.energy = (it.energy - (ENERGY_COST * TICK_PERIOD)).coerceAtLeast(0.0)
+            it.energy = (it.energy - (ENERGY_COST)).coerceAtLeast(0.0)
             if (it.energy <= 0.0) {
                 it.allowFlight = false
                 it.sendMessage("§c飞行能量已耗尽")
@@ -97,8 +89,6 @@ object FlightEnergyManager : Listener, Initializable {
         }
 
     }
-
-
 
 
 }

@@ -1,6 +1,7 @@
 package cn.bakamc.folia.util
 
 import cn.bakamc.folia.BakaMCPlugin
+import cn.bakamc.folia.config.base.Time
 import cn.bakamc.folia.db.session
 import com.baomidou.mybatisplus.core.mapper.BaseMapper
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask
@@ -8,7 +9,10 @@ import moe.forpleuvoir.nebula.serialization.base.*
 import moe.forpleuvoir.nebula.serialization.extensions.serializeArray
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.nbt.*
+import org.bukkit.plugin.Plugin
+import org.jetbrains.annotations.NotNull
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -27,29 +31,35 @@ inline fun <reified T : BaseMapper<*>> mapper(action: T.() -> Unit) {
 
 val logger by lazy { BakaMCPlugin.insctence.logger }
 
-fun timerTask(run: () -> Unit): TimerTask {
-    return object : TimerTask() {
-        override fun run() {
-            run()
-        }
-    }
-}
-
-fun Timer.schedule(task: SimpleTimerTask) {
-    this.schedule(task.task, task.delay, task.period)
-}
-
-class SimpleTimerTask(
-    val delay: Long,
-    val period: Long,
-    task: () -> Unit
-) {
-    val task = timerTask(task)
-}
 
 fun runNow(action: (ScheduledTask) -> Unit) {
     BakaMCPlugin.insctence.server.asyncScheduler.runNow(BakaMCPlugin.insctence, action)
 }
+
+fun runAtFixedRate(initialDelay: Long, period: Long, unit: TimeUnit, plugin: Plugin = BakaMCPlugin.insctence, task: (ScheduledTask) -> Unit) {
+    plugin.server.asyncScheduler.runAtFixedRate(plugin, task, initialDelay, period, unit)
+}
+
+fun runAtFixedRate(asyncTask: AsyncTask) {
+    asyncTask.plugin.server.asyncScheduler.runAtFixedRate(asyncTask.plugin, asyncTask.task, asyncTask.initialDelay, asyncTask.period, asyncTask.unit)
+}
+
+data class AsyncTask(
+    val initialDelay: Long,
+    val period: Long,
+    val unit: TimeUnit = TimeUnit.MILLISECONDS,
+    val plugin: Plugin = BakaMCPlugin.insctence,
+    val task: (ScheduledTask) -> Unit,
+) {
+    constructor(initialDelay: Long, period: Time, plugin: Plugin = BakaMCPlugin.insctence, task: (ScheduledTask) -> Unit) : this(
+        initialDelay,
+        period.time,
+        period.unit,
+        plugin,
+        task
+    )
+}
+
 
 fun CompoundTag.toSerializerObjet(): SerializeObject {
     return serializeObject {

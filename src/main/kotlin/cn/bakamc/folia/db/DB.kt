@@ -1,6 +1,8 @@
 package cn.bakamc.folia.db
 
 import cn.bakamc.folia.config.Configs
+import cn.bakamc.folia.db.mapper.PlayerMapper
+import cn.bakamc.folia.flight_energy.FlightEnergyManager
 import com.baomidou.mybatisplus.core.MybatisConfiguration
 import com.baomidou.mybatisplus.core.MybatisSqlSessionFactoryBuilder
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor
@@ -41,6 +43,8 @@ private fun environment(): Environment {
 private fun MybatisConfiguration.config(): MybatisConfiguration {
 
     addMappers("cn.bakamc.folia.db.mapper")
+//    addMapper(FlightEnergyManager::class.java)
+//    addMapper(PlayerMapper::class.java)
     addInterceptor(PaginationInterceptor())
 
     logImpl = Slf4jImpl::class.java

@@ -1,6 +1,7 @@
 name: BakaMC
 main: cn.bakamc.folia.BakaMCPlugin
 version: 0.1
+folia-supported: true
 authors:
   - forpleuvoir
 

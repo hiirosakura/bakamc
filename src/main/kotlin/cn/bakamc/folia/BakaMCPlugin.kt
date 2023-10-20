@@ -23,8 +23,8 @@ class BakaMCPlugin : JavaPlugin() {
         logger.info("BakaMCPlugin loading...")
 
         Configs.init(dataFolder.toPath())
-        registerCommand()
         initDataBase()
+        registerCommand()
         SpecialItem.init(dataFolder.toPath())
         FlightEnergyManager.init()
 

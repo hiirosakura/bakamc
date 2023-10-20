@@ -7,6 +7,7 @@ import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import net.minecraft.world.item.ItemStack
 import java.nio.file.Path
+import java.util.logging.Level
 
 class SpecialItem(
     val adapters: Map<String, ItemAdapter>,
@@ -20,8 +21,12 @@ class SpecialItem(
         private fun deserialize(serializeElement: SerializeElement): SpecialItem {
             serializeElement as SerializeObject
             val adapter = buildMap {
-                serializeElement["adapters"]!!.asObject.forEach {
-                    this[it.key] = ItemAdapter.deserialize(it.value)
+                serializeElement["adapters"]!!.asObject.forEach {entry->
+                    runCatching {
+                        this[entry.key] = ItemAdapter.deserialize(entry.value)
+                    }.onFailure {
+                        logger.log(Level.WARNING, "Failed to deserialize item adapter[${entry.key}]: ${it.message}", it)
+                    }
                 }
             }
             val expression = serializeElement["expression"]!!.asString
@@ -29,6 +34,7 @@ class SpecialItem(
         }
 
         lateinit var specialItems: Map<String, SpecialItem>
+            private set
 
         fun init(path: Path) {
             runCatching {
@@ -42,6 +48,8 @@ class SpecialItem(
             }.onSuccess {
                 logger.info("特殊物品加载成功")
             }.onFailure {
+                specialItems = emptyMap()
+                it.printStackTrace()
                 logger.info("特殊物品加载失败")
             }
         }
