@@ -23,5 +23,5 @@ fun JavaPlugin.registerEvent() {
 }
 
 private fun PluginManager.register(listener: Listener) {
-    this.registerEvents(listener, BakaMCPlugin.insctence)
+    this.registerEvents(listener, BakaMCPlugin.instance)
 }

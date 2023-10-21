@@ -10,7 +10,7 @@
         "value": "⑨币"
       },
       "tag": {
-        "pattern": "NbtPart",
+        "pattern": "NbtContains",
         "value": {
           "CustomModelData": 1
         }
@@ -29,7 +29,7 @@
         "value": "冰辉石"
       },
       "tag": {
-        "pattern": "NbtPart",
+        "pattern": "NbtContains",
         "value": {
           "Tags": [
             "bhs"

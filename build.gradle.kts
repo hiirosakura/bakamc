@@ -23,15 +23,20 @@ repositories {
 dependencies {
     implementation(kotlin("reflect"))
     implementation(kotlin("stdlib"))
+
     paperweight.foliaDevBundle("1.20.1-R0.1-SNAPSHOT")
 
-    api("moe.forpleuvoir:nebula:0.2.5f") {
+    api("moe.forpleuvoir:nebula:0.2.6a") {
         exclude("moe.forpleuvoir", "nebula-event")
     }
-
-    implementation("com.mysql:mysql-connector-j:8.1.0")
-    implementation("com.baomidou:mybatis-plus:3.1.2")
-    implementation("com.zaxxer:HikariCP:5.0.1")
+    //data base
+    apply{
+        val ktormVersion = "3.6.0"
+        runtimeOnly("com.mysql:mysql-connector-j:8.1.0")
+        implementation("org.ktorm:ktorm-core:${ktormVersion}")
+        implementation("org.ktorm:ktorm-support-mysql:${ktormVersion}")
+        implementation("com.zaxxer:HikariCP:5.0.1")
+    }
 }
 
 group = "cn.bakamc"
@@ -63,7 +68,7 @@ java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 }
 
-tasks{
+tasks {
 
     assemble {
         dependsOn(reobfJar)

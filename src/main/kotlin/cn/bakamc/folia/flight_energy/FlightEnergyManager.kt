@@ -6,15 +6,19 @@ import cn.bakamc.folia.config.Configs.FlightEnergy.TICK_PERIOD
 import cn.bakamc.folia.extension.onlinePlayers
 import cn.bakamc.folia.service.PlayerService
 import cn.bakamc.folia.util.AsyncTask
+import cn.bakamc.folia.util.logger
 import cn.bakamc.folia.util.runAtFixedRate
 import moe.forpleuvoir.nebula.common.api.Initializable
-import moe.forpleuvoir.nebula.common.util.minute
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.measureTimedValue
 
 
 object FlightEnergyManager : Listener, Initializable {
@@ -24,23 +28,25 @@ object FlightEnergyManager : Listener, Initializable {
 
     private lateinit var tasks: List<AsyncTask>
 
+    private var syncing = AtomicBoolean(false)
+
     override fun init() {
         tasks = listOf(
             //tick
-            AsyncTask(0L, TICK_PERIOD) { tick() },
+            AsyncTask(0.seconds, TICK_PERIOD) { tick() },
             //sync
-            AsyncTask(1.minute, SYNC_PERIOD) { sync() }
+            AsyncTask(1.minutes, SYNC_PERIOD) { sync() }
         )
 
         tasks.forEach { runAtFixedRate(it) }
 
         energyCache = ConcurrentHashMap()
-        energyCache.putAll(PlayerService.getFlightEnergy(onlinePlayers))
+        energyCache.putAll(PlayerService.getFlightEnergies(onlinePlayers))
 
     }
 
     fun onDisable() {
-        if (this::energyCache.isInitialized) {
+        if (this::energyCache.isInitialized && !syncing.get()) {
             sync()
         }
         if (this::energyCache.isInitialized) {
@@ -58,7 +64,13 @@ object FlightEnergyManager : Listener, Initializable {
     }
 
     fun sync() {
-        PlayerService.updateFlightEnergy(energyCache)
+        syncing.set(true)
+        measureTimedValue {
+            PlayerService.updateFlightEnergies(energyCache)
+        }.let {
+            logger.info("同步飞行能量成功,${it.value}条数据已更新，耗时${it.duration}")
+        }
+        syncing.set(false)
     }
 
     /**
@@ -90,5 +102,5 @@ object FlightEnergyManager : Listener, Initializable {
 
     }
 
-
 }
+

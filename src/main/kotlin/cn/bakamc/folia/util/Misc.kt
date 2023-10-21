@@ -1,61 +1,109 @@
+@file:Suppress("unused")
+
 package cn.bakamc.folia.util
 
 import cn.bakamc.folia.BakaMCPlugin
-import cn.bakamc.folia.config.base.Time
-import cn.bakamc.folia.db.session
-import com.baomidou.mybatisplus.core.mapper.BaseMapper
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask
-import moe.forpleuvoir.nebula.serialization.base.*
+import moe.forpleuvoir.nebula.common.util.Time
+import moe.forpleuvoir.nebula.serialization.base.SerializeElement
+import moe.forpleuvoir.nebula.serialization.base.SerializeNull
+import moe.forpleuvoir.nebula.serialization.base.SerializeObject
+import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.extensions.serializeArray
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.nbt.*
 import org.bukkit.plugin.Plugin
-import org.jetbrains.annotations.NotNull
-import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
+import kotlin.time.Duration
 
+internal val bakamc by lazy { BakaMCPlugin.instance }
 
-@OptIn(ExperimentalContracts::class)
-inline fun <reified T : BaseMapper<*>> mapper(action: T.() -> Unit) {
-    contract {
-        callsInPlace(action, InvocationKind.EXACTLY_ONCE)
-    }
-    session {
-        getMapper(T::class.java).action()
-    }
+internal val server by lazy { bakamc.server }
+
+internal val logger by lazy { BakaMCPlugin.instance.logger }
+
+fun runNow(plugin: Plugin, action: (ScheduledTask) -> Unit) {
+    plugin.server.asyncScheduler.runNow(plugin, action)
 }
 
-
-val logger by lazy { BakaMCPlugin.insctence.logger }
-
-
-fun runNow(action: (ScheduledTask) -> Unit) {
-    BakaMCPlugin.insctence.server.asyncScheduler.runNow(BakaMCPlugin.insctence, action)
+internal fun runNow(action: (ScheduledTask) -> Unit) {
+    runNow(BakaMCPlugin.instance, action)
 }
 
-fun runAtFixedRate(initialDelay: Long, period: Long, unit: TimeUnit, plugin: Plugin = BakaMCPlugin.insctence, task: (ScheduledTask) -> Unit) {
-    plugin.server.asyncScheduler.runAtFixedRate(plugin, task, initialDelay, period, unit)
+fun runDelayed(plugin: Plugin, delay: Duration, task: (ScheduledTask) -> Unit) {
+    plugin.server.asyncScheduler.runDelayed(plugin, task, delay.inWholeMilliseconds, TimeUnit.MILLISECONDS)
 }
+
+internal fun runDelayed(delay: Duration, task: (ScheduledTask) -> Unit) {
+    runDelayed(bakamc, delay, task)
+}
+
+fun runAtFixedRate(plugin: Plugin, initialDelay: Duration, period: Duration, task: (ScheduledTask) -> Unit) {
+    plugin.server.asyncScheduler.runAtFixedRate(plugin, task, initialDelay.inWholeMilliseconds, period.inWholeMilliseconds, TimeUnit.MILLISECONDS)
+}
+
+internal fun runAtFixedRate(initialDelay: Duration, period: Duration, task: (ScheduledTask) -> Unit) {
+    runAtFixedRate(bakamc, initialDelay, period, task)
+}
+
 
 fun runAtFixedRate(asyncTask: AsyncTask) {
-    asyncTask.plugin.server.asyncScheduler.runAtFixedRate(asyncTask.plugin, asyncTask.task, asyncTask.initialDelay, asyncTask.period, asyncTask.unit)
+    asyncTask.plugin.server.asyncScheduler.runAtFixedRate(
+        asyncTask.plugin,
+        asyncTask.task,
+        asyncTask.initialDelay.inWholeMilliseconds,
+        asyncTask.period.inWholeMilliseconds,
+        TimeUnit.MILLISECONDS
+    )
 }
 
 data class AsyncTask(
-    val initialDelay: Long,
-    val period: Long,
-    val unit: TimeUnit = TimeUnit.MILLISECONDS,
-    val plugin: Plugin = BakaMCPlugin.insctence,
+    val initialDelay: Duration,
+    val period: Duration,
+    val plugin: Plugin,
     val task: (ScheduledTask) -> Unit,
 ) {
-    constructor(initialDelay: Long, period: Time, plugin: Plugin = BakaMCPlugin.insctence, task: (ScheduledTask) -> Unit) : this(
-        initialDelay,
-        period.time,
-        period.unit,
+    internal constructor(initialDelay: Duration, period: Duration, task: (ScheduledTask) -> Unit) : this(initialDelay, period, bakamc, task)
+
+    constructor(initialDelay: Time, period: Time, plugin: Plugin, task: (ScheduledTask) -> Unit) : this(
+        initialDelay.duration,
+        period.duration,
         plugin,
+        task
+    )
+
+    internal constructor(initialDelay: Time, period: Time, task: (ScheduledTask) -> Unit) : this(
+        initialDelay.duration,
+        period.duration,
+        bakamc,
+        task
+    )
+
+    constructor(initialDelay: Duration, period: Time, plugin: Plugin, task: (ScheduledTask) -> Unit) : this(
+        initialDelay,
+        period.duration,
+        plugin,
+        task
+    )
+
+    internal constructor(initialDelay: Duration, period: Time, task: (ScheduledTask) -> Unit) : this(
+        initialDelay,
+        period.duration,
+        bakamc,
+        task
+    )
+
+    constructor(initialDelay: Time, period: Duration, plugin: Plugin, task: (ScheduledTask) -> Unit) : this(
+        initialDelay.duration,
+        period,
+        plugin,
+        task
+    )
+
+    internal constructor(initialDelay: Time, period: Duration, task: (ScheduledTask) -> Unit) : this(
+        initialDelay.duration,
+        period,
+        bakamc,
         task
     )
 }

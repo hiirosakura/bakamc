@@ -1,62 +1,84 @@
 package cn.bakamc.folia.service
 
-import cn.bakamc.folia.db.entity.FlightEnergyVO
-import cn.bakamc.folia.db.entity.PlayerVO
-import cn.bakamc.folia.db.mapper.FlightEnergyMapper
-import cn.bakamc.folia.db.mapper.PlayerMapper
-import cn.bakamc.folia.extension.VO
+import cn.bakamc.folia.db.database
+import cn.bakamc.folia.db.table.*
 import cn.bakamc.folia.extension.uuid
-import cn.bakamc.folia.util.mapper
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper
 import org.bukkit.entity.Player
+import org.ktorm.dsl.batchUpdate
+import org.ktorm.dsl.eq
+import org.ktorm.dsl.inList
+import org.ktorm.entity.add
+import org.ktorm.entity.filter
+import org.ktorm.entity.find
+import org.ktorm.entity.forEach
+import org.ktorm.support.mysql.insertOrUpdate
 
 object PlayerService {
 
     fun insertOrUpdate(player: Player) {
-        mapper<PlayerMapper> {
-            selectOne(QueryWrapper<PlayerVO>().eq("uuid", player.uuid))?.let {
-                updateById(player.VO)
-            } ?: insert(player.VO)
+        database.insertOrUpdate(PlayerInfos) {
+            set(it.uuid, player.uuid)
+            set(it.name, player.name)
+            onDuplicateKey {
+                set(it.name, player.name)
+            }
         }
     }
 
 
     fun getFlightEnergy(player: Player): Double {
-        mapper<FlightEnergyMapper> {
-            return selectOne(QueryWrapper<FlightEnergyVO>().eq("uuid", player.uuid))?.energy ?: run {
-                insert(FlightEnergyVO(player.uuid, 0.0))
+        return database {
+            flightEnergies.find {
+                val playerInfo = (it.uuid.referenceTable as PlayerInfos)
+                playerInfo.uuid eq player.uuid
+            }?.energy ?: run {
+                flightEnergies.add(FlightEnergy {
+                    this.player = playerInfos.find { it.uuid eq player.uuid }!!
+                    energy = 0.0
+                })
                 0.0
             }
         }
     }
 
-    fun getFlightEnergy(players: Collection<Player>): Map<Player, Double> {
-        mapper<FlightEnergyMapper> {
-            return buildMap {
-                players.forEach { player ->
-                    val energy = selectOne(QueryWrapper<FlightEnergyVO>().eq("uuid", player.uuid))?.energy ?: run {
-                        insert(FlightEnergyVO(player.uuid, 0.0))
-                        0.0
-                    }
-                    put(player, energy)
+    fun getFlightEnergies(players: Collection<Player>): Map<Player, Double> {
+        if (players.isEmpty()) return emptyMap()
+        return database {
+            buildMap {
+                flightEnergies.filter { flightEnergy ->
+                    flightEnergy.uuid inList players.map { it.uuid }
+                }.forEach {
+                    this[players.find { player -> player.uuid == it.uuid }!!] = it.energy
                 }
             }
         }
     }
 
     fun updateFlightEnergy(player: Player, energy: Double) {
-        mapper<FlightEnergyMapper> {
-            update(FlightEnergyVO(player.uuid, energy), UpdateWrapper<FlightEnergyVO>().eq("uuid", player.uuid))
+        database {
+            flightEnergies.filter {
+                it.uuid eq player.uuid
+            }.forEach {
+                it.energy = energy
+                it.flushChanges()
+            }
         }
     }
 
-    fun updateFlightEnergy(flightEnergy: Map<Player, Double>) {
-        mapper<FlightEnergyMapper> {
-            flightEnergy.forEach { (player, energy) ->
-                update(FlightEnergyVO(player.uuid, energy), UpdateWrapper<FlightEnergyVO>().eq("uuid", player.uuid))
+    fun updateFlightEnergies(flightEnergy: Map<Player, Double>): Int {
+        if (flightEnergy.isEmpty()) return 0
+        return database {
+            batchUpdate(FlightEnergies) {
+                flightEnergy.forEach { (k, v) ->
+                    item {
+                        set(it.energy, v)
+                        where {
+                            it.uuid eq k.uuid
+                        }
+                    }
+                }
             }
-        }
+        }.filter { it > 0 }.size
     }
 
 }

@@ -1,17 +1,18 @@
 import cn.bakamc.folia.config.Configs
-import cn.bakamc.folia.db.entity.FlightEnergyVO
-import cn.bakamc.folia.db.entity.PlayerVO
-import cn.bakamc.folia.db.initDataBase
-import cn.bakamc.folia.db.mapper.FlightEnergyMapper
-import cn.bakamc.folia.db.mapper.PlayerMapper
-import cn.bakamc.folia.extension.uuid
-import cn.bakamc.folia.service.PlayerService
-import cn.bakamc.folia.util.mapper
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page
+import cn.bakamc.folia.db.database
+import cn.bakamc.folia.db.table.FlightEnergies
+import cn.bakamc.folia.db.table.PlayerInfo
+import cn.bakamc.folia.db.table.flightEnergies
+import cn.bakamc.folia.db.table.playerInfos
+import org.ktorm.dsl.batchUpdate
+import org.ktorm.dsl.eq
+import org.ktorm.dsl.inList
+import org.ktorm.entity.filter
+import org.ktorm.entity.forEach
+import org.ktorm.entity.update
 import java.nio.file.Path
 import kotlin.random.Random
+import kotlin.time.measureTime
 
 fun main() {
     db()
@@ -20,30 +21,107 @@ fun main() {
 
 fun db() {
     Configs.init(Path.of("./build/config"))
-    initDataBase()
-    val list: List<PlayerVO>
-    mapper<PlayerMapper> {
-        list = selectList(QueryWrapper())
-    }
-    println("获取到的玩家数:${list.size}")
-    list.forEach {
-        println(it)
-    }
-//    mapper<FlightEnergyMapper> {
-//        list.forEach { player -> insert(FlightEnergyVO(player.uuid, String.format("%.2f", Random.nextDouble(5000.0)).toDouble())) }
-//    }
-//    mapper<PlayerMapper>{
-//        selectPage(Page<PlayerVO>().setSize(2).setCurrent(1), QueryWrapper()).apply {
-//            records.forEach { println(it) }
-//        }
-//    }
-//
-//    mapper<PlayerMapper>{
-//        update(PlayerVO("f01a8626-ba14-43ce-9fc0-67f9448c2771", "Elysia_same"), UpdateWrapper<PlayerVO>().eq("uuid","f01a8626-ba14-43ce-9fc0-67f9448c2771"))
-//    }
 
+    val info = PlayerInfo {
+        uuid = "808e8bd1-f808-4dec-aa46-ad64d3d6dc1c"
+        name = "forpleuvoir"
+    }
+    database {
+        playerInfos.update(info)
+    }
 
+    val map1 = HashMap<String, String>()
+    database {
+        flightEnergies.filter {
+            it.uuid inList listUUID
+        }.forEach {
+            map1[it.uuid] = "${it.player.name} from ${it.energy} to"
+        }
+    }
+    val map = buildMap {
+        listUUID.forEach {
+            this[it] = Random.nextDouble(5000.0)
+        }
+    }
+    measureTime {
+        database {
+            batchUpdate(FlightEnergies) {
+                map.forEach { (k, v) ->
+                    item {
+                        set(it.energy, v)
+                        where {
+                            it.uuid eq k
+                        }
+                    }
+                }
+            }
+        }
+    }.let {
+        println("耗时${it}")
+    }
+    database {
+        flightEnergies.filter {
+            it.uuid inList listUUID
+        }.forEach {
+            map1[it.uuid] = map1[it.uuid]!! + " ${it.energy}"
+        }
+    }
+    map1.values.forEach { println(it) }
 }
+
+val list = listOf(
+    "Mikatsuki_R",
+    "fenrage",
+    "skost12",
+    "WakaDoki",
+    "LiaysE",
+    "dycruence",
+    "ling_xingyue1",
+    "A_Qian555",
+    "StarsNova",
+    "Cigargar",
+    "gaye",
+    "wuxianxiaoshi",
+    "Clearsky404",
+    "Pandaman_SSK",
+    "Xyaobye",
+    "Morrison_Glazkov",
+    "OTTO_officiall",
+    "Umik09",
+    "xmzh",
+    "suikaaa",
+    "BelovedsCici",
+    "YUMOOOOOOOO",
+    "LangZhengMing",
+    "dhwuia"
+)
+
+val listUUID = listOf(
+    "7909d24f-dfc1-4fde-b2ff-fea08dc67ffd",
+    "793b8fcf-bb55-4543-b269-d2779c438813",
+    "7988b94d-8570-4e19-8633-c63c6f142cb1",
+    "79fa7850-7cbe-40e8-aac6-856fc45f9f8f",
+    "79fbba47-5ed6-488b-b81d-af6a7b156653",
+    "7a7efbf8-41ad-4b83-ba8a-ea44b497efba",
+    "7b38b5b9-b069-4c70-9808-6449e2e50a4c",
+    "7b5ca190-b2d9-458c-bf8d-23c0dab8bf6a",
+    "7bc9d565-9b60-4159-8fb0-c2a69b4e0ea4",
+    "7bd052b6-9bd6-447e-84a2-51db960bdae7",
+    "7c6bc2c3-a75d-49b9-97e3-a1a5ac2959f2",
+    "7c8ed013-46f9-4f2d-9f2e-0309421ee0b7",
+    "7c9614a3-33e5-4d9b-8cf2-c5b581230d56",
+    "7e02c6f8-0c78-4e9c-9e00-38748596f0e1",
+    "7e5ba35f-2a70-49a4-9e14-f009316d9c06",
+    "7e60190e-25c3-416b-a34c-df8bcbf98b48",
+    "7f62c248-c611-4bfc-b821-8a47bcbc1441",
+    "7f70f00b-f6e2-4401-aea8-66f3c261522d",
+    "7f835697-e69b-47dd-8c23-e83a551aa122",
+    "808e8bd1-f808-4dec-aa46-ad64d3d6dc1c",
+    "82c29204-3846-4bc1-b826-eb6eb42df6f3",
+    "83c91549-f588-4a81-a4f9-6fae72c8e24a",
+    "83e2df1b-39f2-48bf-a095-9c25cec5ad9c",
+    "83f92c7b-ecf9-4220-b417-8febe789cdc7"
+)
 
 fun test1() {
     "id && name && tag".split(" ").forEach {

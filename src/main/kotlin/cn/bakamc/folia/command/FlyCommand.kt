@@ -26,7 +26,7 @@ object FlyCommand : CommandExecutor, TabCompleter {
             FlightEnergyManager.apply {
                 return if (sender.energy > 0) {
                     sender.allowFlight = !sender.allowFlight
-                    sender.sendMessage("§a飞行状态已切换:[${if (sender.allowFlight) "§a开启" else "§c关闭"}]}]")
+                    sender.sendMessage("§a飞行状态已切换:[${if (sender.allowFlight) "§a开启" else "§c关闭"}§a]")
                     true
                 } else {
                     sender.sendMessage("§c你的飞行能量不足,输入指令 §a/baka-fly <货币类型> <使用数量> §c购买")
@@ -50,8 +50,9 @@ object FlyCommand : CommandExecutor, TabCompleter {
 
                 inventory.filter {//过滤出对应的货币
                     val stack = CraftItemStack.asNMSCopy(it)
-
-                    SpecialItem.specialItems[key]!!.isMatch(stack)
+                    if (!stack.isEmpty)
+                        SpecialItem.specialItems[key]!!.isMatch(stack)
+                    else false
                 }.forEach { stack ->
                     val temp = count.coerceAtMost(stack.amount)
                     count -= temp
@@ -77,7 +78,8 @@ object FlyCommand : CommandExecutor, TabCompleter {
                         }
                     }
                 } else {//没有足够的货币
-                    sender.sendMessage("§c你所拥有的对应货币§a[${args[0]}]§a数量不足(需要§a[${args[1].toInt()}]§c个,在背包中找到§6[${args[1].toInt() - count}])")
+                    sender.sendMessage("§c你所拥有的对应货币§a[${args[0]}]§c数量不足§e(需要§6[${args[1].toInt()}]§e个,在背包中找到§c[${args[1].toInt() - count}]§e)")
+                    return false
                 }
             }
             sender.sendMessage("§c无效的货币[${key}]类型!")
@@ -91,10 +93,13 @@ object FlyCommand : CommandExecutor, TabCompleter {
             return mutableListOf("§c只有玩家可以使用此命令！")
         }
         if (args?.size == 1) {
-            return SpecialItem.specialItems.keys.toMutableList()
+            return MONEY_ITEM.keys.toMutableList()
         } else if (args?.size == 2) {
             val energy = MONEY_ITEM[args[0]]
-            return mutableListOf("§6每个${args[0]}可以兑换${energy}飞行能量")
+            return if (energy != null)
+                mutableListOf("§6每个${args[0]}可以兑换${energy}飞行能量")
+            else
+                mutableListOf("§c无效的货币[${args[0]}]类型!")
         }
         return null
     }
