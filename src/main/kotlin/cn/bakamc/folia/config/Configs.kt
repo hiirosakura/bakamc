@@ -47,7 +47,7 @@ object Configs : LocalConfigManager("bakamc"), JsonConfigManagerPersistence {
 
         val ENERGY_COST by ConfigDouble("energy_cost", 1.0)
 
-        val MAX_COST by ConfigDouble("max_cost", 5000.0)
+        val MAX_ENERGY by ConfigDouble("max_energy", 5000.0)
 
         val SYNC_PERIOD by ConfigTime("sync_period", 5.0, DurationUnit.MINUTES)
 

@@ -7,10 +7,7 @@ import org.bukkit.entity.Player
 import org.ktorm.dsl.batchUpdate
 import org.ktorm.dsl.eq
 import org.ktorm.dsl.inList
-import org.ktorm.entity.add
-import org.ktorm.entity.filter
-import org.ktorm.entity.find
-import org.ktorm.entity.forEach
+import org.ktorm.entity.*
 import org.ktorm.support.mysql.insertOrUpdate
 
 object PlayerService {
@@ -26,54 +23,51 @@ object PlayerService {
     }
 
 
-    fun getFlightEnergy(player: Player): Double {
+    fun getFlightEnergy(player: Player): FlightEnergy {
         return database {
             flightEnergies.find {
                 val playerInfo = (it.uuid.referenceTable as PlayerInfos)
                 playerInfo.uuid eq player.uuid
-            }?.energy ?: run {
-                flightEnergies.add(FlightEnergy {
+            } ?: run {
+                val flightEnergy = FlightEnergy {
                     this.player = playerInfos.find { it.uuid eq player.uuid }!!
                     energy = 0.0
-                })
-                0.0
+                }
+                flightEnergies.add(flightEnergy)
+                flightEnergy
             }
         }
     }
 
-    fun getFlightEnergies(players: Collection<Player>): Map<Player, Double> {
+    fun getFlightEnergies(players: Collection<Player>): Map<Player, FlightEnergy> {
         if (players.isEmpty()) return emptyMap()
         return database {
             buildMap {
                 flightEnergies.filter { flightEnergy ->
                     flightEnergy.uuid inList players.map { it.uuid }
                 }.forEach {
-                    this[players.find { player -> player.uuid == it.uuid }!!] = it.energy
+                    this[players.find { player -> player.uuid == it.uuid }!!] = it
                 }
             }
         }
     }
 
-    fun updateFlightEnergy(player: Player, energy: Double) {
+    fun updateFlightEnergy(energy: FlightEnergy) {
         database {
-            flightEnergies.filter {
-                it.uuid eq player.uuid
-            }.forEach {
-                it.energy = energy
-                it.flushChanges()
-            }
+            flightEnergies.update(energy)
         }
     }
 
-    fun updateFlightEnergies(flightEnergy: Map<Player, Double>): Int {
+    fun updateFlightEnergies(flightEnergy: Collection<FlightEnergy>): Int {
         if (flightEnergy.isEmpty()) return 0
         return database {
             batchUpdate(FlightEnergies) {
-                flightEnergy.forEach { (k, v) ->
+                flightEnergy.forEach { e ->
                     item {
-                        set(it.energy, v)
+                        set(it.energy, e.energy)
+                        set(it.enabled, e.enabled)
                         where {
-                            it.uuid eq k.uuid
+                            it.uuid eq e.uuid
                         }
                     }
                 }

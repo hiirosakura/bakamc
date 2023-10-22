@@ -12,6 +12,7 @@ open class PlayerInfos(alias: String?) : Table<PlayerInfo>("player", alias) {
     override fun aliased(alias: String): Table<PlayerInfo> = PlayerInfos(alias)
 
     val uuid = varchar("uuid").primaryKey().bindTo { it.uuid }
+
     val name = varchar("name").bindTo { it.name }
 }
 

@@ -1,21 +1,19 @@
 package cn.bakamc.folia.command
 
-import cn.bakamc.folia.config.Configs.FlightEnergy.MAX_COST
+import cn.bakamc.folia.config.Configs.FlightEnergy.MAX_ENERGY
 import cn.bakamc.folia.config.Configs.FlightEnergy.MONEY_ITEM
 import cn.bakamc.folia.flight_energy.FlightEnergyManager
-import cn.bakamc.folia.item.SpecialItem
+import cn.bakamc.folia.item.SpecialItemManager
 import org.bukkit.command.Command
-import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
-import org.bukkit.command.TabCompleter
 import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer
 import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftInventoryPlayer
 import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack
 import org.bukkit.entity.Player
 
-object FlyCommand : CommandExecutor, TabCompleter {
+object FlyCommand : BakaCommand {
 
-    const val CMD = "baka-fly"
+    override val subCommand: String = "fly"
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>?): Boolean {
         if (sender !is Player) {
@@ -25,7 +23,7 @@ object FlyCommand : CommandExecutor, TabCompleter {
         if (args.isNullOrEmpty()) {
             FlightEnergyManager.apply {
                 return if (sender.energy > 0) {
-                    sender.allowFlight = !sender.allowFlight
+                    toggleFly(sender)
                     sender.sendMessage("§a飞行状态已切换:[${if (sender.allowFlight) "§a开启" else "§c关闭"}§a]")
                     true
                 } else {
@@ -40,7 +38,9 @@ object FlyCommand : CommandExecutor, TabCompleter {
             val key = args[0]
             var count = args[1].toInt()
 
-            if (SpecialItem.specialItems.containsKey(key) && MONEY_ITEM.containsKey(key)) {
+            val moneyItems = SpecialItemManager.specifyType(MONEY_ITEM.keys)
+
+            if (moneyItems.containsKey(key)) {
 
                 sender as CraftPlayer
                 val inventory = sender.inventory as CraftInventoryPlayer
@@ -51,7 +51,7 @@ object FlyCommand : CommandExecutor, TabCompleter {
                 inventory.filter {//过滤出对应的货币
                     val stack = CraftItemStack.asNMSCopy(it)
                     if (!stack.isEmpty)
-                        SpecialItem.specialItems[key]!!.isMatch(stack)
+                        TODO()
                     else false
                 }.forEach { stack ->
                     val temp = count.coerceAtMost(stack.amount)
@@ -66,14 +66,14 @@ object FlyCommand : CommandExecutor, TabCompleter {
                 if (count == 0) {//有足够的货币
                     val energy = MONEY_ITEM[key]!! * args[1].toInt()
                     FlightEnergyManager.apply {
-                        return if (energy + sender.energy > MAX_COST) {//超出了能量上限
-                            sender.sendMessage("§c超出了能量上限[最大值:$MAX_COST,充值后会超出:${energy + sender.energy - MAX_COST}]")
+                        return if (energy + sender.energy > MAX_ENERGY) {//超出了能量上限
+                            sender.sendMessage("§c超出了能量上限[最大值:$MAX_ENERGY,充值后会超出:${energy + sender.energy - MAX_ENERGY}]")
                             false
                         } else {//购买成功
                             sender.energy += energy
                             //执行扣费操作
                             actions.forEach { it.invoke() }
-                            sender.sendMessage("§a成功购买§e[${key}*${args[1].toInt()}]§a货币的能量§e($energy)§a,当前能量§e[${sender.energy}]")
+                            sender.sendMessage("§a成功购买§e[${key}*${args[1].toInt()}]§a货币的能量§e[$energy]§a,当前能量§e[${sender.energy}]")
                             true
                         }
                     }
@@ -96,8 +96,9 @@ object FlyCommand : CommandExecutor, TabCompleter {
             return MONEY_ITEM.keys.toMutableList()
         } else if (args?.size == 2) {
             val energy = MONEY_ITEM[args[0]]
+            val count = args[1].toIntOrNull() ?: 0
             return if (energy != null)
-                mutableListOf("§6每个${args[0]}可以兑换${energy}飞行能量")
+                mutableListOf("§6每个${args[0]}可以兑换§a[${energy}]§6飞行能量,当前可兑换§a[${count * energy}]§6飞行能量")
             else
                 mutableListOf("§c无效的货币[${args[0]}]类型!")
         }

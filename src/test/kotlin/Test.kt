@@ -1,18 +1,10 @@
+
 import cn.bakamc.folia.config.Configs
 import cn.bakamc.folia.db.database
-import cn.bakamc.folia.db.table.FlightEnergies
 import cn.bakamc.folia.db.table.PlayerInfo
-import cn.bakamc.folia.db.table.flightEnergies
-import cn.bakamc.folia.db.table.playerInfos
-import org.ktorm.dsl.batchUpdate
-import org.ktorm.dsl.eq
-import org.ktorm.dsl.inList
-import org.ktorm.entity.filter
-import org.ktorm.entity.forEach
-import org.ktorm.entity.update
+import cn.bakamc.folia.db.table.specialItems
+import org.ktorm.entity.map
 import java.nio.file.Path
-import kotlin.random.Random
-import kotlin.time.measureTime
 
 fun main() {
     db()
@@ -27,46 +19,10 @@ fun db() {
         name = "forpleuvoir"
     }
     database {
-        playerInfos.update(info)
+        specialItems.map { it }
+    }.forEach {
+        println(it)
     }
-
-    val map1 = HashMap<String, String>()
-    database {
-        flightEnergies.filter {
-            it.uuid inList listUUID
-        }.forEach {
-            map1[it.uuid] = "${it.player.name} from ${it.energy} to"
-        }
-    }
-    val map = buildMap {
-        listUUID.forEach {
-            this[it] = Random.nextDouble(5000.0)
-        }
-    }
-    measureTime {
-        database {
-            batchUpdate(FlightEnergies) {
-                map.forEach { (k, v) ->
-                    item {
-                        set(it.energy, v)
-                        where {
-                            it.uuid eq k
-                        }
-                    }
-                }
-            }
-        }
-    }.let {
-        println("耗时${it}")
-    }
-    database {
-        flightEnergies.filter {
-            it.uuid inList listUUID
-        }.forEach {
-            map1[it.uuid] = map1[it.uuid]!! + " ${it.energy}"
-        }
-    }
-    map1.values.forEach { println(it) }
 }
 
 val list = listOf(

@@ -3,6 +3,7 @@ package cn.bakamc.folia.flight_energy
 import cn.bakamc.folia.config.Configs.FlightEnergy.ENERGY_COST
 import cn.bakamc.folia.config.Configs.FlightEnergy.SYNC_PERIOD
 import cn.bakamc.folia.config.Configs.FlightEnergy.TICK_PERIOD
+import cn.bakamc.folia.db.table.FlightEnergy
 import cn.bakamc.folia.extension.onlinePlayers
 import cn.bakamc.folia.service.PlayerService
 import cn.bakamc.folia.util.AsyncTask
@@ -24,7 +25,7 @@ import kotlin.time.measureTimedValue
 object FlightEnergyManager : Listener, Initializable {
 
 
-    private lateinit var energyCache: MutableMap<Player, Double>
+    private lateinit var energyCache: MutableMap<Player, FlightEnergy>
 
     private lateinit var tasks: List<AsyncTask>
 
@@ -46,27 +47,46 @@ object FlightEnergyManager : Listener, Initializable {
     }
 
     fun onDisable() {
-        if (this::energyCache.isInitialized && !syncing.get()) {
-            sync()
-        }
         if (this::energyCache.isInitialized) {
+            if (!syncing.get()) sync()
             energyCache.clear()
         }
     }
 
     fun onPlayerJoin(player: Player) {
         energyCache[player] = PlayerService.getFlightEnergy(player)
+        if (player.gameMode == GameMode.SURVIVAL)
+            player.allowFlight = energyCache[player]!!.enabled
     }
 
     fun onPlayerQuit(player: Player) {
-        PlayerService.updateFlightEnergy(player, energyCache[player]!!)
+        PlayerService.updateFlightEnergy(energyCache[player]!!)
         energyCache.remove(player)
+    }
+
+    fun onPlayerRespawn(player: Player) {
+        if (player.gameMode == GameMode.SURVIVAL)
+            player.allowFlight = energyCache[player]!!.enabled
+    }
+
+    fun onPlayerGameModeChange(player: Player, newGameMode: GameMode) {
+        if (newGameMode == GameMode.SURVIVAL) {
+            player.allowFlight = energyCache[player]!!.enabled
+        }
+    }
+
+    fun toggleFly(player: Player) {
+        energyCache[player]?.let {
+            it.enabled = !it.enabled
+            if (player.gameMode == GameMode.SURVIVAL)
+                player.allowFlight = it.enabled
+        }
     }
 
     fun sync() {
         syncing.set(true)
         measureTimedValue {
-            PlayerService.updateFlightEnergies(energyCache)
+            PlayerService.updateFlightEnergies(energyCache.values)
         }.let {
             logger.info("同步飞行能量成功,${it.value}条数据已更新，耗时${it.duration}")
         }
@@ -78,10 +98,10 @@ object FlightEnergyManager : Listener, Initializable {
      */
     var Player.energy: Double
         get() {
-            return energyCache[this] ?: PlayerService.getFlightEnergy(this)
+            return energyCache[this]?.energy ?: PlayerService.getFlightEnergy(this).energy
         }
         set(value) {
-            energyCache[this] = value
+            energyCache[this]?.energy = value
         }
 
     /**

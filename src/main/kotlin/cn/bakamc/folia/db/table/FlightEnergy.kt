@@ -4,6 +4,7 @@ import org.ktorm.database.Database
 import org.ktorm.entity.Entity
 import org.ktorm.entity.sequenceOf
 import org.ktorm.schema.Table
+import org.ktorm.schema.boolean
 import org.ktorm.schema.double
 import org.ktorm.schema.varchar
 
@@ -15,6 +16,8 @@ open class FlightEnergies(alias: String?) : Table<FlightEnergy>("flight_energy",
     val uuid = varchar("uuid").primaryKey().references(PlayerInfos) { it.player }
 
     val energy = double("energy").bindTo { it.energy }
+
+    val enabled = boolean("enabled").bindTo { it.enabled }
 }
 
 interface FlightEnergy : Entity<FlightEnergy> {
@@ -23,6 +26,8 @@ interface FlightEnergy : Entity<FlightEnergy> {
     var player: PlayerInfo
 
     var energy: Double
+
+    var enabled: Boolean
 
     val uuid: String get() = player.uuid
 }

@@ -4,7 +4,7 @@ import cn.bakamc.folia.command.registerCommand
 import cn.bakamc.folia.config.Configs
 import cn.bakamc.folia.event.registerEvent
 import cn.bakamc.folia.flight_energy.FlightEnergyManager
-import cn.bakamc.folia.item.SpecialItem
+import cn.bakamc.folia.item.SpecialItemManager
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
@@ -23,7 +23,7 @@ class BakaMCPlugin : JavaPlugin() {
 
         Configs.init(dataFolder.toPath())
         registerCommand()
-        SpecialItem.init(dataFolder.toPath())
+        SpecialItemManager.init()
         FlightEnergyManager.init()
 
         registerEvent()
@@ -38,6 +38,7 @@ class BakaMCPlugin : JavaPlugin() {
     override fun onDisable() {
         server.asyncScheduler.cancelTasks(this)
         FlightEnergyManager.onDisable()
+        SpecialItemManager.onDisable()
     }
 
 }
