@@ -7,6 +7,7 @@ import cn.bakamc.folia.db.table.specialItems
 import org.ktorm.dsl.batchUpdate
 import org.ktorm.dsl.delete
 import org.ktorm.dsl.eq
+import org.ktorm.entity.find
 import org.ktorm.entity.map
 import org.ktorm.support.mysql.insertOrUpdate
 
@@ -15,6 +16,12 @@ object SpecialItemService {
     fun getSpecialItems(): List<SpecialItem> {
         return database {
             specialItems.map { it }
+        }
+    }
+
+    fun getItemByKey(key: String): SpecialItem? {
+        return database {
+            specialItems.find { it.key eq key }
         }
     }
 
@@ -35,9 +42,9 @@ object SpecialItemService {
 
     fun delete(key: String): Int {
         return database {
-           delete(SpecialItems) {
-               it.key eq key
-           }
+            delete(SpecialItems) {
+                it.key eq key
+            }
         }
     }
 

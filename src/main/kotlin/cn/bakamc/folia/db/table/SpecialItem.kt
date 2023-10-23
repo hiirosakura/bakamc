@@ -4,6 +4,8 @@ import cn.bakamc.folia.util.logger
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtIo
+import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
 import org.ktorm.database.Database
 import org.ktorm.entity.Entity
@@ -46,9 +48,18 @@ fun ItemStack.toSpecialItem(key: String): SpecialItem {
     }
 }
 
+val Database.specialItems get() = this.sequenceOf(SpecialItems)
+
+
 val ItemStack.nameSpace: String get() = BuiltInRegistries.ITEM.getKey(this.item).toString()
 
-val Database.specialItems get() = this.sequenceOf(SpecialItems)
+
+fun ItemStack.hoverTextWithCount():Component{
+    TODO("实现Hover文本")
+}
+
+
+
 
 fun readNbtTag(tagData: ByteArray): CompoundTag? {
     return if (tagData.isEmpty()) null
@@ -61,6 +72,20 @@ fun writeNbtTag(tag: CompoundTag?): ByteArray? {
     else ByteArrayOutputStream(tag.sizeInBytes()).apply { NbtIo.writeCompressed(tag, this) }.toByteArray()
 }
 
+fun SpecialItem.toItemStack(count: Int): ItemStack? {
+    runCatching {
+        val item = BuiltInRegistries.ITEM.get(ResourceLocation(id))
+        return ItemStack(item).apply {
+            tag = readNbtTag(nbtTag)
+            this.count = count.coerceAtMost(this.maxStackSize)
+        }
+    }.onFailure {
+        logger.info("物品转换异常")
+        it.printStackTrace()
+    }
+    return null
+}
+
 fun SpecialItem.isMatch(item: ItemStack): Boolean {
     runCatching {
         val idEquals = item.nameSpace == id
@@ -71,3 +96,4 @@ fun SpecialItem.isMatch(item: ItemStack): Boolean {
     }
     return false
 }
+
