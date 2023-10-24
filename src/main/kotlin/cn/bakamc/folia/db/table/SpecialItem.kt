@@ -53,14 +53,6 @@ val Database.specialItems get() = this.sequenceOf(SpecialItems)
 
 val ItemStack.nameSpace: String get() = BuiltInRegistries.ITEM.getKey(this.item).toString()
 
-
-fun ItemStack.hoverTextWithCount():Component{
-    TODO("实现Hover文本")
-}
-
-
-
-
 fun readNbtTag(tagData: ByteArray): CompoundTag? {
     return if (tagData.isEmpty()) null
     else NbtIo.readCompressed(ByteArrayInputStream(tagData))

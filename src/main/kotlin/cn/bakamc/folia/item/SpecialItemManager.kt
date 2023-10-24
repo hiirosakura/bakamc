@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap
 object SpecialItemManager : Initializable {
 
     private lateinit var itemCache: MutableMap<String, SpecialItem>
+
     override fun init() {
         itemCache = ConcurrentHashMap()
         SpecialItemService.getSpecialItems().forEach {
@@ -21,7 +22,7 @@ object SpecialItemManager : Initializable {
         }
     }
 
-    fun put(specialItem: SpecialItem): Boolean {
+    suspend fun put(specialItem: SpecialItem): Boolean {
         SpecialItemService.inertOrUpdate(specialItem)?.let {
             itemCache[it.key] = it
             return true

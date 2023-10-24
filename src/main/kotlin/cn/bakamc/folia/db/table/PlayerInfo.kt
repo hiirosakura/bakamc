@@ -1,6 +1,7 @@
 package cn.bakamc.folia.db.table
 
 import org.ktorm.database.Database
+import org.ktorm.dsl.isNotNull
 import org.ktorm.entity.Entity
 import org.ktorm.entity.sequenceOf
 import org.ktorm.schema.Table

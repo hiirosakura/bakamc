@@ -3,7 +3,11 @@
 package cn.bakamc.folia.util
 
 import cn.bakamc.folia.BakaMCPlugin
+import cn.bakamc.folia.BakaMCPlugin.Companion.PluginScope
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.launch
 import moe.forpleuvoir.nebula.common.util.Time
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeNull
@@ -14,6 +18,8 @@ import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.nbt.*
 import org.bukkit.plugin.Plugin
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
 
 internal val bakamc by lazy { BakaMCPlugin.instance }
@@ -21,6 +27,14 @@ internal val bakamc by lazy { BakaMCPlugin.instance }
 internal val server by lazy { bakamc.server }
 
 internal val logger by lazy { BakaMCPlugin.instance.logger }
+
+internal fun launch(
+    context: CoroutineContext = EmptyCoroutineContext,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend CoroutineScope.() -> Unit
+) {
+    PluginScope.launch(context, start, block)
+}
 
 fun runNow(plugin: Plugin, action: (ScheduledTask) -> Unit) {
     plugin.server.asyncScheduler.runNow(plugin, action)

@@ -2,6 +2,7 @@ package cn.bakamc.folia.event.entity
 
 import cn.bakamc.folia.flight_energy.FlightEnergyManager
 import cn.bakamc.folia.service.PlayerService
+import cn.bakamc.folia.util.launch
 import cn.bakamc.folia.util.logger
 import cn.bakamc.folia.util.runNow
 import org.bukkit.event.EventHandler
@@ -16,7 +17,7 @@ object PlayerEventListener : Listener {
 
     @EventHandler
     fun onPlayerJoin(event: PlayerJoinEvent) {
-        runNow {
+        launch {
             runCatching {
                 PlayerService.insertOrUpdate(event.player)
                 FlightEnergyManager.onPlayerJoin(event.player)
@@ -31,7 +32,7 @@ object PlayerEventListener : Listener {
 
     @EventHandler
     fun onPlayerQuit(event: PlayerQuitEvent) {
-        runNow {
+        launch {
             runCatching {
                 FlightEnergyManager.onPlayerQuit(event.player)
             }.onSuccess {

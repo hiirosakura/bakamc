@@ -23,6 +23,7 @@ repositories {
 dependencies {
     implementation(kotlin("reflect"))
     implementation(kotlin("stdlib"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 
     paperweight.foliaDevBundle("1.20.1-R0.1-SNAPSHOT")
 
@@ -30,7 +31,7 @@ dependencies {
         exclude("moe.forpleuvoir", "nebula-event")
     }
     //data base
-    apply{
+    apply {
         val ktormVersion = "3.6.0"
         runtimeOnly("com.mysql:mysql-connector-j:8.1.0")
         implementation("org.ktorm:ktorm-core:${ktormVersion}")

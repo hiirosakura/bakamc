@@ -1,7 +1,9 @@
 package cn.bakamc.folia.db
 
+import cn.bakamc.folia.BakaMCPlugin.Companion.PluginScope
 import cn.bakamc.folia.config.Configs
 import com.zaxxer.hikari.HikariDataSource
+import kotlinx.coroutines.launch
 import org.ktorm.database.Database
 import org.ktorm.support.mysql.MySqlDialect
 import javax.sql.DataSource
@@ -21,8 +23,9 @@ val dataSource: DataSource by lazy {
 
 val database get() = Database.connect(dataSource, MySqlDialect())
 
+@Suppress("RedundantSuspendModifier")
 @OptIn(ExperimentalContracts::class)
-inline fun <R> database(action: Database.() -> R): R {
+internal suspend inline fun <R> database(action: Database.() -> R): R {
     contract {
         callsInPlace(action, InvocationKind.EXACTLY_ONCE)
     }

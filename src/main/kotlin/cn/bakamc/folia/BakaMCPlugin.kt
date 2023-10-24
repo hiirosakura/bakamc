@@ -5,20 +5,27 @@ import cn.bakamc.folia.config.Configs
 import cn.bakamc.folia.event.registerEvent
 import cn.bakamc.folia.flight_energy.FlightEnergyManager
 import cn.bakamc.folia.item.SpecialItemManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
 
 class BakaMCPlugin : JavaPlugin() {
 
-    companion object{
+    companion object {
         lateinit var instance: BakaMCPlugin
+            private set
+
+        internal lateinit var PluginScope: CoroutineScope
             private set
     }
 
 
     override fun onEnable() {
         instance = this
+        PluginScope = CoroutineScope(Dispatchers.IO)
         logger.info("BakaMCPlugin loading...")
 
         Configs.init(dataFolder.toPath())
@@ -39,6 +46,7 @@ class BakaMCPlugin : JavaPlugin() {
         server.asyncScheduler.cancelTasks(this)
         FlightEnergyManager.onDisable()
         SpecialItemManager.onDisable()
+        PluginScope.cancel()
     }
 
 }

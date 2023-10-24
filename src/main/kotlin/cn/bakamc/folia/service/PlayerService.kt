@@ -12,18 +12,20 @@ import org.ktorm.support.mysql.insertOrUpdate
 
 object PlayerService {
 
-    fun insertOrUpdate(player: Player) {
-        database.insertOrUpdate(PlayerInfos) {
-            set(it.uuid, player.uuid)
-            set(it.name, player.name)
-            onDuplicateKey {
+    suspend fun insertOrUpdate(player: Player) {
+        database {
+            insertOrUpdate(PlayerInfos) {
+                set(it.uuid, player.uuid)
                 set(it.name, player.name)
+                onDuplicateKey {
+                    set(it.name, player.name)
+                }
             }
         }
     }
 
 
-    fun getFlightEnergy(player: Player): FlightEnergy {
+    suspend fun getFlightEnergy(player: Player): FlightEnergy {
         return database {
             flightEnergies.find {
                 val playerInfo = (it.uuid.referenceTable as PlayerInfos)
@@ -39,7 +41,7 @@ object PlayerService {
         }
     }
 
-    fun getFlightEnergies(players: Collection<Player>): Map<Player, FlightEnergy> {
+    suspend fun getFlightEnergies(players: Collection<Player>): Map<Player, FlightEnergy> {
         if (players.isEmpty()) return emptyMap()
         return database {
             buildMap {
@@ -52,13 +54,13 @@ object PlayerService {
         }
     }
 
-    fun updateFlightEnergy(energy: FlightEnergy) {
+    suspend fun updateFlightEnergy(energy: FlightEnergy) {
         database {
             flightEnergies.update(energy)
         }
     }
 
-    fun updateFlightEnergies(flightEnergy: Collection<FlightEnergy>): Int {
+    suspend fun updateFlightEnergies(flightEnergy: Collection<FlightEnergy>): Int {
         if (flightEnergy.isEmpty()) return 0
         return database {
             batchUpdate(FlightEnergies) {
