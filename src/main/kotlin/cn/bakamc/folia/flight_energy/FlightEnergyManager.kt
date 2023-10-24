@@ -9,6 +9,7 @@ import cn.bakamc.folia.service.PlayerService
 import cn.bakamc.folia.util.AsyncTask
 import cn.bakamc.folia.util.logger
 import cn.bakamc.folia.util.runAtFixedRate
+import kotlinx.coroutines.runBlocking
 import moe.forpleuvoir.nebula.common.api.Initializable
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
@@ -42,7 +43,9 @@ object FlightEnergyManager : Listener, Initializable {
         tasks.forEach { runAtFixedRate(it) }
 
         energyCache = ConcurrentHashMap()
-        energyCache.putAll(PlayerService.getFlightEnergies(onlinePlayers))
+        runBlocking {
+            energyCache.putAll(PlayerService.getFlightEnergies(onlinePlayers))
+        }
 
     }
 
@@ -53,13 +56,13 @@ object FlightEnergyManager : Listener, Initializable {
         }
     }
 
-    fun onPlayerJoin(player: Player) {
+    suspend fun onPlayerJoin(player: Player) {
         energyCache[player] = PlayerService.getFlightEnergy(player)
         if (player.gameMode == GameMode.SURVIVAL)
             player.allowFlight = energyCache[player]!!.enabled
     }
 
-    fun onPlayerQuit(player: Player) {
+    suspend fun onPlayerQuit(player: Player) {
         PlayerService.updateFlightEnergy(energyCache[player]!!)
         energyCache.remove(player)
     }
@@ -83,14 +86,16 @@ object FlightEnergyManager : Listener, Initializable {
         }
     }
 
-    fun sync() {
-        syncing.set(true)
-        measureTimedValue {
-            PlayerService.updateFlightEnergies(energyCache.values)
-        }.let {
-            logger.info("同步飞行能量成功,${it.value}条数据已更新，耗时${it.duration}")
+    private fun sync() {
+        runBlocking {
+            syncing.set(true)
+            measureTimedValue {
+                PlayerService.updateFlightEnergies(energyCache.values)
+            }.let {
+                logger.info("同步飞行能量成功,${it.value}条数据已更新，耗时${it.duration}")
+            }
+            syncing.set(false)
         }
-        syncing.set(false)
     }
 
     /**
@@ -98,7 +103,7 @@ object FlightEnergyManager : Listener, Initializable {
      */
     var Player.energy: Double
         get() {
-            return energyCache[this]?.energy ?: PlayerService.getFlightEnergy(this).energy
+            return energyCache[this]?.energy ?: runBlocking { PlayerService.getFlightEnergy(this@energy).energy }
         }
         set(value) {
             energyCache[this]?.energy = value
@@ -119,7 +124,6 @@ object FlightEnergyManager : Listener, Initializable {
                 it.addPotionEffect(PotionEffect(PotionEffectType.SLOW_FALLING, 400, 1, false, true))
             }
         }
-
     }
 
 }

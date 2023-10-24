@@ -4,11 +4,9 @@ import cn.bakamc.folia.config.Configs.FlightEnergy.MAX_ENERGY
 import cn.bakamc.folia.config.Configs.FlightEnergy.MONEY_ITEM
 import cn.bakamc.folia.flight_energy.FlightEnergyManager
 import cn.bakamc.folia.item.SpecialItemManager
+import net.minecraft.server.level.ServerPlayer
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
-import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer
-import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftInventoryPlayer
-import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack
 import org.bukkit.entity.Player
 
 object FlyCommand : BakaCommand {
@@ -20,19 +18,21 @@ object FlyCommand : BakaCommand {
             sender.sendMessage("§c只有玩家可以使用此命令！")
             return false
         }
+        sender as ServerPlayer
         if (args.isNullOrEmpty()) {
             FlightEnergyManager.apply {
                 return if (sender.energy > 0) {
                     toggleFly(sender)
-                    sender.sendMessage("§a飞行状态已切换:[${if (sender.allowFlight) "§a开启" else "§c关闭"}§a]")
+                    sender.feedback(success("飞行状态已切换 ") + "§a[${if (sender.allowFlight) "§a开启" else "§c关闭"}§a]")
                     true
                 } else {
-                    sender.sendMessage("§c你的飞行能量不足,输入指令 §a/baka-fly <货币类型> <使用数量> §c购买")
+                    sender.feedback(error("你的飞行能量不足,输入指令 ") + success("/baka-fly <货币类型> <使用数量>") + error(" 购买"))
                     false
                 }
             }
         } else if (args.size == 1) {
-            sender.sendMessage("§6每个${args[0]}可以兑换${MONEY_ITEM[args[0]]}飞行能量")
+            sender.feedback("§6每个${args[0]}可以兑换${MONEY_ITEM[args[0]]}飞行能量")
+            sender.feedback(tip("每个") + item(args[0]) + tip("可以兑换") + "§a[${MONEY_ITEM[args[0]]}]" + tip("飞行能量"))
             return false
         } else if (args.size == 2) {
             val key = args[0]
@@ -42,23 +42,26 @@ object FlyCommand : BakaCommand {
 
             if (moneyItems.containsKey(key)) {
 
-                sender as CraftPlayer
-                val inventory = sender.inventory as CraftInventoryPlayer
+                val inventory = (sender as ServerPlayer).inventory
 
                 //纪录扣费动作
                 val actions = mutableListOf<() -> Unit>()
 
-                inventory.filter {//过滤出对应的货币
-                    val stack = CraftItemStack.asNMSCopy(it)
-                    if (!stack.isEmpty)
-                        TODO()
+                inventory.items.filter { stack ->//过滤出对应的货币
+                    if (!stack.isEmpty){
+                        var result =false
+                        SpecialItemManager.specifyType(MONEY_ITEM.keys).forEach {
+
+                        }
+                        result
+                    }
                     else false
                 }.forEach { stack ->
-                    val temp = count.coerceAtMost(stack.amount)
+                    val temp = count.coerceAtMost(stack.count)
                     count -= temp
 
                     actions.add {
-                        stack.amount -= temp
+                        stack.count -= temp
                     }
 
                 }

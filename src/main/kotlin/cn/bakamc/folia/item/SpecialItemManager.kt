@@ -2,24 +2,40 @@ package cn.bakamc.folia.item
 
 import cn.bakamc.folia.db.table.SpecialItem
 import cn.bakamc.folia.service.SpecialItemService
+import cn.bakamc.folia.util.launch
 import moe.forpleuvoir.nebula.common.api.Initializable
 import java.util.concurrent.ConcurrentHashMap
 
 object SpecialItemManager : Initializable {
 
-    private lateinit var itemCache: MutableMap<String, SpecialItem>
+    private var itemCache: MutableMap<String, SpecialItem> = ConcurrentHashMap()
 
     override fun init() {
-        itemCache = ConcurrentHashMap()
-        SpecialItemService.getSpecialItems().forEach {
-            itemCache[it.key] = it
+        launch {
+            SpecialItemService.getSpecialItems().forEach {
+                itemCache[it.key] = it
+            }
         }
     }
 
     fun onDisable() {
-        if (this::itemCache.isInitialized) {
-            itemCache.clear()
+        itemCache.clear()
+    }
+
+    fun getCachedItem(key: String): SpecialItem? {
+        return itemCache[key].apply {
+            if (this == null) {
+                launch {
+                    SpecialItemService.getItemByKey(key)?.let {
+                        itemCache[it.key] = it
+                    }
+                }
+            }
         }
+    }
+
+    fun getCache(): Map<String, SpecialItem> {
+        return itemCache
     }
 
     suspend fun put(specialItem: SpecialItem): Boolean {
@@ -30,7 +46,7 @@ object SpecialItemManager : Initializable {
         return false
     }
 
-    fun remove(key: String): SpecialItem? {
+    suspend fun remove(key: String): SpecialItem? {
         return SpecialItemService.delete(key).takeIf { it > 0 }?.let {
             itemCache.remove(key)
         }

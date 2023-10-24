@@ -5,9 +5,7 @@ package cn.bakamc.folia.util
 import cn.bakamc.folia.BakaMCPlugin
 import cn.bakamc.folia.BakaMCPlugin.Companion.PluginScope
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import moe.forpleuvoir.nebula.common.util.Time
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeNull
@@ -32,9 +30,15 @@ internal fun launch(
     context: CoroutineContext = EmptyCoroutineContext,
     start: CoroutineStart = CoroutineStart.DEFAULT,
     block: suspend CoroutineScope.() -> Unit
-) {
-    PluginScope.launch(context, start, block)
-}
+): Job = PluginScope.launch(context, start, block)
+
+
+internal fun <T> async(
+    context: CoroutineContext = EmptyCoroutineContext,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend CoroutineScope.() -> T
+): Deferred<T> = PluginScope.async(context, start, block)
+
 
 fun runNow(plugin: Plugin, action: (ScheduledTask) -> Unit) {
     plugin.server.asyncScheduler.runNow(plugin, action)

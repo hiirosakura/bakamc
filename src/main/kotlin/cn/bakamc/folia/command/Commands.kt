@@ -54,6 +54,12 @@ internal interface BakaCommand : CommandExecutor, TabCompleter {
         }
     }
 
+    fun tip(message: String=""):MutableComponent{
+        return literal(message).withStyle{
+            it.applyFormat(ChatFormatting.GOLD)
+        }
+    }
+
     fun success(message: String = ""): MutableComponent {
         return literal(message).withStyle {
             it.applyFormat(ChatFormatting.GREEN)
@@ -68,6 +74,9 @@ internal interface BakaCommand : CommandExecutor, TabCompleter {
         return this.append(component)
     }
 
+    fun ServerPlayer.feedback(message: String){
+        this.sendSystemMessage(literal(message))
+    }
 
     fun ServerPlayer.feedback(vararg message: MutableComponent) {
         when {
