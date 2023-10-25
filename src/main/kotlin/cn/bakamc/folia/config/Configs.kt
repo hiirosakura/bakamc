@@ -25,6 +25,9 @@ object Configs : LocalConfigManager("bakamc"), JsonConfigManagerPersistence {
         init()
         runCatching {
             load()
+            if (this.needSave) {
+                save()
+            }
         }.onFailure {
             it.printStackTrace()
             forceSave()

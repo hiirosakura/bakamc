@@ -1,10 +1,14 @@
 package cn.bakamc.folia.flight_energy
 
+import cn.bakamc.folia.command.SpecialItemCommand
 import cn.bakamc.folia.config.Configs.FlightEnergy.ENERGY_COST
+import cn.bakamc.folia.config.Configs.FlightEnergy.MONEY_ITEM
 import cn.bakamc.folia.config.Configs.FlightEnergy.SYNC_PERIOD
 import cn.bakamc.folia.config.Configs.FlightEnergy.TICK_PERIOD
 import cn.bakamc.folia.db.table.FlightEnergy
+import cn.bakamc.folia.db.table.SpecialItem
 import cn.bakamc.folia.extension.onlinePlayers
+import cn.bakamc.folia.item.SpecialItemManager
 import cn.bakamc.folia.service.PlayerService
 import cn.bakamc.folia.util.AsyncTask
 import cn.bakamc.folia.util.logger
@@ -53,6 +57,29 @@ object FlightEnergyManager : Listener, Initializable {
         if (this::energyCache.isInitialized) {
             if (!syncing.get()) sync()
             energyCache.clear()
+        }
+    }
+
+    /**
+     * 获取货币对应的飞行能量
+     * @return Map<SpecialItem, Double>
+     */
+    fun moneyItem(): Map<SpecialItem, Double> {
+        return buildMap {
+            SpecialItemManager.specifyType(MONEY_ITEM.keys).forEach { (key, specialItem) ->
+                this[specialItem] = MONEY_ITEM[key]!!
+            }
+        }
+    }
+
+    /**
+     * 获取指定货币对应的飞行能量
+     * @param key String
+     * @return Pair<SpecialItem, Double>?
+     */
+    fun moneyItem(key: String): Pair<SpecialItem, Double>? {
+        return SpecialItemManager.specifyType(MONEY_ITEM.keys)[key]?.let {
+            it to MONEY_ITEM[key]!!
         }
     }
 

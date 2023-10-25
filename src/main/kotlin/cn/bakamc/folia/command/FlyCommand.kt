@@ -1,9 +1,11 @@
 package cn.bakamc.folia.command
 
+import cn.bakamc.folia.command.SpecialItemCommand.feedback
 import cn.bakamc.folia.config.Configs.FlightEnergy.MAX_ENERGY
 import cn.bakamc.folia.config.Configs.FlightEnergy.MONEY_ITEM
+import cn.bakamc.folia.db.table.isMatch
 import cn.bakamc.folia.flight_energy.FlightEnergyManager
-import cn.bakamc.folia.item.SpecialItemManager
+import kotlinx.coroutines.runBlocking
 import net.minecraft.server.level.ServerPlayer
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
@@ -31,16 +33,21 @@ object FlyCommand : BakaCommand {
                 }
             }
         } else if (args.size == 1) {
-            sender.feedback("§6每个${args[0]}可以兑换${MONEY_ITEM[args[0]]}飞行能量")
-            sender.feedback(tip("每个") + item(args[0]) + tip("可以兑换") + "§a[${MONEY_ITEM[args[0]]}]" + tip("飞行能量"))
-            return false
+            return FlightEnergyManager.moneyItem(args[0])?.let { (item, energy) ->
+                sender.feedback(tip("每个") + item(item.key) + tip("可以兑换") + "§a[$energy]" + tip("飞行能量"))
+                true
+            } ?: run {
+                sender.feedback(error("无效的货币类型") + item(args[0]))
+                false
+            }
         } else if (args.size == 2) {
             val key = args[0]
             var count = args[1].toInt()
 
-            val moneyItems = SpecialItemManager.specifyType(MONEY_ITEM.keys)
+            val moneyItem = FlightEnergyManager.moneyItem(key)
 
-            if (moneyItems.containsKey(key)) {
+            if (moneyItem != null) {
+                val (item, energy) = moneyItem
 
                 val inventory = (sender as ServerPlayer).inventory
 
@@ -48,14 +55,9 @@ object FlyCommand : BakaCommand {
                 val actions = mutableListOf<() -> Unit>()
 
                 inventory.items.filter { stack ->//过滤出对应的货币
-                    if (!stack.isEmpty){
-                        var result =false
-                        SpecialItemManager.specifyType(MONEY_ITEM.keys).forEach {
-
-                        }
-                        result
-                    }
-                    else false
+                    if (!stack.isEmpty) {
+                        item.isMatch(stack)
+                    } else false
                 }.forEach { stack ->
                     val temp = count.coerceAtMost(stack.count)
                     count -= temp
@@ -67,25 +69,35 @@ object FlyCommand : BakaCommand {
                 }
 
                 if (count == 0) {//有足够的货币
-                    val energy = MONEY_ITEM[key]!! * args[1].toInt()
+                    val totalEnergy = energy * args[1].toInt()
                     FlightEnergyManager.apply {
-                        return if (energy + sender.energy > MAX_ENERGY) {//超出了能量上限
-                            sender.sendMessage("§c超出了能量上限[最大值:$MAX_ENERGY,充值后会超出:${energy + sender.energy - MAX_ENERGY}]")
+                        return if (totalEnergy + sender.energy > MAX_ENERGY) {//超出了能量上限
+                            sender.feedback(error("超出了能量上限") + "§a[最大值:$MAX_ENERGY,充值后会超出:${totalEnergy + sender.energy - MAX_ENERGY}]")
                             false
                         } else {//购买成功
-                            sender.energy += energy
+                            var returnValue = false
                             //执行扣费操作
-                            actions.forEach { it.invoke() }
-                            sender.sendMessage("§a成功购买§e[${key}*${args[1].toInt()}]§a货币的能量§e[$energy]§a,当前能量§e[${sender.energy}]")
-                            true
+                            runCatching {
+                                actions.forEach { it.invoke() }
+                            }.onFailure {
+                                sender.feedback(error("购买失败") + "§a[原因:${it.message}]")
+                                sender.feedback(error("请联截图系管理员处理"))
+                                returnValue = false
+                            }.onSuccess {
+                                sender.energy += totalEnergy
+                                sender.feedback(success("成功购买") + item(item.key) + success("的能量") + "§a[$totalEnergy]" + success(",当前能量") + "§a[${sender.energy}]")
+                                returnValue = true
+                            }
+                            returnValue
                         }
                     }
                 } else {//没有足够的货币
-                    sender.sendMessage("§c你所拥有的对应货币§a[${args[0]}]§c数量不足§e(需要§6[${args[1].toInt()}]§e个,在背包中找到§c[${args[1].toInt() - count}]§e)")
+                    sender.feedback(error("你所拥有的对应货币") + item(key) + error("数量不足"))
+                    sender.feedback(error("(需要") + "§6[${args[1].toInt()}]" + error("个,在背包中找到" + "§6[${args[1].toInt() - count}]" + error("个")))
                     return false
                 }
             }
-            sender.sendMessage("§c无效的货币[${key}]类型!")
+            sender.feedback(error("无效的货币类型") + item(key))
             return false
         }
         return false
