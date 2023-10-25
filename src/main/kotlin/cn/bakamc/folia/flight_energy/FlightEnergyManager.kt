@@ -1,6 +1,5 @@
 package cn.bakamc.folia.flight_energy
 
-import cn.bakamc.folia.command.SpecialItemCommand
 import cn.bakamc.folia.config.Configs.FlightEnergy.ENERGY_COST
 import cn.bakamc.folia.config.Configs.FlightEnergy.MONEY_ITEM
 import cn.bakamc.folia.config.Configs.FlightEnergy.SYNC_PERIOD
@@ -49,6 +48,7 @@ object FlightEnergyManager : Listener, Initializable {
         energyCache = ConcurrentHashMap()
         runBlocking {
             energyCache.putAll(PlayerService.getFlightEnergies(onlinePlayers))
+            logger.info("飞行能量加载完成")
         }
 
     }

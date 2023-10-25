@@ -3,6 +3,7 @@ package cn.bakamc.folia.item
 import cn.bakamc.folia.db.table.SpecialItem
 import cn.bakamc.folia.service.SpecialItemService
 import cn.bakamc.folia.util.launch
+import cn.bakamc.folia.util.logger
 import moe.forpleuvoir.nebula.common.api.Initializable
 import java.util.concurrent.ConcurrentHashMap
 
@@ -15,6 +16,7 @@ object SpecialItemManager : Initializable {
             SpecialItemService.getSpecialItems().forEach {
                 itemCache[it.key] = it
             }
+            logger.info("特殊物品加载完成")
         }
     }
 

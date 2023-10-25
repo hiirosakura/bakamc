@@ -14,6 +14,8 @@ import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.extensions.serializeArray
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.nbt.*
+import net.minecraft.server.MinecraftServer
+import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
@@ -25,6 +27,8 @@ internal val bakamc by lazy { BakaMCPlugin.instance }
 internal val server by lazy { bakamc.server }
 
 internal val logger by lazy { BakaMCPlugin.instance.logger }
+
+fun Player.toServerPlayer() = MinecraftServer.getServer().playerList.getPlayer(this.uniqueId)
 
 internal fun launch(
     context: CoroutineContext = EmptyCoroutineContext,

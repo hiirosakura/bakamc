@@ -5,40 +5,40 @@ import cn.bakamc.folia.db.table.nameSpace
 import cn.bakamc.folia.db.table.toItemStack
 import cn.bakamc.folia.db.table.writeNbtTag
 import cn.bakamc.folia.item.SpecialItemManager
-import cn.bakamc.folia.service.SpecialItemService
 import cn.bakamc.folia.util.launch
+import cn.bakamc.folia.util.toServerPlayer
 import moe.forpleuvoir.nebula.common.util.clamp
 import net.minecraft.server.level.ServerPlayer
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
+import org.bukkit.entity.Player
 
 object SpecialItemCommand : BakaCommand {
 
-    override val subCommand: String = "specialitem"
+    override val command: String = "specialitem"
 
-    private val suggestions = mapOf<String, (ServerPlayer, Array<out String>) -> Boolean>(
+    private val suggestions = mapOf<String, (ServerPlayer, Array<out String>) -> Unit>(
         "give" to ::give,
         "put" to ::put,
         "remove" to ::remove
     )
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>?): Boolean {
-        if (sender is ServerPlayer) {
+        if (sender is Player) {
+            val player = sender.toServerPlayer()!!
             if (args.isNullOrEmpty()) {
-                sender.feedback(error("错误的指令格式!") + success("/baka-specialitem <operate> <key>"))
-                return false
+                player.feedback(error("错误的指令格式!") + success("/specialitem <operate> <key>"))
             } else if (args.size == 1 && args[0] == "put") {
-                suggestions["put"]!!.invoke(sender, args)
+                suggestions["put"]!!.invoke(player, args)
             } else if (args.size >= 2) {
-                suggestions[args[1]]?.invoke(sender, args) ?: {
-                    sender.feedback(error("错误的指令格式!") + success("/baka-specialitem <operate> <key>"))
+                suggestions[args[0]]?.invoke(player, args) ?: {
+                    player.feedback(error("错误的指令格式!") + success("/specialitem <operate> <key>"))
                 }
             }
-            return true
         } else {
             sender.sendMessage("§c只有玩家可以使用此命令！")
-            return false
         }
+        return true
     }
 
     override fun onTabComplete(sender: CommandSender, command: Command, label: String, args: Array<out String>?): MutableList<String>? {
@@ -54,27 +54,26 @@ object SpecialItemCommand : BakaCommand {
         return null
     }
 
-    private fun give(player: ServerPlayer, args: Array<out String>): Boolean {
+    private fun give(player: ServerPlayer, args: Array<out String>) {
         val key = args[1]
         val count = runCatching { args[2].toInt() }.getOrDefault(1).clamp(1, 64)
         launch {
-            val specialItem = SpecialItemService.getItemByKey(key)
+            val specialItem = SpecialItemManager.getCachedItem(key)
             if (specialItem == null) {
                 player.feedback(error("特殊物品") + item(key) + error("不存在!"))
             } else {
                 specialItem.toItemStack(count)?.apply {
-                    player.inventory.add(this)
                     player.feedback(success("已给与玩家") + player(player) + success("物品") + item(this))
+                    player.inventory.add(this)
                 }
             }
         }
-        return true
     }
 
-    private fun put(player: ServerPlayer, args: Array<out String>): Boolean {
+    private fun put(player: ServerPlayer, args: Array<out String>) {
         player.mainHandItem.apply {
             if (!this.isEmpty) {
-                val key = kotlin.runCatching { args[2] }.getOrDefault(this.displayName.string)
+                val key = runCatching { args[1] }.getOrDefault(this.hoverName.string)
                 launch {
                     SpecialItemManager.put(SpecialItem {
                         this.key = key
@@ -92,13 +91,12 @@ object SpecialItemCommand : BakaCommand {
                 player.feedback(error("不能添加空气为特殊物品!"))
             }
         }
-        return true
     }
 
-    private fun remove(player: ServerPlayer, args: Array<out String>): Boolean {
+    private fun remove(player: ServerPlayer, args: Array<out String>) {
         if (args.size != 2) {
-            player.feedback(error("错误的指令格式!") + success("/baka-specialitem remove <key>"))
-            return false
+            player.feedback(error("错误的指令格式!") + success("/specialitem remove <key>"))
+            return
         }
         val key = args[1]
         launch {
@@ -106,6 +104,5 @@ object SpecialItemCommand : BakaCommand {
                 player.feedback(success("已删除特殊物品") + item(key))
             } ?: player.feedback(error("特殊物品") + item(key) + error("不存在!"))
         }
-        return true
     }
 }

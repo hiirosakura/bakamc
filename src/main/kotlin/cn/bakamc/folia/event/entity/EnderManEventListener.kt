@@ -1,6 +1,7 @@
 package cn.bakamc.folia.event.entity
 
-import cn.bakamc.folia.config.Configs
+import cn.bakamc.folia.config.Configs.Entity.DISABLE_ENDERMAN_BREAK_BLOCK
+import cn.bakamc.folia.util.logger
 import org.bukkit.entity.EntityType
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -15,8 +16,10 @@ object EnderManEventListener : Listener {
      */
     @EventHandler(priority = EventPriority.HIGHEST)
     fun endermanCanBreakBlock(event: EntityChangeBlockEvent) {
-        if (event.entityType == EntityType.ENDERMAN ) {
-            event.isCancelled = Configs.Entity.DISABLE_ENDERMAN_BREAK_BLOCK
+        if (event.entityType == EntityType.ENDERMAN) {
+            if (DISABLE_ENDERMAN_BREAK_BLOCK)
+                logger.info("阻止了小黑尝试更改方块状态的事件")
+            event.isCancelled = DISABLE_ENDERMAN_BREAK_BLOCK
         }
     }
 

@@ -6,12 +6,19 @@ authors:
   - forpleuvoir
 
 commands:
-  baka-fly:
-    description: baka-fly
-    usage: /baka-fly
+  fly:
+    description: 飞行
+    usage: /fly
+    permission: BakaMC.fly
+  specialitem:
+    description: 特殊物品
+    usage: /specialitem
     permission: BakaMC.fly
 
 permissions:
   BakaMC.fly:
     description: baka-fly
     default: true
+  BakaMC.admin:
+    description: 管理员
+    default: false
