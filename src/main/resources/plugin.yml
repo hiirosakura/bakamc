@@ -9,16 +9,16 @@ commands:
   fly:
     description: 飞行
     usage: /fly
-    permission: BakaMC.fly
+    permission: bakamc.fly
   specialitem:
     description: 特殊物品
     usage: /specialitem
-    permission: BakaMC.fly
+    permission: bakamc.admin
 
 permissions:
-  BakaMC.fly:
-    description: baka-fly
-    default: true
-  BakaMC.admin:
+  bakamc.admin:
     description: 管理员
-    default: false
+    default: op
+  bakamc.fly:
+    description: 飞行
+    default: true
