@@ -1,7 +1,6 @@
 package cn.bakamc.folia.command
 
 import cn.bakamc.folia.util.getDisplayNameWithCount
-import cn.bakamc.folia.util.literal as literalText
 import cn.bakamc.folia.util.wrapInSquareBrackets
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.MutableComponent
@@ -11,8 +10,14 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabCompleter
+import cn.bakamc.folia.util.literal as literalText
 
 internal interface BakaCommand : CommandExecutor, TabCompleter {
+
+    enum class Type {
+        LITERAL,
+        ARGUMENT
+    }
 
     val command: String
 
@@ -21,11 +26,18 @@ internal interface BakaCommand : CommandExecutor, TabCompleter {
      */
     val root: String
 
-    val isArg: Boolean
+    val type: Type
+
+    val isArgument: Boolean
+        get() = type == Type.ARGUMENT
+
+    /**
+     * 子命令类型只能为一种
+     * 如果是[Type.ARGUMENT]类型，则[tree]只能包含一个子指令
+     */
+    val tree: MutableList<BakaCommand>
 
     var permission: (CommandSender) -> Boolean
-
-    val tree: MutableList<BakaCommand>
 
     val parent: BakaCommand?
 
@@ -33,56 +45,89 @@ internal interface BakaCommand : CommandExecutor, TabCompleter {
 
     var executor: (BakaCommand.(CommandSender) -> Unit)?
 
-    var suggestions: ((CommandSender) -> MutableList<String>)?
+    /**
+     * 下一个节点的补全列表
+     */
+    val nextSuggestions: ((CommandSender) -> List<String>?)?
+        get() = { sender ->
+            var result: List<String>? = null
+            if (tree.isNotEmpty()) {
+                val first = tree.first()
+                result = if (first.isArgument) {
+                    first.suggestions?.invoke(sender)
+                } else {
+                    tree.map { it.command }
+                }
+            }
+            result
+        }
+
+    val suggestions: ((CommandSender) -> List<String>?)?
+        get() = null
 
     val args: MutableMap<String, String>
 
-    val defaultSuggestions: MutableList<String>?
-        get() = parent?.tree?.map { it.command }?.toMutableList()
+    interface ArgumentCommand : BakaCommand {
+        override var suggestions: ((CommandSender) -> List<String>?)?
+    }
 
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>?): Boolean {
+    //fly recharge ⑨币 1
+    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         //检查发送者权限
-        if (permission(sender)) {
+        if (!permission(sender)) {
             sender.sendMessage("§c你没有权限执行该指令")
             return true
         }
         //当前实际执行的指令
         val commandLine: String = buildString {
             append("/${command.name}")
-            args?.forEach { append(" $it") }
+            args.forEach { append(" $it") }
         }
         //如果args为空，说明是根指令直接执行
-        if (args.isNullOrEmpty()) {
+        if (args.isEmpty()) {
             if (depth == 0) executor?.let { it(sender) } ?: sender.sendMessage("§c无法执行该指令$commandLine")
             return true
-        }
-        //如果是参数指令，则注入参数
-        if (this.isArg) {
-            val arg = args[depth]
-            this.args[this.command] = arg
         }
         //如果args数量等于当前指令深度,说明指令结束立即执行
         if (args.size == depth) {
             executor?.let { it(sender) } ?: sender.sendMessage("§c无法执行该指令$commandLine")
+            return true
         }
-        //递归执行子指令
-        tree.find { it.command == args[depth + 1] }?.onCommand(sender, command, label, args) ?: {
-            sender.sendMessage("§c错误的指令格式$commandLine")
+
+        //查找下一个节点
+        for (sub in tree) {
+            if (!sub.isArgument) {
+                //不是参数类型，直接判断指令是否相同
+                if (sub.command == args[depth]) {
+                    sub.onCommand(sender, command, label, args)
+                    break
+                }
+            } else {
+                //是参数类型，注入参数
+                sub.args[sub.command] = args[depth]
+                sub.onCommand(sender, command, label, args)
+                break
+            }
         }
         return true
     }
 
-    override fun onTabComplete(sender: CommandSender, command: Command, label: String, args: Array<out String>?): MutableList<String>? {
+    override fun onTabComplete(sender: CommandSender, command: Command, label: String, args: Array<out String>): List<String>? {
         //检查发送者权限
-        if (permission(sender)) {
+        if (!permission(sender)) {
             return mutableListOf("§c你没有权限执行该指令")
         }
+        args.forEach {
+            println(it)
+        }
         //非根指令才有补全
-        if (depth > 0 && !args.isNullOrEmpty()) {
+        if (args.isNotEmpty()) {
             if (args.size == depth) {
-                return suggestions?.invoke(sender)
+                return parent?.nextSuggestions?.invoke(sender)
             }
-            tree.find { it.command == args[depth] }?.onTabComplete(sender, command, label, args)
+            if (args.size + depth == 1) {
+                return nextSuggestions?.invoke(sender)
+            }
         }
         return null
     }
@@ -100,8 +145,8 @@ internal interface BakaCommand : CommandExecutor, TabCompleter {
     }
 
 
-    fun item(item: String): MutableComponent {
-        return wrapInSquareBrackets(literalText(item)).withStyle {
+    fun item(item: String, count: Int = 0): MutableComponent {
+        return wrapInSquareBrackets(literalText(item + if (count == 0) "" else "x $count")).withStyle {
             it.applyFormat(ChatFormatting.GOLD)
         }
     }
@@ -168,7 +213,7 @@ internal fun root(command: String, scope: BakaCommand.() -> Unit): BakaCommand {
 
         override val root: String = command
 
-        override val isArg: Boolean = false
+        override val type: BakaCommand.Type = BakaCommand.Type.LITERAL
 
         override var permission: (CommandSender) -> Boolean = { it.hasPermission(command) }
 
@@ -179,8 +224,6 @@ internal fun root(command: String, scope: BakaCommand.() -> Unit): BakaCommand {
         override val depth: Int = 0
 
         override var executor: (BakaCommand.(CommandSender) -> Unit)? = null
-
-        override var suggestions: ((CommandSender) -> MutableList<String>)? = null
 
         override val args: MutableMap<String, String> = mutableMapOf()
 
@@ -196,7 +239,7 @@ internal fun BakaCommand.literal(command: String, scope: BakaCommand.() -> Unit)
 
         override val root: String = this@literal.root
 
-        override val isArg: Boolean = false
+        override val type: BakaCommand.Type = BakaCommand.Type.LITERAL
 
         override var permission: (CommandSender) -> Boolean = { it.hasPermission(command) }
 
@@ -208,24 +251,39 @@ internal fun BakaCommand.literal(command: String, scope: BakaCommand.() -> Unit)
 
         override var executor: (BakaCommand.(CommandSender) -> Unit)? = null
 
-        override var suggestions: ((CommandSender) -> MutableList<String>)? = defaultSuggestions?.let { suggestions -> { suggestions } }
-
         override val args: MutableMap<String, String> = this@literal.args
 
     }.apply {
-        this@literal.tree.add(this)
+        parent.tree.let {
+            if (it.isNotEmpty()) {
+                val first = it.first()
+                when (first.type) {
+                    BakaCommand.Type.LITERAL  -> {
+                        if (this.type == BakaCommand.Type.LITERAL) {
+                            it.add(this)
+                        } else {
+                            throw IllegalArgumentException("(${parent.command})子指令只能同时存在一种类型.已存在指令{${first.command}:[${first.type}]}类型,无法添加当前指令{${this.command}:[${this.type}]}")
+                        }
+                    }
+
+                    BakaCommand.Type.ARGUMENT -> throw IllegalArgumentException("(${parent.command})子指令为[ARGUMENT]类型时只能有一个子指令。")
+                }
+            } else {
+                it.add(this)
+            }
+        }
         scope(this)
     }
 }
 
-internal fun BakaCommand.argument(name: String, scope: BakaCommand.() -> Unit = {}): BakaCommand {
-    return object : BakaCommand {
+internal fun BakaCommand.argument(name: String, scope: BakaCommand.ArgumentCommand.() -> Unit = {}): BakaCommand.ArgumentCommand {
+    return object : BakaCommand.ArgumentCommand {
 
         override val command: String = name
 
         override val root: String = this@argument.root
 
-        override val isArg: Boolean = true
+        override val type: BakaCommand.Type = BakaCommand.Type.ARGUMENT
 
         override var permission: (CommandSender) -> Boolean = { it.hasPermission(command) }
 
@@ -237,10 +295,19 @@ internal fun BakaCommand.argument(name: String, scope: BakaCommand.() -> Unit = 
 
         override var executor: (BakaCommand.(CommandSender) -> Unit)? = null
 
-        override var suggestions: ((CommandSender) -> MutableList<String>)? = null
+        override var nextSuggestions: ((CommandSender) -> List<String>?)? = null
+
+        override var suggestions: ((CommandSender) -> List<String>?)? = null
 
         override val args: MutableMap<String, String> = this@argument.args
     }.apply {
+        parent.tree.let {
+            if (it.isNotEmpty()) {
+                throw IllegalArgumentException("(${parent.command})子指令为[ARGUMENT]类型时只能有一个子指令。")
+            } else {
+                it.add(this)
+            }
+        }
         scope(this)
     }
 }
@@ -250,7 +317,13 @@ internal fun BakaCommand.execute(executor: BakaCommand.(CommandSender) -> Unit):
     return this
 }
 
-internal fun BakaCommand.suggestions(suggestions: ((CommandSender) -> MutableList<String>)?): BakaCommand {
+/**
+ * 应该只在[BakaCommand.Type.ARGUMENT]类型的节点中使用，普通节点会自动注入补全列表
+ * @receiver BakaCommand
+ * @param suggestions ((CommandSender) -> List<String>)?
+ * @return BakaCommand
+ */
+internal fun BakaCommand.ArgumentCommand.suggestion(suggestions: ((CommandSender) -> List<String>?)?): BakaCommand {
     this.suggestions = suggestions
     return this
 }

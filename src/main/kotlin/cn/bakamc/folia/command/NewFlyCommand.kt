@@ -3,6 +3,7 @@ package cn.bakamc.folia.command
 import cn.bakamc.folia.config.Configs.FlightEnergy.MAX_ENERGY
 import cn.bakamc.folia.config.Configs.FlightEnergy.MONEY_ITEM
 import cn.bakamc.folia.db.table.isMatch
+import cn.bakamc.folia.db.table.toItemStack
 import cn.bakamc.folia.flight_energy.FlightEnergyManager
 import cn.bakamc.folia.flight_energy.FlightEnergyManager.energy
 import cn.bakamc.folia.item.SpecialItemManager
@@ -17,17 +18,17 @@ internal fun FlyCommand(): BakaCommand = root("fly") {
     execute(toggleFly)
     literal("recharge") {
         argument("money_item") {
-            suggestions { SpecialItemManager.specifyType(MONEY_ITEM.keys).keys.toMutableList() }
+            suggestion { SpecialItemManager.specifyType(MONEY_ITEM.keys).keys.toList() }
             execute(recharge)
             argument("count") {
-                suggestions {
+                suggestion {
                     val itemKey = getArg("money_item")!!
                     val energy = MONEY_ITEM[itemKey]
                     val count = getArg("count")?.toInt() ?: 1
                     if (energy != null)
-                        mutableListOf("§6每个${itemKey}可以兑换§a[${energy}]§6飞行能量,当前可兑换§a[${count * energy}]§6飞行能量")
+                        listOf("§6每个${itemKey}可以兑换§a[${energy}]§6飞行能量,当前可兑换§a[${count * energy}]§6飞行能量")
                     else
-                        mutableListOf("§c无效的货币[${itemKey}]类型!")
+                        listOf("§c无效的货币[${itemKey}]类型!")
                 }
                 execute(recharge)
             }
@@ -115,7 +116,7 @@ private val recharge: BakaCommand.(sender: CommandSender) -> Unit = { sender ->
                     }.onSuccess {
                         //结算能量
                         sender.energy += totalEnergy
-                        player.feedback(success("成功购买") + item(item.key) + success("的能量[$totalEnergy],当前能量[${sender.energy}]"))
+                        player.feedback(success("成功购买") + item(item.toItemStack(count)!!) + success("的能量[$totalEnergy],当前能量[${sender.energy}]"))
                     }
                 }
             }

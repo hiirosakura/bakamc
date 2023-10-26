@@ -14,8 +14,8 @@ import org.bukkit.entity.Player
 @Suppress("FunctionName")
 internal fun SpecialItemCommand(): BakaCommand = root("specialitem") {
     literal("give") {
-        suggestions { SpecialItemManager.getCache().keys.toMutableList() }
         argument("key") {
+            suggestion { SpecialItemManager.getCache().keys.toList() }
             execute(give)
             argument("count") {
                 execute(give)
@@ -29,8 +29,8 @@ internal fun SpecialItemCommand(): BakaCommand = root("specialitem") {
         execute(put)
     }
     literal("remove"){
-        suggestions { SpecialItemManager.getCache().keys.toMutableList() }
         argument("key") {
+            suggestion { SpecialItemManager.getCache().keys.toList() }
             execute(remove)
         }
     }
