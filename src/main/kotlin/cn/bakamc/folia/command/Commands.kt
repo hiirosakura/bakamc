@@ -1,5 +1,6 @@
 package cn.bakamc.folia.command
 
+import cn.bakamc.folia.command.base.BakaCommandNode
 import org.bukkit.plugin.java.JavaPlugin
 
 internal fun JavaPlugin.registerCommand() {
@@ -7,7 +8,7 @@ internal fun JavaPlugin.registerCommand() {
     registerCommand(SpecialItemCommand())
 }
 
-private fun JavaPlugin.registerCommand(command: BakaCommand) {
+private fun JavaPlugin.registerCommand(command: BakaCommandNode) {
     getCommand(command.command)?.apply {
         logger.info("注册指令: /${command.command}")
         setExecutor(command)

@@ -5,7 +5,7 @@ import net.minecraft.network.chat.*
 import net.minecraft.network.chat.HoverEvent.ItemStackInfo
 import net.minecraft.world.item.ItemStack
 
-fun literal(content: String = ""): MutableComponent {
+fun literalText(content: String = ""): MutableComponent {
     if (content.isEmpty()) return Component.empty()
     return Component.literal(content)
 }
