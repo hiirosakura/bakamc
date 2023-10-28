@@ -7,13 +7,16 @@ import cn.bakamc.folia.config.Configs.FlightEnergy.TICK_PERIOD
 import cn.bakamc.folia.db.table.FlightEnergy
 import cn.bakamc.folia.db.table.SpecialItem
 import cn.bakamc.folia.extension.onlinePlayers
+import cn.bakamc.folia.extension.uuid
 import cn.bakamc.folia.item.SpecialItemManager
 import cn.bakamc.folia.service.PlayerService
 import cn.bakamc.folia.util.AsyncTask
+import cn.bakamc.folia.util.bakamc
 import cn.bakamc.folia.util.logger
 import cn.bakamc.folia.util.runAtFixedRate
 import kotlinx.coroutines.runBlocking
 import moe.forpleuvoir.nebula.common.api.Initializable
+import net.minecraft.server.level.ServerPlayer
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
@@ -85,8 +88,10 @@ object FlightEnergyManager : Listener, Initializable {
 
     suspend fun onPlayerJoin(player: Player) {
         energyCache[player] = PlayerService.getFlightEnergy(player)
-        if (player.gameMode == GameMode.SURVIVAL)
+        if (player.gameMode == GameMode.SURVIVAL) {
             player.allowFlight = energyCache[player]!!.enabled
+            player.isFlying = true
+        }
     }
 
     suspend fun onPlayerQuit(player: Player) {
@@ -134,6 +139,30 @@ object FlightEnergyManager : Listener, Initializable {
         }
         set(value) {
             energyCache[this]?.energy = value
+        }
+
+    suspend fun Player.updateEnergy(energy: Double) {
+        this.energy = energy
+        PlayerService.updateFlightEnergy(energyCache[this]!!)
+    }
+
+    var ServerPlayer.energy: Double
+        get() {
+            return energyCache.keys.find {
+                it.uuid == this.stringUUID
+            }?.energy ?: runBlocking {
+                bakamc.server.getPlayer(this@energy.stringUUID)?.let {
+                    PlayerService.getFlightEnergy(it).energy
+                } ?: 0.0
+            }
+
+        }
+        set(value) {
+            energyCache.keys.find {
+                it.uuid == this.stringUUID
+            }?.let {
+                energyCache[it]?.energy = value
+            }
         }
 
     /**

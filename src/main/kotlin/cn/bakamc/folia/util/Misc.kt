@@ -26,7 +26,7 @@ internal val bakamc by lazy { BakaMCPlugin.instance }
 
 internal val server by lazy { bakamc.server }
 
-internal val logger by lazy { BakaMCPlugin.instance.logger }
+internal val logger by lazy { Logger(BakaMCPlugin.instance.logger) }
 
 fun Player.toServerPlayer() = MinecraftServer.getServer().playerList.getPlayer(this.uniqueId)
 

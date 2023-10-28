@@ -1,10 +1,6 @@
 package cn.bakamc.folia.command
 
 import cn.bakamc.folia.command.base.*
-import cn.bakamc.folia.command.base.BakaCommandNode
-import cn.bakamc.folia.command.base.argument
-import cn.bakamc.folia.command.base.literal
-import cn.bakamc.folia.command.base.root
 import cn.bakamc.folia.config.Configs.FlightEnergy.MAX_ENERGY
 import cn.bakamc.folia.config.Configs.FlightEnergy.MONEY_ITEM
 import cn.bakamc.folia.db.table.isMatch
@@ -12,6 +8,8 @@ import cn.bakamc.folia.db.table.toItemStack
 import cn.bakamc.folia.flight_energy.FlightEnergyManager
 import cn.bakamc.folia.flight_energy.FlightEnergyManager.energy
 import cn.bakamc.folia.item.SpecialItemManager
+import cn.bakamc.folia.util.launch
+import cn.bakamc.folia.util.literalText
 import cn.bakamc.folia.util.toServerPlayer
 import cn.bakamc.folia.util.wrapInSquareBrackets
 import org.bukkit.command.CommandSender
@@ -19,7 +17,7 @@ import org.bukkit.entity.Player
 
 
 @Suppress("FunctionName")
-internal fun FlyCommand(): BakaCommandNode = root("fly") {
+internal fun FlyCommand(): Command = command("fly") {
     execute(toggleFly)
     literal("recharge") {
         argument("money_item") {
@@ -27,30 +25,27 @@ internal fun FlyCommand(): BakaCommandNode = root("fly") {
             execute(recharge)
             argument("count") {
                 suggestion {
-                    val itemKey = getArg("money_item")!!
+                    val itemKey = it.getArg("money_item")!!
                     val energy = MONEY_ITEM[itemKey]
-                    val count = getArg("count")?.toInt() ?: 1
+                    val count = it.getArg("count")?.toInt() ?: 1
                     if (energy != null)
                         listOf("§6每个${itemKey}可以兑换§a[${energy}]§6飞行能量,当前可兑换§a[${count * energy}]§6飞行能量")
                     else
                         listOf("§c无效的货币[${itemKey}]类型!")
                 }
-                execute(recharge)
+                execute<Player>(recharge)
             }
         }
     }
     literal("energy") {
-        execute {
-            val player = (it as Player).toServerPlayer()!!
-            player.feedback(tip("你当前的飞行能量为") + success("[${it.energy}]"))
-        }
+        execute<Player> { it.feedback(tip("你当前的飞行能量为") + success("[${it.sender.energy}]")) }
     }
 }
 
 
-private val toggleFly: (context: BakaCommandContext) -> Unit = func@{ context ->
-    if (context !is Player) {
-        context.feedback("§c只有玩家可以使用此命令！")
+private val toggleFly: (context: CommandContext<out CommandSender>) -> Unit = func@{ context ->
+    if (context.sender !is Player) {
+        context.feedback(literalText("§c只有玩家可以使用此命令！"))
         return@func Unit
     }
     val player = (context as Player).toServerPlayer()!!
@@ -64,15 +59,12 @@ private val toggleFly: (context: BakaCommandContext) -> Unit = func@{ context ->
     }
 }
 
-private val recharge: (sender: BakaCommandContext) -> Unit = { sender ->
-    if (sender !is Player) {
-        sender.sendMessage("§c只有玩家可以使用此命令！")
-    }
-    val player = (sender as Player).toServerPlayer()!!
+private val recharge: (CommandContext<out Player>) -> Unit = { ctx ->
+    val player = ctx.sender
 
-    val key = getArg("money_item")!!
+    val key = ctx.getArg("money_item")!!
 
-    val count = getArg("count")?.toInt() ?: 1
+    val count = ctx.getArg("count")?.toInt() ?: 1
 
     var countTemp = count
 
@@ -81,7 +73,7 @@ private val recharge: (sender: BakaCommandContext) -> Unit = { sender ->
     if (moneyItem != null) {
         val (item, energy) = moneyItem
 
-        val inventory = player.inventory
+        val inventory = ctx.player!!.inventory
 
         //纪录扣费动作
         val actions = mutableListOf<() -> Unit>()
@@ -104,12 +96,12 @@ private val recharge: (sender: BakaCommandContext) -> Unit = { sender ->
         //是否有充足的货币
         if (countTemp == 0) {
             //有足够的货币
-            val totalEnergy = energy * getArg("count")?.toInt()!!
+            val totalEnergy = energy * ctx.getArg("count")?.toInt()!!
             FlightEnergyManager.apply {
                 //判断是否超出能量上限
-                if (totalEnergy + sender.energy > MAX_ENERGY) {
+                if (totalEnergy + ctx.sender.energy > MAX_ENERGY) {
                     //超出了能量上限
-                    player.feedback(error("超出了能量上限") + success("[最大值:${MAX_ENERGY},充值后会超出:${(totalEnergy + sender.energy) - MAX_ENERGY}]"))
+                    ctx.feedback(error("超出了能量上限") + success("[最大值:${MAX_ENERGY},充值后会超出:${(totalEnergy + ctx.sender.energy) - MAX_ENERGY}]"))
                 } else {
                     //没有超出上限
                     runCatching {
@@ -117,19 +109,21 @@ private val recharge: (sender: BakaCommandContext) -> Unit = { sender ->
                         actions.forEach { it.invoke() }
                     }.onFailure {
                         //出现异常
-                        player.feedback(error("购买失败") + success("[原因:${it.message}]"))
-                        player.feedback(error("请联截图系管理员处理"))
+                        ctx.feedback(error("购买失败") + success("[原因:${it.message}]"))
+                        ctx.feedback(error("请联截图系管理员处理"))
                     }.onSuccess {
                         //结算能量
-                        sender.energy += totalEnergy
-                        player.feedback(success("成功购买") + item(item.toItemStack(count)!!) + success("的能量[$totalEnergy],当前能量[${sender.energy}]"))
+                        launch {
+                            player.updateEnergy(ctx.sender.energy + totalEnergy)
+                            ctx.feedback(success("成功购买") + item(item.toItemStack(count)!!) + success("的能量[$totalEnergy],当前能量[${ctx.sender.energy}]"))
+                        }
                     }
                 }
             }
         } else {
             //没有足够的货币
-            player.feedback(error("你所拥有的对应货币") + item(key) + error("数量不足"))
-            player.feedback(error("(需要") + tip("[$count]") + error("个,在背包中找到") + tip("[${count - countTemp}]") + error("个)"))
+            ctx.feedback(error("你所拥有的对应货币") + item(key) + error("数量不足"))
+            ctx.feedback(error("(需要") + tip("[$count]") + error("个,在背包中找到") + tip("[${count - countTemp}]") + error("个)"))
         }
     }
 }

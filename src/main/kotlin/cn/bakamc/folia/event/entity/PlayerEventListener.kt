@@ -4,14 +4,12 @@ import cn.bakamc.folia.flight_energy.FlightEnergyManager
 import cn.bakamc.folia.service.PlayerService
 import cn.bakamc.folia.util.launch
 import cn.bakamc.folia.util.logger
-import cn.bakamc.folia.util.runNow
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerGameModeChangeEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.player.PlayerRespawnEvent
-import java.util.logging.Level
 
 object PlayerEventListener : Listener {
 
@@ -24,7 +22,7 @@ object PlayerEventListener : Listener {
             }.onSuccess {
                 logger.info("玩家加入游戏")
             }.onFailure {
-                logger.log(Level.WARNING, "数据库错误", it)
+                logger.error("数据库错误", it)
             }
         }
     }
@@ -38,7 +36,7 @@ object PlayerEventListener : Listener {
             }.onSuccess {
                 logger.info("玩家加退出游戏")
             }.onFailure {
-                logger.log(Level.WARNING, "数据库错误", it)
+                logger.error("数据库错误", it)
             }
         }
     }

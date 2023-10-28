@@ -1,8 +1,11 @@
 package cn.bakamc.folia.util
 
 import net.minecraft.ChatFormatting
-import net.minecraft.network.chat.*
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.ComponentUtils
+import net.minecraft.network.chat.HoverEvent
 import net.minecraft.network.chat.HoverEvent.ItemStackInfo
+import net.minecraft.network.chat.MutableComponent
 import net.minecraft.world.item.ItemStack
 
 fun literalText(content: String = ""): MutableComponent {
@@ -15,7 +18,7 @@ fun wrapInSquareBrackets(text: Component): MutableComponent {
 }
 
 fun ItemStack.getDisplayNameWithCount(): MutableComponent {
-    val mutableText: MutableComponent = Component.empty().append(this.getHoverName()).append("x ${this.count}")
+    val mutableText: MutableComponent = Component.empty().append(this.getHoverName()).append(" x${this.count}")
     if (this.hasCustomHoverName()) {
         mutableText.withStyle(ChatFormatting.ITALIC)
     }

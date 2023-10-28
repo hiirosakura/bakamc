@@ -4,7 +4,6 @@ import cn.bakamc.folia.util.logger
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtIo
-import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
 import org.ktorm.database.Database
@@ -69,7 +68,7 @@ fun SpecialItem.toItemStack(count: Int): ItemStack? {
         val item = BuiltInRegistries.ITEM.get(ResourceLocation(id))
         return ItemStack(item).apply {
             tag = readNbtTag(nbtTag)
-            this.count = count.coerceAtMost(this.maxStackSize)
+            this.count = count
         }
     }.onFailure {
         logger.info("物品转换异常")
