@@ -1,7 +1,6 @@
 # BakaMC
 
 ## Config
-***
 
 <details>
 <summary>配置文件模板</summary>
@@ -218,4 +217,3 @@
 </details>
 
 ## 指令
-***
