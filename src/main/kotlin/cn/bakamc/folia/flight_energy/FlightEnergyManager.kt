@@ -39,6 +39,7 @@ object FlightEnergyManager : Listener, Initializable {
     private var syncing = AtomicBoolean(false)
 
     override fun init() {
+        syncing.set(false)
         tasks = listOf(
             //tick
             AsyncTask(0.seconds, TICK_PERIOD) { tick() },
@@ -49,6 +50,7 @@ object FlightEnergyManager : Listener, Initializable {
         tasks.forEach { runAtFixedRate(it) }
 
         energyCache = ConcurrentHashMap()
+
         runBlocking {
             energyCache.putAll(PlayerService.getFlightEnergies(onlinePlayers))
             logger.info("飞行能量加载完成")

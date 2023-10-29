@@ -130,6 +130,17 @@ data class AsyncTask(
     )
 }
 
+fun <T : Comparable<T>> ClosedRange<T>.serialization(): SerializeElement {
+    return SerializePrimitive("${this.start}..${this.endInclusive}")
+}
+
+fun <T : Comparable<T>> deserialization(serializeElement: SerializeElement, supplier: (String) -> T): ClosedRange<T> {
+    serializeElement as SerializePrimitive
+    serializeElement.asString.let {
+        val pair = it.split("..")
+        return supplier(pair[0])..supplier(pair[1])
+    }
+}
 
 fun CompoundTag.toSerializerObjet(): SerializeObject {
     return serializeObject {

@@ -47,7 +47,7 @@ internal constructor(
     }
 
     inline fun isEnd(action: CommandContext<S>.(String) -> Unit): CommandContext<S> {
-        if (level == args.size) action(this, currentNodeString())
+        if (level >= args.size) action(this, currentNodeString())
         return this
     }
 

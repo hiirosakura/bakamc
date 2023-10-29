@@ -12,6 +12,7 @@ object SpecialItemManager : Initializable {
     private var itemCache: MutableMap<String, SpecialItem> = ConcurrentHashMap()
 
     override fun init() {
+        itemCache.clear()
         launch {
             SpecialItemService.getSpecialItems().forEach {
                 itemCache[it.key] = it

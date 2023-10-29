@@ -10,7 +10,7 @@ import cn.bakamc.folia.util.launch
 import org.bukkit.entity.Player
 
 @Suppress("FunctionName")
-internal fun SpecialItemCommand(): Command = command("specialitem") {
+internal fun SpecialItemCommand(): Command = Command("specialitem") {
     literal("give") {
         argument("key") {
             suggestion { SpecialItemManager.getCache().keys.toList() }

@@ -1,19 +1,12 @@
 package cn.bakamc.folia.command
 
 import cn.bakamc.folia.command.base.Command
-import cn.bakamc.folia.command.base.command
-import cn.bakamc.folia.command.base.execute
 import org.bukkit.plugin.java.JavaPlugin
 
 internal fun JavaPlugin.registerCommand() {
     registerCommand(FlyCommand())
     registerCommand(SpecialItemCommand())
-    registerCommand(command("test") {
-        execute {
-            val a:Int = null!!
-            println(a)
-        }
-    })
+    registerCommand(MiscCommand())
 }
 
 private fun JavaPlugin.registerCommand(command: Command) {

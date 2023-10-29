@@ -9,16 +9,13 @@ import cn.bakamc.folia.flight_energy.FlightEnergyManager
 import cn.bakamc.folia.flight_energy.FlightEnergyManager.energy
 import cn.bakamc.folia.item.SpecialItemManager
 import cn.bakamc.folia.util.launch
-import cn.bakamc.folia.util.literalText
-import cn.bakamc.folia.util.toServerPlayer
 import cn.bakamc.folia.util.wrapInSquareBrackets
-import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
 
 @Suppress("FunctionName")
-internal fun FlyCommand(): Command = command("fly") {
-    execute(toggleFly)
+internal fun FlyCommand(): Command = Command("fly") {
+    execute<Player>(toggleFly)
     literal("recharge") {
         argument("money_item") {
             suggestion { SpecialItemManager.specifyType(MONEY_ITEM.keys).keys.toList() }
@@ -42,19 +39,14 @@ internal fun FlyCommand(): Command = command("fly") {
     }
 }
 
-
-private val toggleFly: (context: CommandContext<out CommandSender>) -> Unit = func@{ context ->
-    if (context.sender !is Player) {
-        context.feedback(literalText("§c只有玩家可以使用此命令！"))
-        return@func Unit
-    }
-    val player = (context as Player).toServerPlayer()!!
+private val toggleFly: (context: CommandContext<out Player>) -> Unit = func@{ context ->
+    val player = context.sender
     FlightEnergyManager.apply {
-        if (context.energy > 0) {
-            toggleFly(context)
-            player.feedback(success("飞行状态已切换 ") + wrapInSquareBrackets(if (context.allowFlight) success("开启") else error("关闭")))
+        if (player.energy > 0) {
+            toggleFly(player)
+            context.feedback(success("飞行状态已切换 ") + wrapInSquareBrackets(if (player.allowFlight) success("开启") else error("关闭")))
         } else {
-            player.feedback(error("你的飞行能量不足,输入指令 ") + success("/fly <货币类型> <使用数量>") + error(" 购买"))
+            context.feedback(error("你的飞行能量不足,输入指令 ") + success("/fly <货币类型> <使用数量>") + error(" 购买"))
         }
     }
 }

@@ -10,16 +10,23 @@ import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 
-val dataSource: DataSource by lazy {
-    HikariDataSource().apply {
-        driverClassName = "com.mysql.cj.jdbc.Driver"
-        jdbcUrl = Configs.Database.URL
-        username = Configs.Database.USER
-        password = Configs.Database.PASSWORD
-    }
+fun initDataBase() {
+    database = Database.connect(dataSource, MySqlDialect())
 }
 
-val database = Database.connect(dataSource, MySqlDialect())
+
+val dataSource: DataSource
+    get() {
+        return HikariDataSource().apply {
+            driverClassName = "com.mysql.cj.jdbc.Driver"
+            jdbcUrl = Configs.Database.URL
+            username = Configs.Database.USER
+            password = Configs.Database.PASSWORD
+        }
+    }
+
+lateinit var database: Database
+    private set
 
 @Suppress("RedundantSuspendModifier")
 @OptIn(ExperimentalContracts::class)

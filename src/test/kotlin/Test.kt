@@ -1,26 +1,15 @@
+
 import cn.bakamc.folia.config.Configs
 import cn.bakamc.folia.db.database
 import cn.bakamc.folia.db.table.PlayerInfo
-import cn.bakamc.folia.db.table.PlayerInfos
 import cn.bakamc.folia.db.table.playerInfos
-import cn.bakamc.folia.db.table.specialItems
 import kotlinx.coroutines.*
-import org.ktorm.dsl.limit
-import org.ktorm.dsl.map
-import org.ktorm.entity.filterColumns
-import org.ktorm.entity.map
 import org.ktorm.entity.toList
 import java.nio.file.Path
 
 fun main() {
-    CoroutineScope(Dispatchers.Default).launch {
-        println(Thread.currentThread().name)
-        val i = suspendFun()
-        println("先走一会")
-        println(i.await())
-    }
     runBlocking {
-        delay(3000)
+        Configs.testInit(Path.of("./build/config"))
     }
 }
 
@@ -29,6 +18,21 @@ fun CoroutineScope.suspendFun(): Deferred<Int> {
         delay(2000)
         println(Thread.currentThread().name)
         114514
+    }
+}
+
+suspend fun Configs.testInit(path: Path) {
+    configPath = path
+    init()
+    runCatching {
+        generateTemp()
+        Configs.load()
+        if (this.needSave) {
+            Configs.save()
+        }
+    }.onFailure {
+        it.printStackTrace()
+        Configs.forceSave()
     }
 }
 
@@ -41,7 +45,7 @@ suspend fun suspendFun2() {
 
 val DefaultScope = CoroutineScope(Dispatchers.Default)
 
-fun db() {
+suspend fun db() {
     Configs.init(Path.of("./build/config"))
 
 

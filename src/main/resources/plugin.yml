@@ -14,9 +14,9 @@ commands:
     description: 特殊物品
     usage: /specialitem
     permission: bakamc.admin
-  test:
-    description: 测试用
-    usage: /test
+  bakamc:
+    description: 插件指令
+    usage: /bakamc
     permission: bakamc.admin
 
 permissions:

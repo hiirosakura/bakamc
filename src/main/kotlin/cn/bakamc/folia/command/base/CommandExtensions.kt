@@ -13,7 +13,7 @@ import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
 
-fun command(command: String, scope: Command.() -> Unit): Command {
+fun Command(command: String, scope: Command.() -> Unit): Command {
     return Command(command).apply(scope)
 }
 

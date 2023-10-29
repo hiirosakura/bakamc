@@ -27,7 +27,7 @@ dependencies {
 
     paperweight.foliaDevBundle("1.20.1-R0.1-SNAPSHOT")
 
-    api("moe.forpleuvoir:nebula:0.2.6a") {
+    api("moe.forpleuvoir:nebula:0.2.6b") {
         exclude("moe.forpleuvoir", "nebula-event")
     }
     //data base
