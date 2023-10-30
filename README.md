@@ -23,14 +23,6 @@
     },
     "change_block": {
       "block_infos": {
-        "方块键": {
-          "x": "<IntRange> 方块X坐标范围 null->不判断",
-          "y": "<IntRange> 方块Y坐标范围 null->不判断",
-          "z": "<IntRange> 方块Z坐标范围 null->不判断",
-          "type": "<String> 方块类型 null->不判断",
-          "biome": "<String> 方块所在生物群系 null->不判断",
-          "world": "<String> 方块所在世界 null->不判断"
-        },
         "西瓜": {
           "type": "minecraft:melon_block"
         },
@@ -217,3 +209,24 @@
 </details>
 
 ## 指令
+
+>`/fly` `execute:切换飞行状态`
+> >`recharge <money_item> <count>` `execute:使用<money_item>兑换<count>个物品`
+> > >`<money_item:String>` 用于兑换飞行能量的物品`<Key>`会自动提示
+> 
+> > > `<count:Int?>` `null` -> `1` 用于兑换的物品数量 
+> 
+> >`energy` `execute:查看当前剩余飞行能量`
+
+### 管理员指令
+>`/specialitem` `execute:显示当前所有的特殊物品`
+> >`give` `<key>` `<count>` `execute:给予指令发送者<count>个<key>物品`
+> > >`<key:String>` 特殊物品的`key`会自动提示
+> 
+> > >`<count:Int?>` `null` -> `1` 物品数量 
+> 
+> >`put` `<key>` `execute:将特殊物品<key>更新为手持的物品`
+> > >`<key:String?>` `null` -> `item.hoverName`
+> 
+> >`remove` `<key>` `execute:将特殊物品<key>从数据库中删除`
+> > >`<key:String>` 特殊物品的`key`会自动提示

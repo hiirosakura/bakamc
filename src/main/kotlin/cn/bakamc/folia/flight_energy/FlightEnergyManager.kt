@@ -18,6 +18,7 @@ import kotlinx.coroutines.runBlocking
 import moe.forpleuvoir.nebula.common.api.Initializable
 import net.minecraft.server.level.ServerPlayer
 import org.bukkit.GameMode
+import org.bukkit.boss.BossBar
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
 import org.bukkit.potion.PotionEffect
@@ -33,10 +34,37 @@ object FlightEnergyManager : Listener, Initializable {
 
 
     private lateinit var energyCache: MutableMap<Player, FlightEnergy>
-
     private lateinit var tasks: List<AsyncTask>
-
     private var syncing = AtomicBoolean(false)
+
+    /**
+     * 玩家当前的飞行能量
+     */
+    var Player.energy: Double
+        get() {
+            return energyCache[this]?.energy ?: runBlocking { PlayerService.getFlightEnergy(this@energy).energy }
+        }
+        set(value) {
+            energyCache[this]?.energy = value
+        }
+    var ServerPlayer.energy: Double
+        get() {
+            return energyCache.keys.find {
+                it.uuid == this.stringUUID
+            }?.energy ?: runBlocking {
+                bakamc.server.getPlayer(this@energy.stringUUID)?.let {
+                    PlayerService.getFlightEnergy(it).energy
+                } ?: 0.0
+            }
+
+        }
+        set(value) {
+            energyCache.keys.find {
+                it.uuid == this.stringUUID
+            }?.let {
+                energyCache[it]?.energy = value
+            }
+        }
 
     override fun init() {
         syncing.set(false)
@@ -132,40 +160,10 @@ object FlightEnergyManager : Listener, Initializable {
         }
     }
 
-    /**
-     * 玩家当前的飞行能量
-     */
-    var Player.energy: Double
-        get() {
-            return energyCache[this]?.energy ?: runBlocking { PlayerService.getFlightEnergy(this@energy).energy }
-        }
-        set(value) {
-            energyCache[this]?.energy = value
-        }
-
     suspend fun Player.updateEnergy(energy: Double) {
         this.energy = energy
         PlayerService.updateFlightEnergy(energyCache[this]!!)
     }
-
-    var ServerPlayer.energy: Double
-        get() {
-            return energyCache.keys.find {
-                it.uuid == this.stringUUID
-            }?.energy ?: runBlocking {
-                bakamc.server.getPlayer(this@energy.stringUUID)?.let {
-                    PlayerService.getFlightEnergy(it).energy
-                } ?: 0.0
-            }
-
-        }
-        set(value) {
-            energyCache.keys.find {
-                it.uuid == this.stringUUID
-            }?.let {
-                energyCache[it]?.energy = value
-            }
-        }
 
     /**
      * 由单独线程控制循环
@@ -177,11 +175,16 @@ object FlightEnergyManager : Listener, Initializable {
         }.forEach {
             it.energy = (it.energy - (ENERGY_COST)).coerceAtLeast(0.0)
             if (it.energy <= 0.0) {
-                it.allowFlight = false
+                toggleFly(it)
                 it.sendMessage("§c飞行能量已耗尽")
                 it.addPotionEffect(PotionEffect(PotionEffectType.SLOW_FALLING, 400, 1, false, true))
             }
         }
+    }
+
+    fun Player.bossBar(){
+
+
     }
 
 }

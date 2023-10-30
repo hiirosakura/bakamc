@@ -7,10 +7,21 @@ import cn.bakamc.folia.db.table.toItemStack
 import cn.bakamc.folia.db.table.writeNbtTag
 import cn.bakamc.folia.item.SpecialItemManager
 import cn.bakamc.folia.util.launch
+import cn.bakamc.folia.util.literalText
+import cn.bakamc.folia.util.wrapInSquareBrackets
 import org.bukkit.entity.Player
 
 @Suppress("FunctionName")
 internal fun SpecialItemCommand(): Command = Command("specialitem") {
+    execute {
+        val text = literalText()
+        SpecialItemManager.getCache().values.forEach() { item ->
+            text.append(item(item.toItemStack(1)!!))
+            if (item != SpecialItemManager.getCache().values.last())
+                text.append(", ")
+        }
+        it.feedback(literalText("当前的特殊物品:") + wrapInSquareBrackets(text))
+    }
     literal("give") {
         argument("key") {
             suggestion { SpecialItemManager.getCache().keys.toList() }

@@ -18,7 +18,9 @@ fun wrapInSquareBrackets(text: Component): MutableComponent {
 }
 
 fun ItemStack.getDisplayNameWithCount(): MutableComponent {
-    val mutableText: MutableComponent = Component.empty().append(this.getHoverName()).append(" x${this.count}")
+    val mutableText: MutableComponent = Component.empty()
+            .append(this.getHoverName())
+            .append(if (count > 1) " x${this.count}" else "")
     if (this.hasCustomHoverName()) {
         mutableText.withStyle(ChatFormatting.ITALIC)
     }
