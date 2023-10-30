@@ -1,10 +1,11 @@
 package cn.bakamc.folia.flight_energy
 
+import cn.bakamc.folia.config.Configs.FlightEnergy.ENERGY__BAR__COLOR
+import cn.bakamc.folia.config.Configs.FlightEnergy.ENERGY__BAR__TITLE
 import cn.bakamc.folia.config.Configs.FlightEnergy.MAX_ENERGY
 import cn.bakamc.folia.flight_energy.FlightEnergyManager.energy
 import org.bukkit.NamespacedKey
 import org.bukkit.Server
-import org.bukkit.boss.BarColor
 import org.bukkit.boss.BarStyle
 import org.bukkit.boss.KeyedBossBar
 import org.bukkit.entity.Player
@@ -27,20 +28,24 @@ class EnergyBar private constructor(
     var key: NamespacedKey = NamespacedKey.minecraft(player.name)
 
     init {
-        //TODO 颜色改成可配置
-        bar = server.createBossBar(key, title(), BarColor.GREEN, BarStyle.SEGMENTED_10)
+        bar = server.createBossBar(key, title(), ENERGY__BAR__COLOR, BarStyle.SEGMENTED_10)
+        bar.isVisible = false
         bar.progress = energy() / maxEnergy()
         bar.addPlayer(player)
     }
 
     fun tick() {
         bar.setTitle(title())
+        bar.color = ENERGY__BAR__COLOR
         bar.progress = energy() / maxEnergy()
     }
 
     private fun title(): String {
-        //TODO 文本改成可配置
-        return "飞行能量: ${"%.2f".format(energy())}/${"%.2f".format(maxEnergy())}"
+        return ENERGY__BAR__TITLE.format(energy(), maxEnergy())
+    }
+
+    fun setVisible(visible: Boolean) {
+        bar.isVisible = visible
     }
 
     fun close() {

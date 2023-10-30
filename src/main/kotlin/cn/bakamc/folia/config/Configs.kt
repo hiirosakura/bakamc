@@ -9,11 +9,13 @@ import cn.bakamc.folia.event.entity.EntityInfo
 import cn.bakamc.folia.util.logger
 import moe.forpleuvoir.nebula.config.category.ConfigCategoryImpl
 import moe.forpleuvoir.nebula.config.item.impl.ConfigDouble
+import moe.forpleuvoir.nebula.config.item.impl.ConfigEnum
 import moe.forpleuvoir.nebula.config.item.impl.ConfigString
 import moe.forpleuvoir.nebula.config.item.impl.ConfigTime
 import moe.forpleuvoir.nebula.config.manager.LocalConfigManager
 import moe.forpleuvoir.nebula.config.persistence.JsonConfigManagerPersistence
 import moe.forpleuvoir.nebula.config.util.ConfigUtil
+import org.bukkit.boss.BarColor
 import java.nio.file.Path
 import kotlin.time.DurationUnit
 
@@ -94,6 +96,10 @@ object Configs : LocalConfigManager("bakamc"), JsonConfigManagerPersistence {
         val MAX_ENERGY by ConfigDouble("max_energy", 5000.0)
 
         val SYNC_PERIOD by ConfigTime("sync_period", 5.0, DurationUnit.MINUTES)
+
+        val ENERGY__BAR__COLOR: BarColor by ConfigEnum("energy__bar__color", BarColor.GREEN)
+
+        val ENERGY__BAR__TITLE by ConfigString("energy__bar__title", "飞行能量: %.2f/%.2f")
 
         val MONEY_ITEM by ConfigStringDoubleMap(
             "money_item",

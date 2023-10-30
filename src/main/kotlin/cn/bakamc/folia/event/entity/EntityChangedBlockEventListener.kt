@@ -51,6 +51,7 @@ object EntityChangedBlockEventListener : Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     fun entityChangedBlockEvent(event: EntityChangeBlockEvent) {
+        println("${event.entity.name} change ${event.block.blockData.material.key} to ${event.to.key}")
         var hasEntityMatched = false
         ENTITY_INFOS.values.forEach {
             if (it.isMatch(event.entity)) hasEntityMatched = true
@@ -61,7 +62,7 @@ object EntityChangedBlockEventListener : Listener {
         }
         if (!hasEntityMatched || !hasBlockMatched) return
 
-        inCache(event.entity, event.block){
+        inCache(event.entity, event.block) {
             event.isCancelled = true
             return
         }
@@ -122,7 +123,7 @@ data class BlockInfo(
         if (x != null) result = block.x in x
         if (y != null) result = result && block.y in y
         if (z != null) result = result && block.z in z
-        if (type != null) result = result && block.type.key.toString() == type
+        if (type != null) result = result && block.blockData.material.key.toString() == type
         if (biome != null) result = result && block.biome.key.toString() == biome
         if (world != null) result = result && block.world.key.toString() == world
         return result

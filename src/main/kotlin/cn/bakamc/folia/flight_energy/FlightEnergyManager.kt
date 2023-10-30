@@ -10,15 +10,11 @@ import cn.bakamc.folia.extension.onlinePlayers
 import cn.bakamc.folia.extension.uuid
 import cn.bakamc.folia.item.SpecialItemManager
 import cn.bakamc.folia.service.PlayerService
-import cn.bakamc.folia.util.AsyncTask
-import cn.bakamc.folia.util.bakamc
-import cn.bakamc.folia.util.logger
-import cn.bakamc.folia.util.runAtFixedRate
+import cn.bakamc.folia.util.*
 import kotlinx.coroutines.runBlocking
 import moe.forpleuvoir.nebula.common.api.Initializable
 import net.minecraft.server.level.ServerPlayer
 import org.bukkit.GameMode
-import org.bukkit.boss.BossBar
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
 import org.bukkit.potion.PotionEffect
@@ -32,9 +28,12 @@ import kotlin.time.measureTimedValue
 
 object FlightEnergyManager : Listener, Initializable {
 
-
     private lateinit var energyCache: MutableMap<Player, FlightEnergy>
+
+    private lateinit var energyBar: MutableMap<Player, EnergyBar>
+
     private lateinit var tasks: List<AsyncTask>
+
     private var syncing = AtomicBoolean(false)
 
     /**
@@ -79,8 +78,13 @@ object FlightEnergyManager : Listener, Initializable {
 
         energyCache = ConcurrentHashMap()
 
+        energyBar = ConcurrentHashMap()
+
         runBlocking {
             energyCache.putAll(PlayerService.getFlightEnergies(onlinePlayers))
+            energyCache.forEach { (player, _) ->
+                energyBar[player] = EnergyBar.create(server, player)
+            }
             logger.info("飞行能量加载完成")
         }
 
@@ -90,6 +94,7 @@ object FlightEnergyManager : Listener, Initializable {
         if (this::energyCache.isInitialized) {
             if (!syncing.get()) sync()
             energyCache.clear()
+            energyBar.clear()
         }
     }
 
@@ -118,6 +123,7 @@ object FlightEnergyManager : Listener, Initializable {
 
     suspend fun onPlayerJoin(player: Player) {
         energyCache[player] = PlayerService.getFlightEnergy(player)
+        energyBar[player] = EnergyBar.create(server, player)
         if (player.gameMode == GameMode.SURVIVAL) {
             player.allowFlight = energyCache[player]!!.enabled
             player.isFlying = true
@@ -127,6 +133,7 @@ object FlightEnergyManager : Listener, Initializable {
     suspend fun onPlayerQuit(player: Player) {
         PlayerService.updateFlightEnergy(energyCache[player]!!)
         energyCache.remove(player)
+        energyBar.remove(player)?.close()
     }
 
     fun onPlayerRespawn(player: Player) {
@@ -136,13 +143,20 @@ object FlightEnergyManager : Listener, Initializable {
 
     fun onPlayerGameModeChange(player: Player, newGameMode: GameMode) {
         if (newGameMode == GameMode.SURVIVAL) {
-            player.allowFlight = energyCache[player]!!.enabled
+            val isFlying = player.isFlying
+            runDelayed(0.1.seconds) {
+                player.allowFlight = energyCache[player]!!.enabled
+                player.isFlying = isFlying
+            }
+        } else {
+            energyBar[player]!!.setVisible(false)
         }
     }
 
     fun toggleFly(player: Player) {
         energyCache[player]?.let {
             it.enabled = !it.enabled
+            if (!it.enabled) energyBar[player]!!.setVisible(false)
             if (player.gameMode == GameMode.SURVIVAL)
                 player.allowFlight = it.enabled
         }
@@ -171,20 +185,19 @@ object FlightEnergyManager : Listener, Initializable {
      */
     private fun tick() {
         onlinePlayers.filter {
-            it.gameMode == GameMode.SURVIVAL && it.isFlying && it.energy > 0.0
-        }.forEach {
-            it.energy = (it.energy - (ENERGY_COST)).coerceAtLeast(0.0)
-            if (it.energy <= 0.0) {
-                toggleFly(it)
-                it.sendMessage("§c飞行能量已耗尽")
-                it.addPotionEffect(PotionEffect(PotionEffectType.SLOW_FALLING, 400, 1, false, true))
+            it.gameMode == GameMode.SURVIVAL && it.energy > 0.0
+        }.filter {
+            energyBar[it]!!.setVisible(it.isFlying)
+            it.isFlying
+        }.forEach { player ->
+            player.energy = (player.energy - (ENERGY_COST)).coerceAtLeast(0.0)
+            energyBar[player]!!.tick()
+            if (player.energy <= 0.0) {
+                toggleFly(player)
+                player.sendMessage("§c飞行能量已耗尽")
+                player.addPotionEffect(PotionEffect(PotionEffectType.SLOW_FALLING, 400, 1, false, true))
             }
         }
-    }
-
-    fun Player.bossBar(){
-
-
     }
 
 }
