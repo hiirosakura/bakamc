@@ -18,6 +18,8 @@ open class FlightEnergies(alias: String?) : Table<FlightEnergy>("flight_energy",
     val energy = double("energy").bindTo { it.energy }
 
     val enabled = boolean("enabled").bindTo { it.enabled }
+
+    val barVisible = boolean("bar_visible").bindTo { it.barVisible }
 }
 
 interface FlightEnergy : Entity<FlightEnergy> {
@@ -28,6 +30,8 @@ interface FlightEnergy : Entity<FlightEnergy> {
     var energy: Double
 
     var enabled: Boolean
+
+    var barVisible: Boolean
 
     val uuid: String get() = player.uuid
 }

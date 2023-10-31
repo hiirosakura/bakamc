@@ -68,6 +68,7 @@ object PlayerService {
                     item {
                         set(it.energy, e.energy)
                         set(it.enabled, e.enabled)
+                        set(it.barVisible, e.barVisible)
                         where {
                             it.uuid eq e.uuid
                         }

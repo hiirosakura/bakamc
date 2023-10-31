@@ -1,25 +1,24 @@
 package cn.bakamc.folia.flight_energy
 
-import cn.bakamc.folia.config.Configs.FlightEnergy.ENERGY__BAR__COLOR
-import cn.bakamc.folia.config.Configs.FlightEnergy.ENERGY__BAR__TITLE
+import cn.bakamc.folia.config.Configs
+import cn.bakamc.folia.config.Configs.FlightEnergy.EnergyBar as Bar
 import cn.bakamc.folia.config.Configs.FlightEnergy.MAX_ENERGY
-import cn.bakamc.folia.flight_energy.FlightEnergyManager.energy
+import cn.bakamc.folia.db.table.FlightEnergy
+import moe.forpleuvoir.nebula.common.util.clamp
 import org.bukkit.NamespacedKey
 import org.bukkit.Server
-import org.bukkit.boss.BarStyle
 import org.bukkit.boss.KeyedBossBar
 import org.bukkit.entity.Player
 
 class EnergyBar private constructor(
     private val server: Server,
     private val player: Player,
-    private val energy: () -> Double,
-    private val maxEnergy: () -> Double
+    private val flightEnergy: FlightEnergy,
 ) {
 
     companion object {
-        fun create(server: Server, player: Player, energy: () -> Double = { player.energy }, maxEnergy: () -> Double = { MAX_ENERGY }): EnergyBar {
-            return EnergyBar(server, player, energy, maxEnergy)
+        fun create(server: Server, player: Player, flightEnergy: FlightEnergy): EnergyBar {
+            return EnergyBar(server, player, flightEnergy)
         }
     }
 
@@ -28,24 +27,25 @@ class EnergyBar private constructor(
     var key: NamespacedKey = NamespacedKey.minecraft(player.name)
 
     init {
-        bar = server.createBossBar(key, title(), ENERGY__BAR__COLOR, BarStyle.SEGMENTED_10)
+        bar = server.createBossBar(key, title(), Bar.COLOR, Bar.STYLE)
         bar.isVisible = false
-        bar.progress = energy() / maxEnergy()
+        bar.progress = progress
         bar.addPlayer(player)
     }
 
     fun tick() {
         bar.setTitle(title())
-        bar.color = ENERGY__BAR__COLOR
-        bar.progress = energy() / maxEnergy()
+        bar.progress = progress
     }
 
+    private val progress get() = (flightEnergy.energy / MAX_ENERGY).clamp(0.0, 1.0)
+
     private fun title(): String {
-        return ENERGY__BAR__TITLE.format(energy(), maxEnergy())
+        return Bar.TITLE.format(flightEnergy.energy, MAX_ENERGY)
     }
 
     fun setVisible(visible: Boolean) {
-        bar.isVisible = visible
+        bar.isVisible = visible && flightEnergy.barVisible
     }
 
     fun close() {

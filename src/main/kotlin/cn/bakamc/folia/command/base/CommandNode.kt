@@ -17,14 +17,14 @@ abstract class CommandNode {
 
     abstract var executor: ((CommandContext<out CommandSender>) -> Unit)?
 
-    open var suggestions: ((CommandContext<out CommandSender>) -> List<String>?)? = func@{
+    open var suggestions: ((CommandContext<out CommandSender>) -> List<String>?)? = func@{ ctx ->
         if (subNodes.isNotEmpty()) {
             //找到第一个节点，判断是否为[CommandSubNode.Type.ARGUMENT]类型，如果是则直接获取此节点的[suggestions]
             //如果是[CommandSubNode.Type.LITERAL]类型，则将所有节点指令名作为候选词
             subNodes.first().let { node ->
                 return@func if (node.type == CommandSubNode.Type.ARGUMENT) {
-                    node.suggestions?.invoke(it)
-                } else subNodes.map { it.command }
+                    node.suggestions?.invoke(ctx)
+                } else shouldSuggestion(ctx.building, subNodes.filter { it.permission(ctx) }.map { it.command })
             }
         }
         null
@@ -57,7 +57,6 @@ abstract class CommandNode {
         if (!permission(context)) {
             return listOf("§c你没有权限执行该指令")
         }
-
         context.isEnd {
             return runCatching {
                 suggestions?.let { it(this) }

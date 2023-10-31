@@ -16,6 +16,7 @@ import moe.forpleuvoir.nebula.config.manager.LocalConfigManager
 import moe.forpleuvoir.nebula.config.persistence.JsonConfigManagerPersistence
 import moe.forpleuvoir.nebula.config.util.ConfigUtil
 import org.bukkit.boss.BarColor
+import org.bukkit.boss.BarStyle
 import java.nio.file.Path
 import kotlin.time.DurationUnit
 
@@ -97,9 +98,15 @@ object Configs : LocalConfigManager("bakamc"), JsonConfigManagerPersistence {
 
         val SYNC_PERIOD by ConfigTime("sync_period", 5.0, DurationUnit.MINUTES)
 
-        val ENERGY__BAR__COLOR: BarColor by ConfigEnum("energy__bar__color", BarColor.GREEN)
+        object EnergyBar : ConfigCategoryImpl("energy_bar") {
 
-        val ENERGY__BAR__TITLE by ConfigString("energy__bar__title", "飞行能量: %.2f/%.2f")
+            val COLOR: BarColor by ConfigEnum("color", BarColor.GREEN)
+
+            val TITLE by ConfigString("title", "飞行能量: %.2f/%.2f")
+
+            val STYLE: BarStyle by ConfigEnum("style", BarStyle.SEGMENTED_10)
+
+        }
 
         val MONEY_ITEM by ConfigStringDoubleMap(
             "money_item",

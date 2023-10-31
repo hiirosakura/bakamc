@@ -19,6 +19,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.Listener
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
+import org.jetbrains.annotations.Contract
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration.Companion.minutes
@@ -46,6 +47,15 @@ object FlightEnergyManager : Listener, Initializable {
         set(value) {
             energyCache[this]?.energy = value
         }
+
+    var Player.barVisible: Boolean
+        get() {
+            return energyCache[this]?.barVisible ?: runBlocking { PlayerService.getFlightEnergy(this@barVisible).barVisible }
+        }
+        set(value) {
+            energyCache[this]?.barVisible = value
+        }
+
     var ServerPlayer.energy: Double
         get() {
             return energyCache.keys.find {
@@ -82,8 +92,8 @@ object FlightEnergyManager : Listener, Initializable {
 
         runBlocking {
             energyCache.putAll(PlayerService.getFlightEnergies(onlinePlayers))
-            energyCache.forEach { (player, _) ->
-                energyBar[player] = EnergyBar.create(server, player)
+            energyCache.forEach { (player, flightEnergy) ->
+                energyBar[player] = EnergyBar.create(server, player, flightEnergy)
             }
             logger.info("飞行能量加载完成")
         }
@@ -123,7 +133,7 @@ object FlightEnergyManager : Listener, Initializable {
 
     suspend fun onPlayerJoin(player: Player) {
         energyCache[player] = PlayerService.getFlightEnergy(player)
-        energyBar[player] = EnergyBar.create(server, player)
+        energyBar[player] = EnergyBar.create(server, player, energyCache[player]!!)
         if (player.gameMode == GameMode.SURVIVAL) {
             player.allowFlight = energyCache[player]!!.enabled
             player.isFlying = true
@@ -153,14 +163,21 @@ object FlightEnergyManager : Listener, Initializable {
         }
     }
 
-    fun toggleFly(player: Player) {
+    /**
+     * 切换飞行状态
+     * @param player Player
+     * @param enabled Boolean?
+     */
+    @Contract("_, null -> !enabled")
+    fun toggleFly(player: Player, enabled: Boolean? = null) {
         energyCache[player]?.let {
-            it.enabled = !it.enabled
+            it.enabled = enabled ?: !it.enabled
             if (!it.enabled) energyBar[player]!!.setVisible(false)
             if (player.gameMode == GameMode.SURVIVAL)
                 player.allowFlight = it.enabled
         }
     }
+
 
     private fun sync() {
         runBlocking {
@@ -193,8 +210,9 @@ object FlightEnergyManager : Listener, Initializable {
             player.energy = (player.energy - (ENERGY_COST)).coerceAtLeast(0.0)
             energyBar[player]!!.tick()
             if (player.energy <= 0.0) {
-                toggleFly(player)
+                toggleFly(player, false)
                 player.sendMessage("§c飞行能量已耗尽")
+
                 player.addPotionEffect(PotionEffect(PotionEffectType.SLOW_FALLING, 400, 1, false, true))
             }
         }

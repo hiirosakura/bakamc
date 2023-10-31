@@ -12,7 +12,7 @@ class Command(
 
     override val subNodes: MutableList<CommandSubNode> = mutableListOf()
 
-    override var permission: (CommandContext<out CommandSender>) -> Boolean = { it.sender.hasPermission(command) }
+    override var permission: (CommandContext<out CommandSender>) -> Boolean = { true }
 
     override var executor: ((CommandContext<out CommandSender>) -> Unit)? = null
 

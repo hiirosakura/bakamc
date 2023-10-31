@@ -51,7 +51,7 @@ object EntityChangedBlockEventListener : Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     fun entityChangedBlockEvent(event: EntityChangeBlockEvent) {
-        println("${event.entity.name} change ${event.block.blockData.material.key} to ${event.to.key}")
+//        println("${event.entity.name} change ${event.block.blockData.material.key} to ${event.to.key}")
         var hasEntityMatched = false
         ENTITY_INFOS.values.forEach {
             if (it.isMatch(event.entity)) hasEntityMatched = true

@@ -4,6 +4,7 @@ import cn.bakamc.folia.util.getDisplayNameWithCount
 import cn.bakamc.folia.util.literalText
 import cn.bakamc.folia.util.toServerPlayer
 import cn.bakamc.folia.util.wrapInSquareBrackets
+import net.kyori.adventure.text.TextComponent
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
@@ -27,8 +28,16 @@ fun CommandNode.literal(command: String, scope: CommandNode.() -> Unit): Command
 fun CommandNode.argument(command: String, scope: CommandNode.() -> Unit): CommandNode {
     return ArgumentCommandSubNode(command, this).apply {
         parent.append(this)
+        this.suggestions = {
+            listOf("<${this.command}>")
+        }
         scope(this)
     }
+}
+
+fun CommandNode.permission(permission: (CommandContext<out CommandSender>) -> Boolean): CommandNode {
+    this.permission = permission
+    return this
 }
 
 fun CommandNode.execute(executor: (CommandContext<out CommandSender>) -> Unit): CommandNode {
@@ -66,8 +75,9 @@ fun CommandNode.suggestionBuild(candidates: (CommandContext<out CommandSender>, 
 fun shouldSuggestion(str: String, candidates: List<String>?): List<String> {
     return buildList {
         candidates?.forEach {
-            it.startsWith(str)
-            add(it)
+            if (it.startsWith(str)) {
+                add(it)
+            }
         }
     }
 }
@@ -92,6 +102,12 @@ fun item(item: String, count: Int = 0): MutableComponent {
 
 fun player(player: ServerPlayer): MutableComponent {
     return wrapInSquareBrackets(literalText(player.displayName)).withStyle {
+        it.applyFormat(ChatFormatting.AQUA)
+    }
+}
+
+fun player(player: Player): MutableComponent {
+    return wrapInSquareBrackets(literalText((player.displayName() as TextComponent).content())).withStyle {
         it.applyFormat(ChatFormatting.AQUA)
     }
 }
@@ -122,22 +138,4 @@ fun format(message: String, formatting: ChatFormatting): MutableComponent {
 
 operator fun MutableComponent.plus(component: MutableComponent): MutableComponent {
     return this.append(component)
-}
-
-fun ServerPlayer.feedback(message: String) {
-    this.sendSystemMessage(literalText(message))
-}
-
-fun ServerPlayer.feedback(vararg message: MutableComponent) {
-    when {
-        message.size == 1 -> this.sendSystemMessage(message[0])
-        message.isEmpty() -> return
-        message.size >= 2 -> {
-            val msg = literalText()
-            message.forEach {
-                msg.append(it)
-            }
-            this.sendSystemMessage(msg)
-        }
-    }
 }

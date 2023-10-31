@@ -29,8 +29,8 @@ fun MiscCommand(): Command = Command("bakamc") {
     }
     literal("block") {
         execute<Player> {
-            val block = it.sender.getTargetBlock(null,5)
-            it.feedback("§a${block.type.key}")
+            val block = it.sender.getTargetBlock(null, 5)
+            it.feedback("§a${block.blockData.material.key}")
         }
     }
 }

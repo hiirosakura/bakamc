@@ -2,6 +2,7 @@ package cn.bakamc.folia.command.base
 
 import cn.bakamc.folia.util.literalText
 import cn.bakamc.folia.util.toServerPlayer
+import net.kyori.adventure.text.serializer.json.JSONComponentSerializer
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import org.bukkit.command.CommandSender
@@ -71,7 +72,8 @@ internal constructor(
         arguments[key] = value
     }
 
-    fun getArg(key: String): String? {        return arguments[key]
+    fun getArg(key: String): String? {
+        return arguments[key]
 
     }
 
@@ -84,10 +86,9 @@ internal constructor(
     }
 
     fun feedback(message: Component) {
-        //TODO 暂时屏蔽异常，之后修改Text库
         when (sender) {
             is Player -> player!!.sendSystemMessage(message)
-            else      -> sender.sendMessage(message.string)
+            else      -> sender.sendMessage(JSONComponentSerializer.json().deserialize(Component.Serializer.toJson(message)))
         }
     }
 }
