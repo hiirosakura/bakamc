@@ -13,6 +13,7 @@ import cn.bakamc.folia.service.PlayerService
 import cn.bakamc.folia.util.*
 import kotlinx.coroutines.runBlocking
 import moe.forpleuvoir.nebula.common.api.Initializable
+import net.minecraft.ChatFormatting
 import net.minecraft.server.level.ServerPlayer
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
@@ -45,7 +46,10 @@ object FlightEnergyManager : Listener, Initializable {
             return energyCache[this]?.energy ?: runBlocking { PlayerService.getFlightEnergy(this@energy).energy }
         }
         set(value) {
-            energyCache[this]?.energy = value
+            energyCache[this]?.energy = value.coerceAtLeast(0.0)
+            if (value <= 0.0) {
+                toggleFly(this, false)
+            }
         }
 
     var Player.barVisible: Boolean
@@ -104,6 +108,9 @@ object FlightEnergyManager : Listener, Initializable {
         if (this::energyCache.isInitialized) {
             if (!syncing.get()) sync()
             energyCache.clear()
+            energyBar.forEach {
+                it.value.close()
+            }
             energyBar.clear()
         }
     }
@@ -136,7 +143,7 @@ object FlightEnergyManager : Listener, Initializable {
         energyBar[player] = EnergyBar.create(server, player, energyCache[player]!!)
         if (player.gameMode == GameMode.SURVIVAL) {
             player.allowFlight = energyCache[player]!!.enabled
-            player.isFlying = true
+            player.isFlying = energyCache[player]!!.enabled
         }
     }
 
@@ -211,9 +218,11 @@ object FlightEnergyManager : Listener, Initializable {
             energyBar[player]!!.tick()
             if (player.energy <= 0.0) {
                 toggleFly(player, false)
-                player.sendMessage("§c飞行能量已耗尽")
+                player.sendMessage(literalText("飞行能量已耗尽", Style(ChatFormatting.RED)))
+                player.scheduler.execute(bakamc, {
+                    player.addPotionEffect(PotionEffect(PotionEffectType.SLOW_FALLING, 400, 1, false, true))
+                }, null, 0)
 
-                player.addPotionEffect(PotionEffect(PotionEffectType.SLOW_FALLING, 400, 1, false, true))
             }
         }
     }

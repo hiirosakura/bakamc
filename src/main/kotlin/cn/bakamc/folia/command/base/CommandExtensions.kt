@@ -1,15 +1,7 @@
 package cn.bakamc.folia.command.base
 
-import cn.bakamc.folia.util.getDisplayNameWithCount
-import cn.bakamc.folia.util.literalText
 import cn.bakamc.folia.util.toServerPlayer
-import cn.bakamc.folia.util.wrapInSquareBrackets
-import net.kyori.adventure.text.TextComponent
-import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.MutableComponent
-import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.item.ItemStack
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
@@ -50,7 +42,7 @@ fun CommandNode.execute(executor: (CommandContext<out CommandSender>) -> Unit): 
 inline fun <reified T : CommandSender> CommandNode.execute(noinline executor: (CommandContext<out T>) -> Unit): CommandNode {
     this.executor = executor@{
         if (it.sender !is T) {
-            it.sender.feedback(literalText("§c只有${T::class.java.simpleName}可以使用此命令!"))
+            it.fail("只有[{}]可以使用此命令!",T::class.java.simpleName)
             return@executor
         }
         executor.invoke(it as CommandContext<out T>)
@@ -89,53 +81,3 @@ fun CommandSender.feedback(message: Component) {
     }
 }
 
-fun item(item: ItemStack): MutableComponent {
-    return item.getDisplayNameWithCount()
-}
-
-
-fun item(item: String, count: Int = 0): MutableComponent {
-    return wrapInSquareBrackets(literalText(item + if (count == 0) "" else " x$count")).withStyle {
-        it.applyFormat(ChatFormatting.GOLD)
-    }
-}
-
-fun player(player: ServerPlayer): MutableComponent {
-    return wrapInSquareBrackets(literalText(player.displayName)).withStyle {
-        it.applyFormat(ChatFormatting.AQUA)
-    }
-}
-
-fun player(player: Player): MutableComponent {
-    return wrapInSquareBrackets(literalText((player.displayName() as TextComponent).content())).withStyle {
-        it.applyFormat(ChatFormatting.AQUA)
-    }
-}
-
-fun error(message: String = ""): MutableComponent {
-    return literalText(message).withStyle {
-        it.applyFormat(ChatFormatting.RED)
-    }
-}
-
-fun tip(message: String = ""): MutableComponent {
-    return literalText(message).withStyle {
-        it.applyFormat(ChatFormatting.GOLD)
-    }
-}
-
-fun success(message: String = ""): MutableComponent {
-    return literalText(message).withStyle {
-        it.applyFormat(ChatFormatting.GREEN)
-    }
-}
-
-fun format(message: String, formatting: ChatFormatting): MutableComponent {
-    return literalText(message).withStyle {
-        it.applyFormat(formatting)
-    }
-}
-
-operator fun MutableComponent.plus(component: MutableComponent): MutableComponent {
-    return this.append(component)
-}

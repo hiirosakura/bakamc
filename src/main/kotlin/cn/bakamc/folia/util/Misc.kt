@@ -30,6 +30,10 @@ internal val logger by lazy { Logger(BakaMCPlugin.instance.logger) }
 
 fun Player.toServerPlayer() = MinecraftServer.getServer().playerList.getPlayer(this.uniqueId)
 
+internal fun syncTask(task: () -> Unit) {
+    server.scheduler.scheduleSyncDelayedTask(bakamc, task)
+}
+
 internal fun launch(
     context: CoroutineContext = EmptyCoroutineContext,
     start: CoroutineStart = CoroutineStart.DEFAULT,

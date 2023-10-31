@@ -1,6 +1,5 @@
 package cn.bakamc.folia.command.base
 
-import cn.bakamc.folia.util.literalText
 import org.bukkit.command.CommandSender
 
 abstract class CommandNode {
@@ -32,12 +31,12 @@ abstract class CommandNode {
 
     open fun onCommand(context: CommandContext<out CommandSender>) {
         if (!permission(context)) {
-            context.feedback(literalText("§c你没有权限执行该指令"))
+            context.fail("你没有权限执行该指令")
             return
         }
         context.isEnd {
             runCatching {
-                executor?.let { it(this) } ?: this.feedback("§c无法执行该指令:${this.commandLine}")
+                executor?.let { it(this) } ?: this.fail("无法执行该指令:{}", this.commandLine)
             }.onFailure {
                 throw CommandExecuteException(it)
             }
@@ -45,7 +44,7 @@ abstract class CommandNode {
             runCatching {
                 subNode(next)!!
             }.onFailure { throwable ->
-                if (throwable is NullPointerException) context.feedback("§c未知指令:${context.commandLine} $next")
+                if (throwable is NullPointerException) context.fail("未知指令:{} {}", context.commandLine, next)
                 else throw throwable
             }.onSuccess { node ->
                 node.onCommand(this.next(this@CommandNode))

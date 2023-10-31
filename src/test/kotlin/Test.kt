@@ -1,4 +1,3 @@
-
 import cn.bakamc.folia.config.Configs
 import cn.bakamc.folia.db.database
 import cn.bakamc.folia.db.table.PlayerInfo
@@ -8,9 +7,14 @@ import org.ktorm.entity.toList
 import java.nio.file.Path
 
 fun main() {
-    runBlocking {
-        Configs.testInit(Path.of("./build/config"))
+    val text = "{}第一段{}{}第二段{}"
+    val params = arrayOf("1", "2", "3", "4")
+    val result = StringBuilder()
+    for ((index, str) in text.split("{}").withIndex()) {
+        result.append(str)
+        if (params.size - index >= 1) result.append(params[index])
     }
+    println(result)
 }
 
 fun CoroutineScope.suspendFun(): Deferred<Int> {

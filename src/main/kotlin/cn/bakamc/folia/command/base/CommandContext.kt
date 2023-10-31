@@ -1,9 +1,11 @@
 package cn.bakamc.folia.command.base
 
-import cn.bakamc.folia.util.literalText
+import cn.bakamc.folia.util.formatText
+import cn.bakamc.folia.util.sendMessage
 import cn.bakamc.folia.util.toServerPlayer
-import net.kyori.adventure.text.serializer.json.JSONComponentSerializer
+import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.Style
 import net.minecraft.server.level.ServerPlayer
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -81,14 +83,30 @@ internal constructor(
         return arguments[key]?.let(map)
     }
 
-    fun feedback(message: String) {
-        feedback(literalText(message))
+    fun success(message: String, vararg params: Any) {
+        feedback(message, style = Style.EMPTY.applyFormat(ChatFormatting.GREEN), *params)
+    }
+
+    fun fail(message: String, vararg params: Any) {
+        feedback(message, style = Style.EMPTY.applyFormat(ChatFormatting.RED), *params)
+    }
+
+    fun info(message: String, vararg params: Any) {
+        feedback(message, style = Style.EMPTY.applyFormat(ChatFormatting.GOLD), *params)
+    }
+
+    fun feedback(text: String, style: Style = Style.EMPTY, vararg params: Any) {
+        feedback(formatText(text, style, *params))
+    }
+
+    fun feedback(text: String, vararg params: Any) {
+        feedback(formatText(text, *params))
     }
 
     fun feedback(message: Component) {
         when (sender) {
             is Player -> player!!.sendSystemMessage(message)
-            else      -> sender.sendMessage(JSONComponentSerializer.json().deserialize(Component.Serializer.toJson(message)))
+            else      -> sender.sendMessage(message)
         }
     }
 }

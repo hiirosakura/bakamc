@@ -102,7 +102,7 @@ object Configs : LocalConfigManager("bakamc"), JsonConfigManagerPersistence {
 
             val COLOR: BarColor by ConfigEnum("color", BarColor.GREEN)
 
-            val TITLE by ConfigString("title", "飞行能量: %.2f/%.2f")
+            val TITLE by ConfigString("title", "飞行能量: %.2f(%+.2f)/%.2f")
 
             val STYLE: BarStyle by ConfigEnum("style", BarStyle.SEGMENTED_10)
 
