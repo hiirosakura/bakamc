@@ -122,7 +122,7 @@ object Configs : LocalConfigManager("bakamc"), JsonConfigManagerPersistence {
     val BLOCK_INFOS by ConfigBlockInfos(
         "block_infos",
         mapOf(
-            "西瓜" to BlockInfo(type = "minecraft:melon_block"),
+            "西瓜" to BlockInfo(type = "minecraft:melon"),
             "主世界方块" to BlockInfo(world = "minecraft:overworld"),
         )
     )
