@@ -41,7 +41,7 @@ dependencies {
 }
 
 group = "cn.bakamc"
-version = "0.1.0a"
+version = "0.1.1a"
 description = "这是什么插件"
 
 sourceSets {

@@ -118,6 +118,15 @@ object Configs : LocalConfigManager("bakamc"), JsonConfigManagerPersistence {
 
     }
 
+
+    val BLOCK_INFOS by ConfigBlockInfos(
+        "block_infos",
+        mapOf(
+            "西瓜" to BlockInfo(type = "minecraft:melon_block"),
+            "主世界方块" to BlockInfo(world = "minecraft:overworld"),
+        )
+    )
+
     object Entity : ConfigCategoryImpl("entity") {
 
         val ENTITY_INFOS by ConfigEntityInfos(
@@ -128,27 +137,19 @@ object Configs : LocalConfigManager("bakamc"), JsonConfigManagerPersistence {
             )
         )
 
-        object ChangeBlock : ConfigCategoryImpl("change_block") {
-
-            val BLOCK_INFOS by ConfigBlockInfos(
-                "block_infos",
-                mapOf(
-                    "西瓜" to BlockInfo(type = "minecraft:melon_block"),
-                    "主世界方块" to BlockInfo(world = "minecraft:overworld"),
-                )
+        val CHANGE_BLOCK_MAP by ConfigStringListMap(
+            "change_block_map",
+            mapOf(
+                "小黑" to listOf("主世界方块 -> minecraft:air")
             )
+        )
 
-            val ENTITY_MAP by ConfigStringListMap(
-                "entity_map",
-                mapOf(
-                    "小黑" to listOf("主世界方块 -> minecraft:air"),
-                    "苦力怕" to listOf("主世界方块 -> minecraft:air")
-                )
+        val EXPLODE_BLOCK_MAP by ConfigStringListMap(
+            "explode_block_map",
+            mapOf(
+                "苦力怕" to listOf("西瓜")
             )
-
-
-        }
-
+        )
 
     }
 

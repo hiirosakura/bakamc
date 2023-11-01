@@ -1,8 +1,10 @@
 package cn.bakamc.folia.event.entity
 
-import cn.bakamc.folia.config.Configs.Entity.ChangeBlock.BLOCK_INFOS
-import cn.bakamc.folia.config.Configs.Entity.ChangeBlock.ENTITY_MAP
+import cn.bakamc.folia.config.Configs.BLOCK_INFOS
+import cn.bakamc.folia.config.Configs.Entity.CHANGE_BLOCK_MAP
 import cn.bakamc.folia.config.Configs.Entity.ENTITY_INFOS
+import cn.bakamc.folia.config.Configs.Entity.EXPLODE_BLOCK_MAP
+import cn.bakamc.folia.util.logger
 import cn.bakamc.folia.util.serialization
 import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.Serializable
@@ -10,29 +12,29 @@ import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.extensions.deserialization
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
-import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.resources.ResourceLocation
-import net.minecraft.world.level.block.Blocks
-import org.bukkit.NamespacedKey
 import org.bukkit.block.Block
-import org.bukkit.craftbukkit.v1_20_R1.block.data.CraftBlockData
 import org.bukkit.entity.Entity
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityChangeBlockEvent
-import org.jetbrains.annotations.Contract
+import org.bukkit.event.entity.EntityExplodeEvent
 
 object EntityChangedBlockEventListener : Listener {
 
     fun reloadCache() {
-        cache = cacheSupplier()
+        changedCache = changedCacheSupplier()
+        logger.info("重载实体更改方块缓存")
+        explodeCache = explodeCacheSupplier()
+        logger.info("重载实体爆炸破坏方块缓存")
     }
 
-    private var cache: Map<EntityInfo, List<BlockChange>> = cacheSupplier()
+    private var changedCache: Map<EntityInfo, List<BlockChange>> = changedCacheSupplier()
 
-    private fun cacheSupplier() = ENTITY_MAP.mapKeys { (key, _) ->
-        ENTITY_INFOS[key] ?: EntityInfo.EMPTY
+    private var explodeCache: Map<EntityInfo, List<BlockInfo>> = explodeCacheSupplier()
+
+    private fun changedCacheSupplier() = CHANGE_BLOCK_MAP.mapKeys { (key, _) ->
+        EntityInfo.parse(key)
     }.mapValues { (e, b) ->
         if (e != EntityInfo.EMPTY) b.map { BlockChange.parse(it) }
         else emptyList()
@@ -40,8 +42,17 @@ object EntityChangedBlockEventListener : Listener {
         key != EntityInfo.EMPTY
     }
 
-    private inline fun inCache(entity: Entity, from: Block, to: String, action: () -> Unit) {
-        cache.forEach { (e, b) ->
+    private fun explodeCacheSupplier() = EXPLODE_BLOCK_MAP.mapKeys { (key, _) ->
+        EntityInfo.parse(key)
+    }.mapValues { (e, b) ->
+        if (e != EntityInfo.EMPTY) b.map { BlockInfo.parse(it) }
+        else emptyList()
+    }.filter { (key, _) ->
+        key != EntityInfo.EMPTY
+    }
+
+    private inline fun inChangedCache(entity: Entity, from: Block, to: String, action: () -> Unit) {
+        changedCache.forEach { (e, b) ->
             if (e.isMatch(entity)) {
                 b.find { it.isMatch(from, to) }?.let {
                     action()
@@ -50,27 +61,34 @@ object EntityChangedBlockEventListener : Listener {
         }
     }
 
+    private inline fun inExplodeCache(entity: Entity, blocks: List<Block>, action: (Block) -> Unit) {
+        explodeCache.forEach { (e, b) ->
+            if (e.isMatch(entity)) {
+                blocks.forEach { block ->
+                    b.find { it.isMatch(block) }?.let {
+                        action(block)
+                    }
+                }
+            }
+        }
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST)
     fun entityChangedBlockEvent(event: EntityChangeBlockEvent) {
-        println("${event.entity.name}[${event.block.blockData.material.key} -> ${event.to.key}]")
-
-        var hasEntityMatched = false
-        ENTITY_INFOS.values.forEach {
-            if (it.isMatch(event.entity)) hasEntityMatched = true
-        }
-        var hasBlockMatched = false
-        BLOCK_INFOS.values.forEach {
-            if (it.isMatch(event.block)) hasBlockMatched = true
-        }
-        if (!hasEntityMatched || !hasBlockMatched) return
-
-        inCache(event.entity, event.block, event.to.key.toString()) {
+        inChangedCache(event.entity, event.block, event.to.key.toString()) {
             event.isCancelled = true
-            println("${event.entity.name}[${event.block.blockData.material.key} -> ${event.to.key}]事件被取消")
             return
         }
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST)
+    fun entityExplodeEvent(event: EntityExplodeEvent) {
+        val list = ArrayList<Block>()
+        inExplodeCache(event.entity, event.blockList()) {
+            list.add(it)
+        }
+        event.blockList().removeAll(list)
+    }
 
 }
 
@@ -81,11 +99,10 @@ data class EntityInfo(
 ) : Serializable {
 
     fun isMatch(target: Entity): Boolean {
-        var result = false
-        if (name != null) result = target.name == name
-        if (uuid != null) result = result && target.uniqueId.toString() == uuid
-        if (type != null) result = result && target.type.key.toString() == type
-        return result
+        if (this == EMPTY) return false
+        return name?.let { target.name == it } ?: true
+               && uuid?.let { target.uniqueId.toString() == it } ?: true
+               && type?.let { target.type.key.toString() == it } ?: true
     }
 
     override fun serialization(): SerializeElement {
@@ -98,7 +115,11 @@ data class EntityInfo(
 
     companion object : Deserializer<EntityInfo> {
 
-        val EMPTY = EntityInfo()
+        val EMPTY by lazy { EntityInfo() }
+
+        fun parse(string: String): EntityInfo {
+            return ENTITY_INFOS[string] ?: if (string.isNotEmpty()) EntityInfo(type = string) else EMPTY
+        }
 
         override fun deserialization(serializeElement: SerializeElement): EntityInfo {
             serializeElement as SerializeObject
@@ -118,13 +139,14 @@ data class BlockChange(
     val to: BlockInfo? = null,
 ) {
     companion object {
-        val EMPTY = BlockChange()
 
-        const val symbol = "->"
+        val EMPTY by lazy { BlockChange() }
+
+        private const val SYMBOL = "->"
 
         fun parse(string: String): BlockChange {
-            if (string.contains(symbol)) {
-                string.replace(" ", "").split(symbol).apply {
+            if (string.contains(SYMBOL)) {
+                string.replace(" ", "").split(SYMBOL).apply {
                     val from = if (this[0].isNotEmpty()) BLOCK_INFOS[this[0]] ?: BlockInfo(type = this[0]) else null
                     val to = if (this[1].isNotEmpty()) BLOCK_INFOS[this[1]] ?: BlockInfo(type = this[1]) else null
                     return BlockChange(from, to)
@@ -154,15 +176,13 @@ data class BlockInfo(
 ) : Serializable {
 
     fun isMatch(block: Block): Boolean {
-        TODO("判定方式待修复")
-        var result = false
-        if (x != null) result = block.x in x
-        if (y != null) result = result && block.y in y
-        if (z != null) result = result && block.z in z
-        if (type != null) result = result && block.blockData.material.key.toString() == type
-        if (biome != null) result = result && block.biome.key.toString() == biome
-        if (world != null) result = result && block.world.key.toString() == world
-        return result
+        if (this == EMPTY) return false
+        return x?.let { block.x in it } ?: true
+               && y?.let { block.y in it } ?: true
+               && z?.let { block.z in it } ?: true
+               && type?.let { block.blockData.material.key.toString() == it } ?: true
+               && biome?.let { block.biome.key.toString() == it } ?: true
+               && world?.let { block.world.key.toString() == it } ?: true
     }
 
     override fun serialization(): SerializeElement {
@@ -177,6 +197,13 @@ data class BlockInfo(
     }
 
     companion object : Deserializer<BlockInfo> {
+
+        val EMPTY by lazy { BlockInfo() }
+
+        fun parse(string: String): BlockInfo {
+            return BLOCK_INFOS[string] ?: if (string.isNotEmpty()) BlockInfo(type = string) else EMPTY
+        }
+
         override fun deserialization(serializeElement: SerializeElement): BlockInfo {
             serializeElement as SerializeObject
             return BlockInfo(
