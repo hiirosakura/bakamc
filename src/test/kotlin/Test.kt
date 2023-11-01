@@ -5,16 +5,15 @@ import cn.bakamc.folia.db.table.playerInfos
 import kotlinx.coroutines.*
 import org.ktorm.entity.toList
 import java.nio.file.Path
+import kotlin.math.pow
 
 fun main() {
-    val text = "{}第一段{}{}第二段{}"
-    val params = arrayOf("1", "2", "3", "4")
-    val result = StringBuilder()
-    for ((index, str) in text.split("{}").withIndex()) {
-        result.append(str)
-        if (params.size - index >= 1) result.append(params[index])
-    }
-    println(result)
+    val a = 0.5454651231
+    println(a.round(2))
+}
+
+fun Double.round(c: Int): Double {
+    return Math.round( this * 10.0.pow(c.toDouble())) * 0.1.pow(c.toDouble())
 }
 
 fun CoroutineScope.suspendFun(): Deferred<Int> {

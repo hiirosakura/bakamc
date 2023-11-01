@@ -44,19 +44,6 @@ group = "cn.bakamc"
 version = "0.1.0a"
 description = "这是什么插件"
 
-tasks.apply {
-    withType<JavaCompile>().configureEach {
-        this.options.release
-        this.options.encoding = "UTF-8"
-        targetCompatibility = JavaVersion.VERSION_17.toString()
-        sourceCompatibility = JavaVersion.VERSION_17.toString()
-    }
-    withType<KotlinCompile>().configureEach {
-        kotlinOptions.suppressWarnings = true
-        kotlinOptions.jvmTarget = JavaVersion.VERSION_17.toString()
-    }
-}
-
 sourceSets {
     getByName("test") {
         kotlin.srcDir("src/test/kotlin")

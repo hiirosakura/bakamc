@@ -141,8 +141,8 @@ object Configs : LocalConfigManager("bakamc"), JsonConfigManagerPersistence {
             val ENTITY_MAP by ConfigStringListMap(
                 "entity_map",
                 mapOf(
-                    "小黑" to listOf("主世界方块"),
-                    "苦力怕" to listOf("主世界方块")
+                    "小黑" to listOf("主世界方块 -> minecraft:air"),
+                    "苦力怕" to listOf("主世界方块 -> minecraft:air")
                 )
             )
 

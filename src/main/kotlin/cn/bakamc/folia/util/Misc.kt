@@ -4,6 +4,7 @@ package cn.bakamc.folia.util
 
 import cn.bakamc.folia.BakaMCPlugin
 import cn.bakamc.folia.BakaMCPlugin.Companion.PluginScope
+import io.papermc.paper.threadedregions.scheduler.EntityScheduler
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask
 import kotlinx.coroutines.*
 import moe.forpleuvoir.nebula.common.util.Time
@@ -15,6 +16,7 @@ import moe.forpleuvoir.nebula.serialization.extensions.serializeArray
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.nbt.*
 import net.minecraft.server.MinecraftServer
+import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 import java.util.concurrent.TimeUnit
@@ -30,8 +32,8 @@ internal val logger by lazy { Logger(BakaMCPlugin.instance.logger) }
 
 fun Player.toServerPlayer() = MinecraftServer.getServer().playerList.getPlayer(this.uniqueId)
 
-internal fun syncTask(task: () -> Unit) {
-    server.scheduler.scheduleSyncDelayedTask(bakamc, task)
+internal fun Entity.execute(delay: Long = 1, task: () -> Unit) {
+    this.scheduler.execute(bakamc, task, null, delay)
 }
 
 internal fun launch(

@@ -219,9 +219,9 @@ object FlightEnergyManager : Listener, Initializable {
             if (player.energy <= 0.0) {
                 toggleFly(player, false)
                 player.sendMessage(literalText("飞行能量已耗尽", Style(ChatFormatting.RED)))
-                player.scheduler.execute(bakamc, {
+                player.execute{
                     player.addPotionEffect(PotionEffect(PotionEffectType.SLOW_FALLING, 400, 1, false, true))
-                }, null, 0)
+                }
 
             }
         }
