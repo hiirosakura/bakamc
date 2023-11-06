@@ -7,6 +7,7 @@ import org.bukkit.NamespacedKey
 import org.bukkit.Server
 import org.bukkit.boss.KeyedBossBar
 import org.bukkit.entity.Player
+import java.util.*
 import cn.bakamc.folia.config.Configs.FlightEnergy.EnergyBar as Bar
 
 class EnergyBar private constructor(
@@ -25,7 +26,7 @@ class EnergyBar private constructor(
 
     private var bar: KeyedBossBar
 
-    var key: NamespacedKey = NamespacedKey.minecraft(player.name)
+    var key: NamespacedKey = NamespacedKey.minecraft(player.name.lowercase(Locale.ENGLISH))
 
     init {
         bar = server.createBossBar(key, title(), Bar.COLOR, Bar.STYLE)

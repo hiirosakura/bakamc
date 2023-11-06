@@ -33,7 +33,9 @@ object PlayerService {
             } ?: run {
                 val flightEnergy = FlightEnergy {
                     this.player = playerInfos.find { it.uuid eq player.uuid }!!
+                    enabled = false
                     energy = 0.0
+                    barVisible = true
                 }
                 flightEnergies.add(flightEnergy)
                 flightEnergy

@@ -27,8 +27,8 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
     - name: rebofJar
-      run: ./gradlew rebofJar
-        
+      run: ./gradlew reobfJar
+
     - name: Artifacts
       uses: actions/upload-artifact@v3
       with:
