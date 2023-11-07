@@ -26,7 +26,7 @@ class EnergyBar private constructor(
 
     private var bar: KeyedBossBar
 
-    var key: NamespacedKey = NamespacedKey.minecraft(player.name.lowercase(Locale.ENGLISH))
+    var key: NamespacedKey = NamespacedKey.minecraft("energy_bar_${player.name.lowercase(Locale.ENGLISH)}")
 
     init {
         bar = server.createBossBar(key, title(), Bar.COLOR, Bar.STYLE)
