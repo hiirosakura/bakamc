@@ -141,7 +141,7 @@ private val recharge: (CommandContext<out Player>) -> Unit = { ctx ->
         //是否有充足的货币
         if (countTemp == 0) {
             //有足够的货币
-            val totalEnergy = energy * ctx.getArg("count")?.toInt()!!
+            val totalEnergy = energy * count
             FlightEnergyManager.apply {
                 //判断是否超出能量上限
                 if (totalEnergy + ctx.sender.energy > MAX_ENERGY) {
