@@ -26,6 +26,10 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
+
+    - name: c
+      run: chmod +x ./testbench
+    
     - name: rebofJar
       run: ./gradlew reobfJar
 
