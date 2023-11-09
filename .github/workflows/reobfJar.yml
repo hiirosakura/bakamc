@@ -28,7 +28,7 @@ jobs:
         distribution: 'temurin'
 
     - name: c
-      run: chmod +x ./testbench
+      run: chmod +x ./gradlew
     
     - name: rebofJar
       run: ./gradlew reobfJar
