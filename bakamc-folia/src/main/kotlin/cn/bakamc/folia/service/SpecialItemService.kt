@@ -30,10 +30,10 @@ object SpecialItemService {
             insertOrUpdate(SpecialItems) {
                 set(it.key, specialItem.key)
                 set(it.id, specialItem.id)
-                set(it.nbtTag, specialItem.nbtTag)
+                set(it.itemData, specialItem.itemData)
                 onDuplicateKey {
                     set(it.id, specialItem.id)
-                    set(it.nbtTag, specialItem.nbtTag)
+                    set(it.itemData, specialItem.itemData)
                 }
             }
         }.takeIf { it > 0 }?.let {
@@ -57,7 +57,7 @@ object SpecialItemService {
                 for (specialItem in specialItems) {
                     item {
                         set(it.id, specialItem.id)
-                        set(it.nbtTag, specialItem.nbtTag)
+                        set(it.itemData, specialItem.itemData)
                         where {
                             it.key eq specialItem.key
                         }

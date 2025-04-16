@@ -41,12 +41,12 @@ object Configs : ConfigManagerImpl(BakamcProxyInstance.INSTANCE.bakaName) {
 
     val SERVER_INFO by serverInfo("server_info", ServerInfo("serve_name"))
 
-    val DATA_BASE = addConfig(DatabaseConfig)
+    init {
+        addConfig(DatabaseConfig)
+        addConfig(MiscConfig)
+//        addConfig(BotConfig)
+        addConfig(IpRestrictConfig)
+    }
 
-    val Misc = addConfig(MiscConfig)
-
-    val Bot = addConfig(BotConfig)
-
-    val IP_RESTRICT = addConfig(IpRestrictConfig)
 
 }

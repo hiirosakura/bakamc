@@ -64,6 +64,10 @@ fun CommandNode.suggestion(candidates: (CommandContext<out CommandSender>) -> Li
     return this
 }
 
+fun CommandNode.clearSuggestion(): CommandNode {
+    return suggestion { null }
+}
+
 fun CommandNode.suggestionBuild(candidates: (CommandContext<out CommandSender>, String) -> List<String>?): CommandNode {
     this.suggestions = {
         candidates.invoke(it, it.building)

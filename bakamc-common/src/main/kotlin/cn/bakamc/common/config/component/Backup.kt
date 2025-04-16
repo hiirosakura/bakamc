@@ -14,7 +14,8 @@ class Backup(
     val configPath: () -> Path,
     val logger: () -> Logger
 ) : ConfigManagerComponent {
-    override fun beforeInit(): Unit = runBlocking {
+
+    override fun beginInit(): Unit = runBlocking {
         runCatching {
             ConfigUtil.run {
                 val fileName = wrapFileName(manager().key)

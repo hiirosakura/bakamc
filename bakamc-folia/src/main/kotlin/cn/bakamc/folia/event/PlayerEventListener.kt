@@ -5,13 +5,15 @@ import cn.bakamc.folia.config.MiscConfig
 import cn.bakamc.folia.config.MiscConfig.ENABLE_PLAYER_INTERACT_MODIFY
 import cn.bakamc.folia.config.MiscConfig.quick_block_use
 import cn.bakamc.folia.flight_energy.FlightEnergyManager
+import cn.bakamc.folia.item.customdata.InteractInterceptHandler
+import cn.bakamc.folia.item.customdata.LeftClickBlock
+import cn.bakamc.folia.item.customdata.LeftClickEntity
+import cn.bakamc.folia.item.customdata.RightClickBlock
 import cn.bakamc.folia.service.PlayerService
-import cn.bakamc.folia.util.asNMS
 import cn.bakamc.folia.util.ioLaunch
 import cn.bakamc.folia.util.logger
 import moe.forpleuvoir.nebula.common.util.primitive.ifc
 import net.kyori.adventure.text.Component
-import net.minecraft.core.component.DataComponents
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -76,26 +78,17 @@ object PlayerEventListener : Listener {
         }
     }
 
-    private const val BAKAMC_INTERACT_TAG_NAME = "bakamc_interact"
-
-    private val ItemStack.bakaInteractTag
-        get() = this.asNMS.components.get(DataComponents.CUSTOM_DATA)?.copyTag()?.get(BAKAMC_INTERACT_TAG_NAME)?.asString
-
     @EventHandler
     fun onPlayerInteractEvent(event: PlayerInteractEvent) {
         //------------ 交互限制 ------------\\
-        if (ENABLE_PLAYER_INTERACT_MODIFY) {
-            event.item?.let { item ->
-                item.bakaInteractTag?.let { tag ->
-                    val list = tag.split(",")
-                    when (event.action) {
-                        Action.LEFT_CLICK_BLOCK  -> "LEFT_CLICK_BLOCK" in list || "LEFT_CLICK_BLOCK:${event.clickedBlock!!.type.key.key}" in list
-                        Action.RIGHT_CLICK_BLOCK -> "RIGHT_CLICK_BLOCK" in list || "LEFT_CLICK_BLOCK:${event.clickedBlock!!.type.key.key}" in list
-                        Action.LEFT_CLICK_AIR    -> "LEFT_CLICK_AIR" in list
-                        Action.RIGHT_CLICK_AIR   -> "RIGHT_CLICK_AIR" in list
-                        Action.PHYSICAL          -> "PHYSICAL" in list
-                    }.takeIf { it }?.let { event.isCancelled = true }
-                }
+        if (ENABLE_PLAYER_INTERACT_MODIFY && event.item != null) {
+            val intercept = when (event.action) {
+                Action.LEFT_CLICK_BLOCK, Action.LEFT_CLICK_AIR   -> InteractInterceptHandler.handlerInteract(event.item!!, LeftClickBlock(event.clickedBlock))
+                Action.RIGHT_CLICK_BLOCK, Action.RIGHT_CLICK_AIR -> InteractInterceptHandler.handlerInteract(event.item!!, RightClickBlock(event.clickedBlock))
+                Action.PHYSICAL                                  -> false
+            }
+            if (intercept) {
+                event.isCancelled = true
             }
         }
         //------------ 直接打开功能方块 ------------\\
@@ -111,14 +104,19 @@ object PlayerEventListener : Listener {
 
     @EventHandler
     fun onPlayerAttackEntity(event: EntityDamageByEntityEvent) {
-        if (!ENABLE_PLAYER_INTERACT_MODIFY) return
-        if (event.damager is Player) {
+        if (ENABLE_PLAYER_INTERACT_MODIFY && event.damager is Player) {
             val player = event.damager as Player
-            player.inventory.itemInMainHand.bakaInteractTag?.let { tag ->
-                val list = tag.split(",")
-                if ("ATTACK_ENTITY" in list || "ATTACK_ENTITY:${event.entityType.key.key}" in list) {
-                    event.isCancelled = true
-                }
+            if (InteractInterceptHandler.handlerInteract(player.inventory.itemInMainHand, LeftClickEntity(event.entity))) {
+                event.isCancelled = true
+            }
+        }
+    }
+
+    @EventHandler
+    fun onPlayerRightClickEntity(event: PlayerInteractEntityEvent) {
+        if (ENABLE_PLAYER_INTERACT_MODIFY) {
+            if (InteractInterceptHandler.handlerInteract(event.player.inventory.getItem(event.hand), LeftClickEntity(event.rightClicked))) {
+                event.isCancelled = true
             }
         }
     }

@@ -7,14 +7,13 @@ import cn.bakamc.folia.db.initDataBase
 import cn.bakamc.folia.event.onReload
 import cn.bakamc.folia.event.registerEvent
 import cn.bakamc.folia.flight_energy.FlightEnergyManager
+import cn.bakamc.folia.hook.BakaMCHooks
 import cn.bakamc.folia.item.SpecialItemManager
 import cn.bakamc.folia.messagechannel.MessageChannels
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
-import net.milkbowl.vault.economy.Economy
-import org.bukkit.plugin.RegisteredServiceProvider
 import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -30,9 +29,6 @@ class BakaMCPlugin : JavaPlugin(), Bakamc {
         internal val PluginIOScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
     }
 
-    lateinit var economy: Economy
-        private set
-
     override val bakaName: String
         get() = BuildConstants.NAME
 
@@ -44,11 +40,8 @@ class BakaMCPlugin : JavaPlugin(), Bakamc {
     override fun onEnable() {
         instance = this
         log.info("BakaMCPlugin loading...")
-        if (setupEconomy()) {
-            log.info("BakaMCPlugin 找到经济插件")
-        } else {
-            log.warn("BakaMCPlugin 未找到经济插件")
-        }
+
+        BakaMCHooks.onEnable(this)
 
         Configs.onLoaded {
             onReload()
@@ -83,17 +76,8 @@ class BakaMCPlugin : JavaPlugin(), Bakamc {
 
     }
 
-    private fun setupEconomy(): Boolean {
-        if (server.pluginManager.getPlugin("Vault") == null) {
-            return false
-        }
-        val rsp: RegisteredServiceProvider<Economy> = server.servicesManager.getRegistration(Economy::class.java) ?: return false
-        economy = rsp.provider
-        return true
-    }
-
-
     override fun onDisable() {
+        BakaMCHooks.onDisable(this)
         server.asyncScheduler.cancelTasks(this)
         FlightEnergyManager.onDisable()
         SpecialItemManager.onDisable()

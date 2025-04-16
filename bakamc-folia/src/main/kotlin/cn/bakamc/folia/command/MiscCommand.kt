@@ -11,6 +11,7 @@ import moe.forpleuvoir.nebula.common.util.defaultLaunch
 import moe.forpleuvoir.nebula.serialization.extensions.toSerializeObject
 import moe.forpleuvoir.nebula.serialization.json.JsonSerializer.Companion.dumpAsJson
 import net.minecraft.network.chat.ClickEvent
+import org.bukkit.Chunk
 import org.bukkit.entity.Player
 
 @OptIn(ExperimentalApi::class)
@@ -43,7 +44,7 @@ fun MiscCommand(): Command = Command("bakamc") {
     }
 
     "setPermission" {
-        permission { it.sender.hasPermission("bakamc.admin") }
+        permission("bakamc.admin")
         argument("permission") {
             argument("player") {
                 execute { ctx ->
@@ -61,10 +62,17 @@ fun MiscCommand(): Command = Command("bakamc") {
 
 }
 
+val Chunk.chunkHotAvg: Long
+    get() {
+        this::class.java.getMethod("getChunkHotAvg").apply {
+            return this.invoke(this@chunkHotAvg) as Long
+        }
+    }
+
+
 fun CommandNode.Chunkhot(): CommandNode = "chunkhot" {
     permission("bakamc.chunkhot")
     execute { ctx ->
-//        Bukkit.getServer().name == "luminol"
         defaultLaunch {
             runCatching {
                 ctx.sender.server.worlds

@@ -20,6 +20,7 @@ open class FlightEnergies(alias: String?) : Table<FlightEnergy>("flight_energy",
     val enabled = boolean("enabled").bindTo { it.enabled }
 
     val barVisible = boolean("bar_visible").bindTo { it.barVisible }
+
 }
 
 interface FlightEnergy : Entity<FlightEnergy> {

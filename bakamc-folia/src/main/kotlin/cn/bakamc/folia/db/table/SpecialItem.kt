@@ -5,9 +5,6 @@ import com.mojang.serialization.JsonOps
 import moe.forpleuvoir.nebula.serialization.gson.parseToJsonElement
 import moe.forpleuvoir.nebula.serialization.gson.toJsonStr
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.NbtAccounter
-import net.minecraft.nbt.NbtIo
 import net.minecraft.world.item.ItemStack
 import org.ktorm.database.Database
 import org.ktorm.entity.Entity
@@ -15,8 +12,6 @@ import org.ktorm.entity.sequenceOf
 import org.ktorm.schema.Table
 import org.ktorm.schema.blob
 import org.ktorm.schema.varchar
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
 
 open class SpecialItems(alias: String?) : Table<SpecialItem>("special_item", alias) {
     companion object : SpecialItems(null)
@@ -27,7 +22,7 @@ open class SpecialItems(alias: String?) : Table<SpecialItem>("special_item", ali
 
     val id = varchar("id").bindTo { it.id }
 
-    val nbtTag = blob("nbt_tag").bindTo { it.nbtTag }
+    val itemData = blob("item_data").bindTo { it.itemData }
 
 }
 
@@ -38,7 +33,7 @@ interface SpecialItem : Entity<SpecialItem> {
 
     var id: String
 
-    var nbtTag: ByteArray
+    var itemData: ByteArray
 
 }
 
@@ -47,30 +42,18 @@ fun ItemStack.toSpecialItem(key: String): SpecialItem {
         this.key = key
         this.id = nameSpace
         val result = ItemStack.SINGLE_ITEM_CODEC.encodeStart(JsonOps.COMPRESSED, this@toSpecialItem).result()
-        this.nbtTag = ByteArray(0)
-        result.ifPresent { this.nbtTag = it.toJsonStr().toByteArray(Charsets.UTF_8) }
+        this.itemData = ByteArray(0)
+        result.ifPresent { this.itemData = it.toJsonStr().toByteArray(Charsets.UTF_8) }
     }
 }
 
 val Database.specialItems get() = this.sequenceOf(SpecialItems)
 
-
 val ItemStack.nameSpace: String get() = BuiltInRegistries.ITEM.getKey(this.item).toString()
-
-fun readNbtTag(tagData: ByteArray): CompoundTag? {
-    return if (tagData.isEmpty()) null
-    else NbtIo.readCompressed(ByteArrayInputStream(tagData), NbtAccounter.unlimitedHeap())
-}
-
-fun writeNbtTag(tag: CompoundTag?): ByteArray? {
-    return if (tag === null) null
-    else ByteArrayOutputStream(tag.sizeInBytes()).apply { NbtIo.writeCompressed(tag, this) }.toByteArray()
-}
 
 fun SpecialItem.toItemStack(count: Int): ItemStack? {
     runCatching {
-        println(nbtTag.toString(Charsets.UTF_8))
-        val item = ItemStack.SINGLE_ITEM_CODEC.decode(JsonOps.COMPRESSED, nbtTag.toString(Charsets.UTF_8).parseToJsonElement).result().get().first
+        val item = ItemStack.SINGLE_ITEM_CODEC.decode(JsonOps.COMPRESSED, itemData.toString(Charsets.UTF_8).parseToJsonElement).result().get().first
         return item.apply {
             this.count = count
         }
@@ -83,9 +66,7 @@ fun SpecialItem.toItemStack(count: Int): ItemStack? {
 
 fun SpecialItem.isMatch(item: ItemStack): Boolean {
     runCatching {
-        val a = ItemStack.SINGLE_ITEM_CODEC.encodeStart(JsonOps.COMPRESSED, item).result().get().toJsonStr()
-        val b = ItemStack.SINGLE_ITEM_CODEC.decode(JsonOps.COMPRESSED, nbtTag.toString(Charsets.UTF_8).parseToJsonElement).result().get().second.toJsonStr()
-        return a == b
+        return ItemStack.isSameItemSameComponents(item, toItemStack(item.count)!!)
     }.onFailure {
         logger.info("物品匹配异常")
         it.printStackTrace()

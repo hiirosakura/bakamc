@@ -42,17 +42,13 @@ object Configs : ConfigManagerImpl(BakaMCPlugin.instance.bakaName) {
 
     val SERVER_INFO by serverInfo("server_info", ServerInfo("server_name"))
 
-    val DATABASE_CONFIG = addConfig(DatabaseConfig)
-
-    val MISC_CONFIG = addConfig(MiscConfig)
-
-    val FLIGHT_ENERGY_CONFIG = addConfig(FlightEnergyConfig)
-
-    val BLOCK_CONFIG = addConfig(BlockConfig)
-
-    val ITEM_ENTITY_CONFIG = addConfig(ItemEntityConfig)
-
-    val ENTITY_CONFIG = addConfig(EntityConfig)
-
+    init {
+        addConfig(DatabaseConfig)
+        addConfig(MiscConfig)
+        addConfig(FlightEnergyConfig)
+        addConfig(BlockConfig)
+        addConfig(ItemEntityConfig)
+        addConfig(EntityConfig)
+    }
 
 }

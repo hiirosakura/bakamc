@@ -4,6 +4,7 @@ import moe.forpleuvoir.nebula.config.container.ConfigContainerImpl
 import moe.forpleuvoir.nebula.config.item.impl.*
 import org.bukkit.boss.BarColor
 import org.bukkit.boss.BarStyle
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
@@ -23,7 +24,37 @@ object FlightEnergyConfig : ConfigContainerImpl("flight_energy") {
 
     val CLOSE_ADVENTURE_PLAYERS_FLYING by boolean("close_adventure_players_flying", false)
 
-    val ENERGY_PRICE by double("energy_price", 1.0)
+    val ENERGY_PRICE_MAP by stringDoubleMap(
+        "energy_price", mapOf(
+            "coin_1" to 1.0
+        )
+    )
+
+    val ONLINE_DURATION_DISCOUNT_MAP by stringDoubleMap(
+        "online_duration_discount", mapOf(
+            "10h" to 0.95,
+            "1d" to 0.90,
+            "1w" to 0.7,
+            "1m" to 0.6,
+        )
+    )
+
+    fun onlineDiscount(onlineDuration: Duration): Double {
+        buildMap {
+            ONLINE_DURATION_DISCOUNT_MAP.forEach { (key, value) ->
+                runCatching {
+                    this[Duration.parse(key)] = value.coerceIn(0.0, 1.0)
+                }
+            }
+        }.toSortedMap { o1, o2 ->
+            o2.compareTo(o1)
+        }.forEach { (duration, value) ->
+            if (onlineDuration >= duration) {
+                return value
+            }
+        }
+        return 1.0
+    }
 
     val MONEY_ITEM by stringDoubleMap(
         "money_item",

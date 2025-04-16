@@ -1,12 +1,15 @@
 package cn.bakamc.folia.command
 
 import cn.bakamc.folia.command.base.*
-import cn.bakamc.folia.config.FlightEnergyConfig.ENERGY_PRICE
+import cn.bakamc.folia.config.FlightEnergyConfig
+import cn.bakamc.folia.config.FlightEnergyConfig.ENERGY_PRICE_MAP
 import cn.bakamc.folia.config.FlightEnergyConfig.MAX_ENERGY
 import cn.bakamc.folia.config.FlightEnergyConfig.MONEY_ITEM
 import cn.bakamc.folia.db.table.isMatch
 import cn.bakamc.folia.db.table.toItemStack
 import cn.bakamc.folia.extension.money
+import cn.bakamc.folia.extension.onlineDuration
+import cn.bakamc.folia.extension.uuid
 import cn.bakamc.folia.extension.withdraw
 import cn.bakamc.folia.flight_energy.FlightEnergyManager
 import cn.bakamc.folia.flight_energy.FlightEnergyManager.barVisible
@@ -17,10 +20,11 @@ import cn.bakamc.folia.service.PlayerService
 import cn.bakamc.folia.util.Style
 import cn.bakamc.folia.util.launch
 import cn.bakamc.folia.util.literalText
+import cn.bakamc.folia.util.logger
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import moe.forpleuvoir.nebula.common.color.Color
-import net.milkbowl.vault.economy.EconomyResponse.ResponseType.*
+import net.milkbowl.vault2.economy.EconomyResponse.ResponseType.*
 import org.bukkit.entity.Player
 import kotlin.math.abs
 
@@ -126,14 +130,26 @@ internal fun FlyCommand(): Command = Command("fly") {
     }
 
     "recharge" {
-        execute(recharge)
-        argument("energy") {
+        argument("currency") {
             suggestionBuild { ctx, _ ->
-                val price = ENERGY_PRICE
-                val energy = ctx.getArg("energy")!!.toDouble()
-                listOf("§6每1游戏币可以购买§a[${1 / price}]§6飞行能量,当前购买所需货币§a[${energy * price}]§6,当前持有货币§a[${(ctx.sender as Player).money}]")
+                ENERGY_PRICE_MAP.keys.toList()
             }
-            execute<Player>(recharge)
+            argument("energy") {
+                suggestionBuild { ctx, _ ->
+                    val currency = ctx.getArg("currency")!!
+                    val price = ENERGY_PRICE_MAP[currency]!!
+                    val energy = ctx.getArg("energy")!!.toDouble()
+                    val discount = FlightEnergyConfig.onlineDiscount((ctx.sender as Player).onlineDuration())
+                    listOf(
+                        "§6每1$currency 可以购买§a[${1 / price}]§6飞行能量,当前购买所需货币§a[${energy * price * discount}]§6(当前在线时长折扣$discount),当前持有货币§a[${
+                            ctx.sender.money(
+                                currency
+                            )
+                        }]"
+                    )
+                }
+                execute<Player>(recharge)
+            }
         }
     }
     "exchange" {
@@ -155,7 +171,7 @@ internal fun FlyCommand(): Command = Command("fly") {
         }
     }
     "energy" {
-        suggestion { null }
+        clearSuggestion()
         execute<Player> {
             it.info("你当前的飞行能量为[{}]", it.sender.energy)
         }
@@ -188,12 +204,16 @@ private val toggleFly: (context: CommandContext<out Player>) -> Unit = func@{ co
 
 private val recharge: (CommandContext<out Player>) -> Unit = { ctx ->
     val player = ctx.sender
+    //货币类型
+    val currency = ctx.getArg("currency")!!
     //玩家所持有的货币总量
-    val totalMoney = player.money
+    val totalMoney = player.money(currency)
     //需要充值的能量
-    val energy = abs(ctx.getArg("energy")!!.toDouble())
+    val energy = ctx.getArg("energy")!!.toDouble().coerceAtLeast(0.0)
+    //折扣
+    val discount = FlightEnergyConfig.onlineDiscount(ctx.sender.onlineDuration())
     //当次充值所消耗的货币量
-    val cost = energy * ENERGY_PRICE
+    val cost = energy * (ENERGY_PRICE_MAP[currency]!!) * discount
 
     //是否有充足的货币
     if (totalMoney >= cost) {
@@ -209,14 +229,15 @@ private val recharge: (CommandContext<out Player>) -> Unit = { ctx ->
                     //执行扣费操作
                     val response = player.withdraw(cost)
                     when (response.type) {
-                        SUCCESS         -> launch {
+                        SUCCESS -> launch {
                             player.updateEnergy(ctx.sender.energy + energy)
                             ctx.success("成功购买{}的能量,当前剩余能量值[{}]", energy, ctx.sender.energy)
+                            logger.info("玩家(${player.name}[${player.uuid}])成功购买飞行能量:$energy,花费$cost$currency,货币变化:$totalMoney -> ${response.balance.toDouble()}")
                         }
 
-                        FAILURE         -> ctx.fail("购买失败[{}]", response.errorMessage)
+                        FAILURE -> ctx.fail("购买失败[{}]", response.errorMessage)
                         NOT_IMPLEMENTED -> ctx.fail("购买失败,经济插件未加载,请联系服务器管理员")
-                        else            -> ctx.fail("未知错误")
+                        else -> ctx.fail("未知错误")
                     }
                 }.onFailure {
                     //出现异常
@@ -227,7 +248,7 @@ private val recharge: (CommandContext<out Player>) -> Unit = { ctx ->
         }
     } else {
         //没有足够的货币
-        ctx.fail("购买[{}]能量所需的货币不足,当前拥有货币[{}]", energy, totalMoney)
+        ctx.fail("购买[{}]能量所需的${currency}不足,当前拥有的${currency}[{}]", energy, totalMoney)
     }
 }
 

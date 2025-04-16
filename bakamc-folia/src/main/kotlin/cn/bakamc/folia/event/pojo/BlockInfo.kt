@@ -63,7 +63,7 @@ data class BlockInfo(
         override fun deserialization(serializeElement: SerializeElement): BlockInfo {
             return serializeElement.checkType<SerializeObject, BlockInfo> { obj ->
                 BlockInfo(
-                    obj["x"]?.let { IntRange.Companion.deserialization(it) },
+                    obj["x"]?.let { IntRange.deserialization(it) },
                     obj["y"]?.let { IntRange.deserialization(it) },
                     obj["z"]?.let { IntRange.deserialization(it) },
                     obj["type"]?.asString,

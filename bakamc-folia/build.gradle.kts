@@ -4,7 +4,9 @@ plugins {
 }
 
 repositories {
-    maven { url = uri("https://maven.moliatopia.icu/repository/maven-public/") }
+    maven { url = uri("https://maven.moliatopia.icu/repository/maven-snapshots/") }
+    maven { url = uri("https://repo.codemc.org/repository/maven-public") }
+    maven { url = uri("https://jitpack.io") }
 }
 
 paperweight.reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.MOJANG_PRODUCTION
@@ -12,13 +14,14 @@ paperweight.reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArt
 dependencies {
     implementation(project(":bakamc-common"))
 
-//    paperweight.foliaDevBundle("${libs.versions.minecraftVersion.get()}-R0.1-SNAPSHOT")
-    paperweight.devBundle(group = "me.earthme.luminol", artifactId = "dev-bundle", version = "1.21.4-R0.1-20241215.074044-20")
+    paperweight.foliaDevBundle("${libs.versions.minecraftVersion.get()}-R0.1-SNAPSHOT")
+//    compileOnly("me.earthme.luminol:luminol-api:1.21.4-2e85aaf")
+//    paperweight.devBundle(group = "me.earthme.luminol", artifactId = "dev-bundle", version = "1.21.4-R0.1-20241215.074044-20")
 
-    compileOnly(libs.vaultApi) { isTransitive = false }
+    compileOnly(libs.vaultUnlockedApi) { isTransitive = false }
+//    compileOnly(libs.plan)
+
     implementation(libs.adventureExtraKotlin)
-
-//    compileOnly(fileTree("${projectDir.absolutePath}/libs"))
 
     //data base
     runtimeOnly(libs.mysql)

@@ -11,8 +11,6 @@ dependencies {
     compileOnly(libs.velocityApi)
     annotationProcessor(libs.velocityApi)
 
-    compileOnly(libs.miraiMC)
-
     bakaImplementation(libs.adventureExtraKotlin) { isTransitive = false }
     bakaImplementation(project(":bakamc-common"))
 

@@ -3,7 +3,6 @@ package cn.bakamc.proxy
 import cn.bakamc.proxy.command.registerCommands
 import cn.bakamc.proxy.config.Configs
 import cn.bakamc.proxy.database.initDataBase
-import cn.bakamc.proxy.event.mirai.GroupEventListener
 import cn.bakamc.proxy.event.velocity.MessageChannelEventListener
 import cn.bakamc.proxy.event.velocity.PlayerEventListener
 import cn.bakamc.proxy.messagechannel.MessageChannels
@@ -49,7 +48,6 @@ object BakamcProxyInstance {
 
     private fun registerEventListener(server: ProxyServer) {
         server.eventManager.apply {
-            register(INSTANCE, GroupEventListener)
             register(INSTANCE, PlayerEventListener)
             register(INSTANCE, MessageChannelEventListener)
             logger.info("事件监听注册完成")

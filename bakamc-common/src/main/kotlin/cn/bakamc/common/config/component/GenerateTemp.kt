@@ -16,7 +16,7 @@ class GenerateTemp(
     val logger: () -> Logger
 ) : ConfigManagerComponent {
 
-    override fun afterInit() {
+    override fun finishInit() {
         runBlocking {
             runCatching {
                 ConfigUtil.run {
