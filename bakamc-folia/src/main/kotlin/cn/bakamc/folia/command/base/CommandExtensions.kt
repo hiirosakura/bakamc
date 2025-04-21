@@ -87,7 +87,7 @@ fun shouldSuggestion(str: String, candidates: List<String>?): List<String> {
 
 fun CommandSender.feedback(message: Component) {
     when (this) {
-        is Player -> (this as? Player)?.toServerPlayer()!!.sendSystemMessage(message)
+        is Player -> this.toServerPlayer()!!.sendSystemMessage(message)
         else      -> sendMessage(message.string)
     }
 }

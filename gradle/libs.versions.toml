@@ -10,7 +10,7 @@ ktormVersion = "4.1.1"
 mysqlVersion = "8.4.0"
 hikariVersion = "5.1.0"
 vaultUnlockedVersion = "2.10"
-planVersion = "5.6.2965"
+placeholderApiVersion = "2.11.6"
 
 paperUserdevVersion = "1.7.1"
 runTaskVersion = "2.3.0"
@@ -24,7 +24,6 @@ kotlinCoroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines
 velocityApi = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocityVersion" }
 nebula = { group = "moe.forpleuvoir", name = "nebula", version.ref = "nebulaVersion" }
 vaultUnlockedApi = { group = "net.milkbowl.vault", name = "VaultUnlockedAPI", version.ref = "vaultUnlockedVersion" }
-plan = { group = "com.github.plan-player-analytics", name = "Plan", version.ref = "planVersion" }
 
 adventureApi = { group = "net.kyori", name = "adventure-api", version.ref = "adventureVersion" }
 adventureExtraKotlin = { group = "net.kyori", name = "adventure-extra-kotlin", version.ref = "adventureVersion" }
@@ -32,8 +31,8 @@ mysql = { group = "com.mysql", name = "mysql-connector-j", version.ref = "mysqlV
 ktormCore = { group = "org.ktorm", name = "ktorm-core", version.ref = "ktormVersion" }
 ktormMysql = { group = "org.ktorm", name = "ktorm-support-mysql", version.ref = "ktormVersion" }
 hikari = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikariVersion" }
-miraiMC = { group = "io.github.dreamvoid", name = "MiraiMC-Integration", version.ref = "miraiMCVersion" }
 slf4j = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4jVersion" }
+placeholderApi = { group = "me.clip", name = "placeholderapi", version.ref = "placeholderApiVersion" }
 
 [bundles]
 ktorm = ["ktormCore", "ktormMysql"]

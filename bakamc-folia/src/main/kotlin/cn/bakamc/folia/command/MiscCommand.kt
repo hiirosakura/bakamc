@@ -3,6 +3,7 @@ package cn.bakamc.folia.command
 import cn.bakamc.folia.BakaMCPlugin
 import cn.bakamc.folia.command.base.*
 import cn.bakamc.folia.event.pojo.BlockInfo
+import cn.bakamc.folia.extension.onlineDuration
 import cn.bakamc.folia.util.launch
 import cn.bakamc.folia.util.literalText
 import cn.bakamc.folia.util.logger
@@ -53,6 +54,19 @@ fun MiscCommand(): Command = Command("bakamc") {
                     player?.addAttachment(BakaMCPlugin.instance)?.setPermission(permission, true)
                 }
             }
+        }
+    }
+
+    "onlineTime" {
+        permission("bakamc.admin")
+        argument("player") {
+            execute {
+                val player = it.getArg("player") { name -> it.sender.server.onlinePlayers.find { it.name == name } }
+                it.feedback(player?.onlineDuration().toString())
+            }
+        }
+        execute<Player> {
+            it.feedback(it.sender.onlineDuration().toString())
         }
     }
 

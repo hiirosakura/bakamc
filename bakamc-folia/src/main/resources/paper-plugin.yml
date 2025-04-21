@@ -5,7 +5,12 @@ folia-supported: true
 api-version: ${apiVersion}
 description: ${description}
 
-softdepend: [PlaceholderAPI]
+dependencies:
+  server:
+    PlaceholderAPI:
+      # Load order is relative to the dependency. So here PlaceholderAPI loads before our plugin.
+      load: BEFORE
+      required: false
 
 authors:
   - forpleuvoir

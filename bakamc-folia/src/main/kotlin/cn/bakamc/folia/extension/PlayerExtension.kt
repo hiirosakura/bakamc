@@ -31,7 +31,7 @@ fun Player.toServerPlayer() = MinecraftServer.getServer().playerList.getPlayer(t
 fun ServerPlayer.toPluginPlayer() = BakaMCPlugin.instance.server.getPlayer(this.uuid)
 
 fun Player.onlineDuration(): Duration {
-    return this.getStatistic(PLAY_ONE_MINUTE).toDuration(DurationUnit.MINUTES)
+    return (this.getStatistic(PLAY_ONE_MINUTE) / 20).toDuration(DurationUnit.SECONDS)
 }
 
 fun Player.money(currency: String? = null, world: String = this.world.name): Double {

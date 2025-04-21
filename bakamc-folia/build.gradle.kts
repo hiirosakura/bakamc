@@ -7,6 +7,7 @@ repositories {
     maven { url = uri("https://maven.moliatopia.icu/repository/maven-snapshots/") }
     maven { url = uri("https://repo.codemc.org/repository/maven-public") }
     maven { url = uri("https://jitpack.io") }
+    maven { url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/") }
 }
 
 paperweight.reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.MOJANG_PRODUCTION
@@ -19,7 +20,7 @@ dependencies {
 //    paperweight.devBundle(group = "me.earthme.luminol", artifactId = "dev-bundle", version = "1.21.4-R0.1-20241215.074044-20")
 
     compileOnly(libs.vaultUnlockedApi) { isTransitive = false }
-//    compileOnly(libs.plan)
+    compileOnly(libs.placeholderApi)
 
     implementation(libs.adventureExtraKotlin)
 
@@ -69,6 +70,9 @@ tasks {
         filteringCharset = Charsets.UTF_8.name() // We want UTF-8 for everything
         inputs.properties(props)
         filesMatching("plugin.yml") {
+            expand(props)
+        }
+        filesMatching("paper-plugin.yml") {
             expand(props)
         }
     }
