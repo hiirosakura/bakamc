@@ -5,7 +5,7 @@ import cn.bakamc.folia.command.base.execute
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 
-internal fun JavaPlugin.registerCommand() {
+internal fun JavaPlugin.registerBakamcCommand() {
     registerCommand(FlyCommand())
     registerCommand(SpecialItemCommand())
     registerCommand(MiscCommand())

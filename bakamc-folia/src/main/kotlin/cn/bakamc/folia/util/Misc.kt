@@ -8,12 +8,7 @@ import cn.bakamc.folia.BakaMCPlugin.Companion.PluginIOScope
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask
 import kotlinx.coroutines.*
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
-import moe.forpleuvoir.nebula.serialization.base.SerializeNull
-import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
-import moe.forpleuvoir.nebula.serialization.extensions.serializeArray
-import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
-import net.minecraft.nbt.*
 import org.bukkit.craftbukkit.inventory.CraftItemStack
 import org.bukkit.entity.Entity
 import org.bukkit.inventory.ItemStack
@@ -31,9 +26,8 @@ internal val server by lazy { bakamc.server }
 internal val logger:Logger by lazy {BakaMCPlugin.instance.log }
 
 
-internal fun Entity.execute(delay: Long = 1, task: () -> Unit) {
+internal fun Entity.execute(delay: Long = 1, task: () -> Unit) =
     this.scheduler.execute(bakamc, task, null, delay)
-}
 
 internal fun launch(
     context: CoroutineContext = EmptyCoroutineContext,

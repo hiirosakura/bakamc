@@ -119,8 +119,8 @@ object FlightEnergyManager : Listener, Initializable {
         if (this::energyCache.isInitialized) {
             if (!syncing.get()) sync()
             energyCache.clear()
-            energyBarCache.forEach {
-                it.value.close()
+            energyBarCache.forEach { (player, bar) ->
+                bar.close()
             }
             energyBarCache.clear()
         }
@@ -328,7 +328,7 @@ object FlightEnergyManager : Listener, Initializable {
 
                 }
             }.onFailure {
-                logger.warn("玩家[${player.name}]飞行能量更新失败",it)
+                logger.warn("玩家[${player.name}]飞行能量更新失败", it)
             }
         }
     }

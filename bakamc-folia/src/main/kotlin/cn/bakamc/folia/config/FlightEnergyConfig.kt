@@ -2,8 +2,7 @@ package cn.bakamc.folia.config
 
 import moe.forpleuvoir.nebula.config.container.ConfigContainerImpl
 import moe.forpleuvoir.nebula.config.item.impl.*
-import org.bukkit.boss.BarColor
-import org.bukkit.boss.BarStyle
+import net.kyori.adventure.bossbar.BossBar
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -68,11 +67,11 @@ object FlightEnergyConfig : ConfigContainerImpl("flight_energy") {
 
     object EnergyBar : ConfigContainerImpl("energy_bar") {
 
-        val COLOR: BarColor by enum("color", BarColor.GREEN)
+        val COLOR: BossBar.Color by enum("color", BossBar.Color.GREEN)
 
         val TITLE by string("title", "飞行能量: %.2f(%+.2f)/%.2f")
 
-        val STYLE: BarStyle by enum("style", BarStyle.SEGMENTED_10)
+        val STYLE: BossBar.Overlay by enum("style", BossBar.Overlay.NOTCHED_10)
 
     }
 

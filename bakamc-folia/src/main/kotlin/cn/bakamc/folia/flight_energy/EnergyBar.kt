@@ -1,18 +1,18 @@
 package cn.bakamc.folia.flight_energy
 
+import cn.bakamc.common.text.bakatext.BakaText
 import cn.bakamc.folia.config.FlightEnergyConfig
 import cn.bakamc.folia.config.FlightEnergyConfig.MAX_ENERGY
 import cn.bakamc.folia.db.table.FlightEnergy
-import cn.bakamc.folia.util.logger
-import org.bukkit.NamespacedKey
+import cn.bakamc.folia.util.execute
+import net.kyori.adventure.bossbar.BossBar
+import net.kyori.adventure.text.Component
 import org.bukkit.Server
-import org.bukkit.boss.KeyedBossBar
 import org.bukkit.entity.Player
-import java.util.*
 
 class EnergyBar private constructor(
     private val server: Server,
-    player: Player,
+    private val player: Player,
     private val flightEnergy: FlightEnergy,
 ) {
 
@@ -24,39 +24,41 @@ class EnergyBar private constructor(
         }
     }
 
-    private var bar: KeyedBossBar
-
-    var key: NamespacedKey = NamespacedKey.minecraft("energy_bar_${player.name.lowercase(Locale.ENGLISH)}")
+    private var bar: BossBar
 
     init {
-        bar = server.createBossBar(key, title(), FlightEnergyConfig.EnergyBar.COLOR, FlightEnergyConfig.EnergyBar.STYLE)
-        bar.isVisible = false
-        bar.progress = progress
-        bar.addPlayer(player)
+        bar = BossBar.bossBar(name(), progress, FlightEnergyConfig.EnergyBar.COLOR, BossBar.Overlay.NOTCHED_6)
+        player.execute {
+            player.hideBossBar(bar)
+        }
     }
 
     fun tick() {
-        bar.setTitle(title())
-        bar.progress = progress
-        lastEnergy = flightEnergy.energy
+        player.execute {
+            bar.name(name())
+            bar.progress(progress)
+            lastEnergy = flightEnergy.energy
+        }
     }
 
-    private val progress get() = (flightEnergy.energy / MAX_ENERGY).coerceIn(0.0, 1.0)
+    private val progress get() = (flightEnergy.energy / MAX_ENERGY).coerceIn(0.0, 1.0).toFloat()
 
-    private fun title(): String {
-        return FlightEnergyConfig.EnergyBar.TITLE.format(flightEnergy.energy, flightEnergy.energy - lastEnergy, MAX_ENERGY)
+    private fun name(): Component {
+        return BakaText.parse(FlightEnergyConfig.EnergyBar.TITLE.format(flightEnergy.energy, flightEnergy.energy - lastEnergy, MAX_ENERGY))
     }
 
     fun setVisible(visible: Boolean) {
-        bar.isVisible = visible && flightEnergy.barVisible
+        player.execute {
+            if (visible && flightEnergy.barVisible) {
+                player.showBossBar(bar)
+            } else
+                player.hideBossBar(bar)
+        }
     }
 
     fun close() {
-        bar.removeAll()
-        kotlin.runCatching {
-            server.removeBossBar(key)
-        }.onFailure {
-            logger.warn(key.toString(), it)
+        player.execute {
+            player.hideBossBar(bar)
         }
     }
 }

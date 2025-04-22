@@ -1,7 +1,7 @@
 package cn.bakamc.folia
 
 import cn.bakamc.common.Bakamc
-import cn.bakamc.folia.command.registerCommand
+import cn.bakamc.folia.command.registerBakamcCommand
 import cn.bakamc.folia.config.Configs
 import cn.bakamc.folia.db.initDataBase
 import cn.bakamc.folia.event.onReload
@@ -57,7 +57,7 @@ class BakaMCPlugin : JavaPlugin(), Bakamc {
 
         MessageChannels.register(server)
 
-        registerCommand()
+        registerBakamcCommand()
 
         registerEvent()
 
