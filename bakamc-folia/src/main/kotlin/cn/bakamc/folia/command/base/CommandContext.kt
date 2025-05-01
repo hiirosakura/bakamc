@@ -112,4 +112,10 @@ internal constructor(
             else      -> sender.sendMessage(message)
         }
     }
+
+    fun feedback(message: net.kyori.adventure.text.Component) {
+        when (sender) {
+            else      -> sender.sendMessage(message)
+        }
+    }
 }

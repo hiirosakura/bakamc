@@ -5,6 +5,7 @@ package cn.bakamc.folia.util
 import moe.forpleuvoir.nebula.common.color.RGBColor
 import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import net.minecraft.ChatFormatting
 import net.minecraft.core.component.DataComponents
 import net.minecraft.network.chat.*
@@ -17,6 +18,8 @@ import org.bukkit.command.CommandSender
 import org.bukkit.craftbukkit.CraftRegistry
 import org.bukkit.craftbukkit.inventory.CraftItemStack
 import org.bukkit.entity.Player
+
+val net.kyori.adventure.text.Component.plainText: String get() = PlainTextComponentSerializer.plainText().serialize(this)
 
 fun literalText(content: String = ""): MutableComponent {
     if (content.isEmpty()) return Component.empty()
@@ -53,27 +56,27 @@ fun CommandSender.sendMessage(message: Component) {
 
 private fun Any.toText(): Component {
     return when (this) {
-        is Component -> this
+        is Component                             -> this
 
-        is String -> literalText(this)
+        is String                                -> literalText(this)
 
-        is Block -> wrapInSquareBrackets(literalText(this.blockData.material.name))
+        is Block                                 -> wrapInSquareBrackets(literalText(this.blockData.material.name))
 
         is net.minecraft.world.level.block.Block -> wrapInSquareBrackets(this.name)
 
-        is org.bukkit.inventory.ItemStack -> CraftItemStack.asNMSCopy(this).getDisplayNameWithCount()
+        is org.bukkit.inventory.ItemStack        -> CraftItemStack.asNMSCopy(this).getDisplayNameWithCount()
 
-        is ItemStack -> this.getDisplayNameWithCount()
+        is ItemStack                             -> this.getDisplayNameWithCount()
 
-        is Player -> wrapInSquareBrackets(literalText((this.displayName() as TextComponent).content())) {
+        is Player                                -> wrapInSquareBrackets(literalText((this.displayName() as TextComponent).content())) {
             it.applyFormat(
                 ChatFormatting.AQUA
             )
         }
 
-        is ServerPlayer -> wrapInSquareBrackets(literalText(this.displayName)) { it.applyFormat(ChatFormatting.AQUA) }
+        is ServerPlayer                          -> wrapInSquareBrackets(literalText(this.displayName)) { it.applyFormat(ChatFormatting.AQUA) }
 
-        else -> literalText(this.toString())
+        else                                     -> literalText(this.toString())
     }
 }
 

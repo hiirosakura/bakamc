@@ -5,6 +5,7 @@ package cn.bakamc.folia.util
 import cn.bakamc.folia.BakaMCPlugin
 import cn.bakamc.folia.BakaMCPlugin.Companion.PluginDefaultScope
 import cn.bakamc.folia.BakaMCPlugin.Companion.PluginIOScope
+import cn.bakamc.folia.config.MiscConfig.DEBUG
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask
 import kotlinx.coroutines.*
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
@@ -23,7 +24,15 @@ internal val bakamc by lazy { BakaMCPlugin.instance }
 
 internal val server by lazy { bakamc.server }
 
-internal val logger:Logger by lazy {BakaMCPlugin.instance.log }
+internal val logger: Logger by lazy { BakaMCPlugin.instance.log }
+
+internal fun Logger.debugInfo(msg: String) {
+    if (DEBUG) this.info(msg)
+}
+
+internal fun Logger.debugInfo(msg: String, vararg arg: Any) {
+    if (DEBUG) this.info(msg, *arg)
+}
 
 
 internal fun Entity.execute(delay: Long = 1, task: () -> Unit) =

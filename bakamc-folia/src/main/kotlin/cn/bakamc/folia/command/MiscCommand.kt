@@ -1,12 +1,21 @@
 package cn.bakamc.folia.command
 
+import cn.bakamc.common.text.bakatext.BakaText
+import cn.bakamc.common.text.bakatext.modifier.ColorModifier
+import cn.bakamc.common.text.bakatext.modifier.DecorationModifier
+import cn.bakamc.common.text.bakatext.modifier.LegacyChatFormattingModifier
+import cn.bakamc.common.text.literal
 import cn.bakamc.folia.BakaMCPlugin
 import cn.bakamc.folia.command.base.*
+import cn.bakamc.folia.config.MiscConfig.ANVIL_RENAME_DECORATION_MAPPING
+import cn.bakamc.folia.config.MiscConfig.ANVIL_RENAME_LEGACY_FORMAT_CHARS
+import cn.bakamc.folia.config.MiscConfig.ITEM_RENAME_LENGTH_LIMIT
 import cn.bakamc.folia.event.pojo.BlockInfo
 import cn.bakamc.folia.extension.onlineDuration
 import cn.bakamc.folia.util.launch
 import cn.bakamc.folia.util.literalText
 import cn.bakamc.folia.util.logger
+import cn.bakamc.folia.util.plainText
 import moe.forpleuvoir.nebula.common.api.ExperimentalApi
 import moe.forpleuvoir.nebula.common.util.defaultLaunch
 import moe.forpleuvoir.nebula.serialization.extensions.toSerializeObject
@@ -14,6 +23,7 @@ import moe.forpleuvoir.nebula.serialization.json.JsonSerializer.Companion.dumpAs
 import net.minecraft.network.chat.ClickEvent
 import org.bukkit.Chunk
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemStack
 
 @OptIn(ExperimentalApi::class)
 @Suppress("FunctionName", "DuplicatedCode")
@@ -74,6 +84,46 @@ fun MiscCommand(): Command = Command("bakamc") {
 
     QuickUseCommand()
 
+    "renameItem" {
+        permission("bakamc.renameItem")
+        argument("name") {
+            suggestion {
+                val sender = it.sender
+                return@suggestion if (sender is Player && !sender.inventory.itemInMainHand.isEmpty) {
+                    null
+                } else {
+                    listOf("§a必须由玩家执行指令,并且手中持有物品")
+                }
+            }
+            execute<Player> { ctx ->
+                if (!ctx.sender.inventory.itemInMainHand.isEmpty) {
+                    val itemStack = ctx.sender.inventory.itemInMainHand
+                    val name = ctx.getArg("name") ?: ""
+                    val oldName = itemStack.displayName()
+                    val text = BakaText.parse(
+                        name, listOf(
+                            DecorationModifier(ANVIL_RENAME_DECORATION_MAPPING),
+                            ColorModifier,
+                            LegacyChatFormattingModifier(formatChars = ANVIL_RENAME_LEGACY_FORMAT_CHARS.toSet())
+                        )
+                    )
+                    if (text.plainText.length > ITEM_RENAME_LENGTH_LIMIT) {
+                        ctx.fail("物品名称过长,最大长度:{}", ITEM_RENAME_LENGTH_LIMIT)
+                    } else {
+//                        ctx.sender.inventory.itemInMainHand.editMeta {
+//                            it.displayName(text)
+//                        }
+                        val new = ItemStack(itemStack)
+                        new.editMeta { it.displayName(text) }
+                        ctx.sender.inventory.setItemInMainHand(new)
+                        ctx.feedback(literal("成功重命名物品: ").append(oldName).append(literal(" -> ")).append(text))
+                    }
+                } else {
+                    ctx.fail("手中必须持有需要重命名的物品")
+                }
+            }
+        }
+    }
 }
 
 val Chunk.chunkHotAvg: Long
