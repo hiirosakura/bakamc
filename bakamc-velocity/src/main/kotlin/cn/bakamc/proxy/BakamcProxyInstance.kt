@@ -2,7 +2,6 @@ package cn.bakamc.proxy
 
 import cn.bakamc.proxy.command.registerCommands
 import cn.bakamc.proxy.config.Configs
-import cn.bakamc.proxy.database.initDataBase
 import cn.bakamc.proxy.event.velocity.MessageChannelEventListener
 import cn.bakamc.proxy.event.velocity.PlayerEventListener
 import cn.bakamc.proxy.messagechannel.MessageChannels
@@ -37,7 +36,7 @@ object BakamcProxyInstance {
         MessageChannels.register(server)
         runBlocking {
             Configs.onLoaded {
-                initDataBase()
+//                initDataBase()
             }
             Configs.init(dataDirectory)
         }

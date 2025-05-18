@@ -5,7 +5,6 @@ import cn.bakamc.proxy.BakamcProxyInstance
 import cn.bakamc.proxy.config.MiscConfig.PLAYER_JOIN_MESSAGE
 import cn.bakamc.proxy.config.MiscConfig.PLAYER_QUIT_MESSAGE
 import cn.bakamc.proxy.feature.ip_restrict.IpRestrictor
-import cn.bakamc.proxy.feature.white_list.WhiteListManager
 import cn.bakamc.proxy.util.Utils
 import com.velocitypowered.api.event.Subscribe
 import com.velocitypowered.api.event.connection.DisconnectEvent
@@ -13,15 +12,14 @@ import com.velocitypowered.api.event.player.ServerConnectedEvent
 import com.velocitypowered.api.event.player.ServerPreConnectEvent
 import kotlin.time.Duration.Companion.milliseconds
 import cn.bakamc.proxy.config.IpRestrictConfig.ENABLED as ipRestrictEnabled
-import cn.bakamc.proxy.config.WhiteListConfigs.ENABLED as whiteListEnabled
 
 object PlayerEventListener {
 
     @Subscribe
     fun onPlayerJoin(event: ServerPreConnectEvent) {
-        if (whiteListEnabled) {
-            WhiteListManager.onPlayerJoin(event)
-        }
+//        if (whiteListEnabled) {
+//            WhiteListManager.onPlayerJoin(event)
+//        }
 
         if (ipRestrictEnabled) {
             IpRestrictor.onPlayerConnect(event.player)

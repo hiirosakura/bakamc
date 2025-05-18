@@ -93,7 +93,7 @@ internal fun FlyCommand(): Command = Command("fly") {
                         ctx.getArg("player")!!.let { name ->
                             ctx.sender.server.onlinePlayers.find { it.name == name }?.let { player ->
                                 async {
-                                    player.updateEnergy(player.energy + energy)
+                                    player.updateEnergy((player.energy + energy).coerceIn(0.0..MAX_ENERGY))
                                 }.await().let {
                                     ctx.success("成功为玩家{}添加[{}]飞行能量", player, energy)
                                     player.sendMessage("飞行能量更新,当前飞行能量[${player.energy}(+$energy)]")
@@ -229,15 +229,15 @@ private val recharge: (CommandContext<out Player>) -> Unit = { ctx ->
                     //执行扣费操作
                     val response = player.withdraw(cost)
                     when (response.type) {
-                        SUCCESS -> launch {
-                            player.updateEnergy(ctx.sender.energy + energy)
+                        SUCCESS         -> launch {
+                            player.updateEnergy((ctx.sender.energy + energy).coerceIn(0.0..MAX_ENERGY))
                             ctx.success("成功购买{}的能量,当前剩余能量值[{}]", energy, ctx.sender.energy)
                             logger.info("玩家(${player.name}[${player.uuid}])成功购买飞行能量:$energy,花费$cost$currency,货币变化:$totalMoney -> ${response.balance.toDouble()}")
                         }
 
-                        FAILURE -> ctx.fail("购买失败[{}]", response.errorMessage)
+                        FAILURE         -> ctx.fail("购买失败[{}]", response.errorMessage)
                         NOT_IMPLEMENTED -> ctx.fail("购买失败,经济插件未加载,请联系服务器管理员")
-                        else -> ctx.fail("未知错误")
+                        else            -> ctx.fail("未知错误")
                     }
                 }.onFailure {
                     //出现异常
@@ -307,7 +307,7 @@ private val exchange: (CommandContext<out Player>) -> Unit = { ctx ->
                     }.onSuccess {
                         //结算能量
                         launch {
-                            player.updateEnergy(ctx.sender.energy + totalEnergy)
+                            player.updateEnergy((ctx.sender.energy + totalEnergy).coerceIn(0.0..MAX_ENERGY))
                             ctx.success("购买成功{}的能量,当前剩余能量值[{}]", item.toItemStack(count)!!, ctx.sender.energy)
                         }
                     }

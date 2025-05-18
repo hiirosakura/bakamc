@@ -33,8 +33,8 @@ object FlightEnergyConfig : ConfigContainerImpl("flight_energy") {
         "online_duration_discount", mapOf(
             "10h" to 0.95,
             "1d" to 0.90,
-            "1w" to 0.7,
-            "1m" to 0.6,
+            "7d" to 0.7,
+            "30d" to 0.6,
         )
     )
 
