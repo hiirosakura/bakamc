@@ -35,9 +35,6 @@ tasks {
 
     runVelocity {
         velocityVersion(libs.versions.velocityVersion.get())
-        downloadPlugins {
-            github("DreamVoid", "MiraiMC", "v${libs.versions.miraiMCVersion.get()}", "MiraiMC-Velocity.jar")
-        }
     }
 
     register<Copy>("pluginJar") {

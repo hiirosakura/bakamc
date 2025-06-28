@@ -12,9 +12,8 @@ hikariVersion = "5.1.0"
 vaultUnlockedVersion = "2.10"
 placeholderApiVersion = "2.11.6"
 
-paperUserdevVersion = "1.7.1"
-runTaskVersion = "2.3.0"
-miraiMCVersion = "1.8.3"
+paperUserdevVersion = "2.0.0-beta.17"
+runTaskVersion = "2.3.1"
 slf4jVersion = "2.0.13"
 
 [libraries]

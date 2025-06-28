@@ -7,11 +7,9 @@ import cn.bakamc.folia.db.table.FlightEnergy
 import cn.bakamc.folia.util.execute
 import net.kyori.adventure.bossbar.BossBar
 import net.kyori.adventure.text.Component
-import org.bukkit.Server
 import org.bukkit.entity.Player
 
 class EnergyBar private constructor(
-    private val server: Server,
     private val player: Player,
     private val flightEnergy: FlightEnergy,
 ) {
@@ -19,8 +17,8 @@ class EnergyBar private constructor(
     private var lastEnergy = flightEnergy.energy
 
     companion object {
-        fun create(server: Server, player: Player, flightEnergy: FlightEnergy): EnergyBar {
-            return EnergyBar(server, player, flightEnergy)
+        fun create(player: Player, flightEnergy: FlightEnergy): EnergyBar {
+            return EnergyBar(player, flightEnergy)
         }
     }
 

@@ -25,16 +25,22 @@ object BlockEventListener : Listener {
                 event.inventory.result?.let { result ->
                     val renameText = result.itemMeta.displayName()?.plainText ?: ""
                     if (!BakaText.regex.containsMatchIn(renameText)) return
-                    val text = BakaText.parse(
-                        renameText, listOf(
-                            DecorationModifier(ANVIL_RENAME_DECORATION_MAPPING),
-                            ColorModifier,
-                            LegacyChatFormattingModifier(formatChars = ANVIL_RENAME_LEGACY_FORMAT_CHARS.toSet())
+                    val text = runCatching {
+                        BakaText.parse(
+                            renameText, listOf(
+                                DecorationModifier(ANVIL_RENAME_DECORATION_MAPPING),
+                                ColorModifier,
+                                LegacyChatFormattingModifier(formatChars = ANVIL_RENAME_LEGACY_FORMAT_CHARS.toSet())
+                            )
                         )
-                    )
-                    logger.debugInfo("物品重命名: ${event.inventory.firstItem?.displayName()?.plainText} -> $renameText")
+                    }.onFailure {
+                        logger.debugInfo("物品重命名解析失败: ${event.inventory.firstItem?.displayName()?.plainText} -> $renameText")
+                        logger.warn(it.message, it)
+                    }.onSuccess {
+                        logger.debugInfo("物品重命名: ${event.inventory.firstItem?.displayName()?.plainText} -> $renameText")
+                    }
                     val new = ItemStack(itemStack)
-                    new.editMeta { it.displayName(text) }
+                    new.editMeta { it.displayName(text.getOrDefault(result.itemMeta.displayName())) }
                     event.result = new
                     event.inventory.result = new
                 }

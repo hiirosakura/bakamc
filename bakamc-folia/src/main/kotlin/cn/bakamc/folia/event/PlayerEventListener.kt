@@ -5,10 +5,7 @@ import cn.bakamc.folia.config.MiscConfig
 import cn.bakamc.folia.config.MiscConfig.ENABLE_PLAYER_INTERACT_MODIFY
 import cn.bakamc.folia.config.MiscConfig.quick_block_use
 import cn.bakamc.folia.flight_energy.FlightEnergyManager
-import cn.bakamc.folia.item.customdata.InteractInterceptHandler
-import cn.bakamc.folia.item.customdata.LeftClickBlock
-import cn.bakamc.folia.item.customdata.LeftClickEntity
-import cn.bakamc.folia.item.customdata.RightClickBlock
+import cn.bakamc.folia.item.customdata.*
 import cn.bakamc.folia.service.PlayerService
 import cn.bakamc.folia.util.ioLaunch
 import cn.bakamc.folia.util.logger
@@ -115,7 +112,7 @@ object PlayerEventListener : Listener {
     @EventHandler
     fun onPlayerRightClickEntity(event: PlayerInteractEntityEvent) {
         if (ENABLE_PLAYER_INTERACT_MODIFY) {
-            if (InteractInterceptHandler.handlerInteract(event.player.inventory.getItem(event.hand), LeftClickEntity(event.rightClicked))) {
+            if (InteractInterceptHandler.handlerInteract(event.player.inventory.getItem(event.hand), RightClickEntity(event.rightClicked))) {
                 event.isCancelled = true
             }
         }

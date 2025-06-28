@@ -61,6 +61,7 @@ object ColorModifier : Modifier {
 
     private fun <C : ARGBColor> gradientText(content: String, start: C, end: C): TextComponent {
         return text { build ->
+            if (content.isEmpty()) return@text
             val texts = splitText(content)
             start.gradient(end, texts.size).forEachIndexed { index, color ->
                 build.append(text(texts[index], style {

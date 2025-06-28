@@ -108,7 +108,7 @@ object FlightEnergyManager : Listener, Initializable {
         runBlocking {
             energyCache.putAll(PlayerService.getFlightEnergies(onlinePlayers))
             energyCache.forEach { (player, flightEnergy) ->
-                energyBarCache[player] = EnergyBar.create(server, player, flightEnergy)
+                energyBarCache[player] = EnergyBar.create(player, flightEnergy)
             }
             logger.info("飞行能量加载完成")
         }
@@ -151,7 +151,7 @@ object FlightEnergyManager : Listener, Initializable {
 
     suspend fun onPlayerJoin(player: Player) {
         energyCache[player] = PlayerService.getFlightEnergy(player)
-        energyBarCache[player] = EnergyBar.create(server, player, energyCache[player]!!)
+        energyBarCache[player] = EnergyBar.create(player, energyCache[player]!!)
 
         if (player.allowFly()) {
             player.flightEnergy?.let {
