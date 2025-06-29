@@ -1,12 +1,13 @@
 package cn.bakamc.common.text.bakatext.modifier
 
+import cn.bakamc.common.text.flat
 import cn.bakamc.common.util.gradient
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.HSVColor
-import net.kyori.adventure.extra.kotlin.style
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.TextComponent
+import net.kyori.adventure.text.format.Style
 import net.kyori.adventure.text.format.TextColor
 import java.text.BreakIterator
 import java.util.*
@@ -36,7 +37,7 @@ object ColorModifier : Modifier {
             val (sStart, sEnd) = exp.split("->")
             val (start, end) = Color(sStart) to Color(sEnd)
             return { text ->
-                gradientText(text.content(), start, end)
+                gradientText(text, start, end)
             }
         }
         return null
@@ -53,36 +54,36 @@ object ColorModifier : Modifier {
             val (fStart, fEnd) = exp.split("->").map { it -> it.substring(1, it.length - 1).split(" ").map { it.toFloat() } }
             val (start, end) = HSVColor(fStart[0], fStart[1] / 100, fStart[2] / 100) to HSVColor(fEnd[0], fEnd[1] / 100, fEnd[2] / 100)
             return { text ->
-                gradientText(text.content(), start, end)
+                gradientText(text, start, end)
             }
         }
         return null
     }
 
-    private fun <C : ARGBColor> gradientText(content: String, start: C, end: C): TextComponent {
+    private fun <C : ARGBColor> gradientText(content: TextComponent, start: C, end: C): TextComponent {
         return text { build ->
-            if (content.isEmpty()) return@text
+            if (content.content().isEmpty()) return@text
             val texts = splitText(content)
             start.gradient(end, texts.size).forEachIndexed { index, color ->
-                build.append(text(texts[index], style {
-                    color(TextColor.color(color.rgb))
-                }))
+                build.append(texts[index].color(TextColor.color(color.rgb)))
             }
         }
     }
 
-    private fun splitText(text: String): List<String> = buildList {
-        val it: BreakIterator = BreakIterator.getCharacterInstance(Locale.US)
-        it.setText(text)
-        var start = it.first()
-        var end = it.next()
-
-        while (end != BreakIterator.DONE) {
-            val emoji = text.substring(start, end)
-            add(emoji)
-
-            start = end
-            end = it.next()
+    private fun splitText(text: TextComponent): List<TextComponent> = buildList {
+        text.flat().forEach { c ->
+            val style = if (c is TextComponent) c.style() else Style.empty()
+            val iterator: BreakIterator = BreakIterator.getCharacterInstance(Locale.US)
+            val t = if (c is TextComponent) c.content() else ""
+            iterator.setText(t)
+            var start = iterator.first()
+            var end = iterator.next()
+            while (end != BreakIterator.DONE) {
+                val emoji = t.substring(start, end)
+                add(text(emoji).style(style))
+                start = end
+                end = iterator.next()
+            }
         }
     }
 
