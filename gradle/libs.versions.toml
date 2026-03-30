@@ -1,47 +1,10 @@
 [versions]
-minecraftVersion = "1.21.4"
-velocityVersion = "3.4.0-SNAPSHOT"
-adventureVersion = "4.17.0"
-shadowVersion = "8.1.1"
-kotlinVersion = "2.0.0"
-kotlinCoroutinesVersion = "1.9.0"
-nebulaVersion = "0.2.23"
-ktormVersion = "4.1.1"
-mysqlVersion = "8.4.0"
-hikariVersion = "5.1.0"
-vaultUnlockedVersion = "2.10"
-placeholderApiVersion = "2.11.6"
+scalaLibrary3 = "3.7.4"
 
-paperUserdevVersion = "2.0.0-beta.17"
-runTaskVersion = "2.3.1"
-slf4jVersion = "2.0.13"
+#minecraft
+adventure = "4.26.1"
+
 
 [libraries]
-kotlinStdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlinVersion" }
-kotlinReflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlinVersion" }
-kotlinCoroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinCoroutinesVersion" }
-velocityApi = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocityVersion" }
-nebula = { group = "moe.forpleuvoir", name = "nebula", version.ref = "nebulaVersion" }
-vaultUnlockedApi = { group = "net.milkbowl.vault", name = "VaultUnlockedAPI", version.ref = "vaultUnlockedVersion" }
-
-adventureApi = { group = "net.kyori", name = "adventure-api", version.ref = "adventureVersion" }
-adventureExtraKotlin = { group = "net.kyori", name = "adventure-extra-kotlin", version.ref = "adventureVersion" }
-mysql = { group = "com.mysql", name = "mysql-connector-j", version.ref = "mysqlVersion" }
-ktormCore = { group = "org.ktorm", name = "ktorm-core", version.ref = "ktormVersion" }
-ktormMysql = { group = "org.ktorm", name = "ktorm-support-mysql", version.ref = "ktormVersion" }
-hikari = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikariVersion" }
-slf4j = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4jVersion" }
-placeholderApi = { group = "me.clip", name = "placeholderapi", version.ref = "placeholderApiVersion" }
-
-[bundles]
-ktorm = ["ktormCore", "ktormMysql"]
-database = ["mysql", "ktormCore", "ktormMysql", "hikari"]
-kotlin = ["kotlinStdlib", "kotlinReflect", "kotlinCoroutines"]
-adventure = ["adventureApi", "adventureExtraKotlin"]
-
-[plugins]
-kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinVersion" }
-shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadowVersion" }
-paperUserdev = { id = "io.papermc.paperweight.userdev", version.ref = "paperUserdevVersion" }
-runPaper = { id = "xyz.jpenilla.run-paper", version.ref = "runTaskVersion" }
-runVelocity = { id = "xyz.jpenilla.run-velocity", version.ref = "runTaskVersion" }
+scalaLibrary3 = { group = "org.scala-lang", name = "scala3-library_3", version.ref = "scalaLibrary3" }
+adventureApi = { group = "net.kyori", name = "adventure-api", version.ref = "adventure" }
