@@ -3,6 +3,7 @@ package moe.forpleuvoir.nebula.serialization.base
 
 import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, Buffer}
+import scala.util.Try
 
 //region SerializeElement
 sealed trait SerializeElement {
@@ -19,22 +20,45 @@ sealed trait SerializeElement {
 
   def isNull: Boolean = false
 
-  private def errorType(clazz: Class[?]): UnsupportedOperationException =
-    new UnsupportedOperationException(s"Cannot convert [${this.getClass.getName}] to [${clazz.getClass.getName}].")
+  def asPrimitive: Option[SerializePrimitive] = Option.empty
 
-  def asPrimitive: SerializePrimitive = throw errorType(SerializePrimitive.getClass)
+  def asArray: Option[SerializeArray] = Option.empty
 
-  def asArray: SerializeArray = throw errorType(SerializeArray.getClass)
+  def asObject: Option[SerializeObject] = Option.empty
 
-  def asObject: SerializeObject = throw errorType(SerializeObject.getClass)
+  def asNull: Option[SerializeNull.type] = Option.empty
 
-  def asNull: SerializeNull.type = throw errorType(SerializeNull.getClass)
+  def asChar: Option[Char] = Option.empty
+
+  def asString: Option[String] = Option.empty
+
+  def asBoolean: Option[Boolean] = Option.empty
+
+  def asNumber: Option[Number] = Option.empty
+
+  def asByte: Option[Byte] = Option.empty
+
+  def asShort: Option[Short] = Option.empty
+
+  def asInt: Option[Int] = Option.empty
+
+  def asLong: Option[Long] = Option.empty
+
+  def asFloat: Option[Float] = Option.empty
+
+  def asDouble: Option[Double] = Option.empty
+
+  def asBigInt: Option[BigInt] = Option.empty
+
+  def asBigDecimal: Option[BigDecimal] = Option.empty
 
 }
 //endregion
 
 //region SerializePrimitive
-case class SerializePrimitive private(private[serialization] val value: Any) extends SerializeElement {
+type Primitive = String | Boolean | Int | Long | Float | Double | Byte | Short | Char | BigInt | BigDecimal
+
+case class SerializePrimitive private(private[serialization] val value: Primitive) extends SerializeElement {
 
   override def copy: SerializePrimitive = SerializePrimitive(value)
 
@@ -42,7 +66,9 @@ case class SerializePrimitive private(private[serialization] val value: Any) ext
 
   override def isPrimitive: Boolean = true
 
-  override def asPrimitive: SerializePrimitive = this
+  override def asPrimitive: Option[SerializePrimitive] = Option(this)
+
+  def isChar: Boolean = value.isInstanceOf[Char]
 
   def isString: Boolean = value.isInstanceOf[String]
 
@@ -62,70 +88,82 @@ case class SerializePrimitive private(private[serialization] val value: Any) ext
 
   def isDouble: Boolean = value.isInstanceOf[Double]
 
-  def isBigInteger: Boolean = value.isInstanceOf[BigInt]
+  def isBigInt: Boolean = value.isInstanceOf[BigInt]
 
   def isBigDecimal: Boolean = value.isInstanceOf[BigDecimal]
 
-  def asString: String = value match {
-    case s: String => s
+  override def asChar: Option[Char] = value match {
+    case c: Char => Some(c)
+    case s: String => if (s.nonEmpty) Some(s.charAt(0)) else None
+    case _ => val str = value.toString
+      if (str.nonEmpty) Some(str.charAt(0)) else None
+  }
+
+  override def asString: Option[String] = value match {
+    case s: String => Some(s)
+    case _ => Some(value.toString)
+  }
+
+  override def asBoolean: Option[Boolean] = value match {
+    case b: Boolean => Some(b)
+    case _ =>
+      try Some(value.toString.toBoolean)
+      catch {
+        case _: Exception => None
+      }
+  }
+
+  override def asNumber: Option[Number] = value match {
+    case n: Number => Some(n)
+    case s: String => Some(new LazilyParsedNumber(s))
+    case _ => None
+  }
+
+  override def asByte: Option[Byte] = value match {
+    case n: Number => Some(n.byteValue())
+    case _ => Some(value.toString.toByte)
+  }
+
+  override def asShort: Option[Short] = value match {
+    case n: Number => Some(n.shortValue())
+    case _ => Some(value.toString.toShort)
+  }
+
+  override def asInt: Option[Int] = value match {
+    case n: Number => Some(n.intValue())
+    case _ => Some(value.toString.toInt)
+  }
+
+  override def asLong: Option[Long] = value match {
+    case n: Number => Some(n.longValue())
+    case _ => Some(value.toString.toLong)
+  }
+
+  override def asFloat: Option[Float] = value match {
+    case n: Number => Some(n.floatValue())
+    case _ => Some(value.toString.toFloat)
+  }
+
+  override def asDouble: Option[Double] = value match {
+    case n: Number => Some(n.doubleValue())
+    case _ => Some(value.toString.toDouble)
+  }
+
+  override def asBigInt: Option[BigInt] = value match {
+    case i: BigInt => Some(i)
+    case n: Number => Some(BigInt(n.longValue()))
+    case _ => Some(BigInt(value.toString))
+  }
+
+  override def asBigDecimal: Option[BigDecimal] = value match {
+    case i: BigDecimal => Some(i)
+    case n: Number => Some(BigDecimal(n.doubleValue()))
+    case _ => Some(BigDecimal(value.toString))
+  }
+
+  override def toString: String = value match {
+    case s: String => s"\"$s\""
     case _ => value.toString
-  }
-
-  def asBoolean: Boolean = value match {
-    case b: Boolean => b
-    case _ => value.toString.toBoolean
-  }
-
-  def asNumber: Number = value match {
-    case s: String => new LazilyParsedNumber(s)
-    case _ => value.asInstanceOf[Number]
-  }
-
-  def asByte: Byte = value match {
-    case n: Number => n.byteValue()
-    case _ => value.toString.toByte
-  }
-
-  def asShort: Short = value match {
-    case n: Number => n.shortValue()
-    case _ => value.toString.toShort
-  }
-
-  def asInt: Int = value match {
-    case n: Number => n.intValue()
-    case _ => value.toString.toInt
-  }
-
-  def asLong: Long = value match {
-    case n: Number => n.longValue()
-    case _ => value.toString.toLong
-  }
-
-  def asFloat: Float = value match {
-    case n: Number => n.floatValue()
-    case _ => value.toString.toFloat
-  }
-
-  def asDouble: Double = value match {
-    case n: Number => n.doubleValue()
-    case _ => value.toString.toDouble
-  }
-
-  def asBigInteger: BigInt = value match {
-    case i: BigInt => i
-    case n: Number => BigInt(n.longValue())
-    case _ => BigInt(value.toString)
-  }
-
-  def asBigDecimal: BigDecimal = value match {
-    case i: BigDecimal => i
-    case n: Number => BigDecimal(n.doubleValue())
-    case _ => BigDecimal(value.toString)
-  }
-
-  override def toString: String = {
-    if (isString) s"\"$asString\""
-    else value.toString
   }
 
   override def hashCode(): Int = value.hashCode()
@@ -137,45 +175,9 @@ case class SerializePrimitive private(private[serialization] val value: Any) ext
 
 }
 
-type Primitive = String | Boolean | Int | Long | Float | Double | Byte | Short | Char | BigInt | BigDecimal
-
 object SerializePrimitive {
 
-  def apply(boolean: Boolean) = new SerializePrimitive(boolean)
-
-  def apply(string: String) = new SerializePrimitive(string)
-
-  def apply(char: Char) = new SerializePrimitive(char.toString)
-
-  def apply(byte: Byte) = new SerializePrimitive(byte)
-
-  def apply(short: Short) = new SerializePrimitive(short)
-
-  def apply(int: Int) = new SerializePrimitive(int)
-
-  def apply(long: Long) = new SerializePrimitive(long)
-
-  def apply(float: Float) = new SerializePrimitive(float)
-
-  def apply(double: Double) = new SerializePrimitive(double)
-
-  def apply(bigInteger: BigInt) = new SerializePrimitive(bigInteger)
-
-  def apply(bigDecimal: BigDecimal) = new SerializePrimitive(bigDecimal)
-
-  def of(value: Primitive): SerializePrimitive = value match {
-    case s: String => SerializePrimitive(s)
-    case b: Boolean => SerializePrimitive(b)
-    case i: Int => SerializePrimitive(i)
-    case l: Long => SerializePrimitive(l)
-    case f: Float => SerializePrimitive(f)
-    case d: Double => SerializePrimitive(d)
-    case b: Byte => SerializePrimitive(b)
-    case s: Short => SerializePrimitive(s)
-    case c: Char => SerializePrimitive(c)
-    case bi: BigInt => SerializePrimitive(bi)
-    case bd: BigDecimal => SerializePrimitive(bd)
-  }
+  def apply(value: Primitive) = new SerializePrimitive(value)
 
 }
 //endregion
@@ -199,6 +201,8 @@ case class SerializeArray(private val elements: mutable.Buffer[SerializeElement]
   override def length: Int = elements.length
 
   override def apply(idx: Int): SerializeElement = elements(idx)
+
+  def get(idx: Int): Option[SerializeElement] = Try(elements(idx)).toOption
 
   override def update(idx: Int, elem: SerializeElement): Unit = elements.update(idx, elem)
 
@@ -252,10 +256,10 @@ case class SerializeArray(private val elements: mutable.Buffer[SerializeElement]
 
   override def isArray: Boolean = true
 
-  override def asArray: SerializeArray = this
+  override def asArray: Option[SerializeArray] = Option(this)
 
   def add(value: Primitive): SerializeArray.this.type = {
-    elements.addOne(SerializePrimitive.of(value))
+    elements.addOne(SerializePrimitive(value))
     this
   }
 
@@ -265,7 +269,7 @@ case class SerializeArray(private val elements: mutable.Buffer[SerializeElement]
   }
 
   def addAll(values: Primitive*): Unit = {
-    values.foreach(value => elements.addOne(SerializePrimitive.of(value)))
+    values.foreach(value => elements.addOne(SerializePrimitive(value)))
   }
 
 }
@@ -275,7 +279,7 @@ object SerializeArray {
   def apply(elements: SerializeElement | Primitive*): SerializeArray =
     new SerializeArray(ArrayBuffer.from(elements.map {
       case v: SerializeElement => v
-      case v: Primitive => SerializePrimitive.of(v)
+      case v: Primitive => SerializePrimitive(v)
     }))
 
 }
@@ -353,12 +357,12 @@ case class SerializeObject private(private val members: mutable.Map[String, Seri
 
   override def isObject: Boolean = true
 
-  override def asObject: SerializeObject = this
+  override def asObject: Option[SerializeObject] = Option(this)
 
   def update(key: String, value: SerializeElement | Primitive): Unit = {
     members.update(key, value match {
       case v: SerializeElement => v
-      case v: Primitive => SerializePrimitive.of(v)
+      case v: Primitive => SerializePrimitive(v)
     })
   }
 
@@ -374,7 +378,17 @@ object SerializeObject {
     new SerializeObject(mutable.LinkedHashMap.from(members.map { (key, value) =>
       val v = value match {
         case v: SerializeElement => v
-        case v: Primitive => SerializePrimitive.of(v)
+        case v: Primitive => SerializePrimitive(v)
+      }
+      (key, v)
+    }))
+  }
+
+  def apply(members: Map[String, SerializeElement | Primitive]): SerializeObject = {
+    new SerializeObject(mutable.LinkedHashMap.from(members.map { (key, value) =>
+      val v = value match {
+        case v: SerializeElement => v
+        case v: Primitive => SerializePrimitive(v)
       }
       (key, v)
     }))
@@ -388,7 +402,7 @@ case object SerializeNull extends SerializeElement {
 
   override def isNull: Boolean = true
 
-  override def asNull: SerializeNull.type = this
+  override def asNull: Option[SerializeNull.type] = Option(this)
 
   override def copy: SerializeElement = this
 

@@ -1,44 +1,65 @@
 package moe.forpleuvoir.nebula.common.util.primitive
 
+import scala.collection.immutable.NumericRange
+import scala.math.BigDecimal
+import scala.math.BigDecimal.double2bigDecimal
+
 object CoerceInExtension {
   extension (self: Double) {
 
-    def coerceIn(min: Double, max: Double): Double = Math.clamp(self, min, max)
+    def clamp(min: Double, max: Double): Double = Math.clamp(self, min, max)
+
+    def clamp(range: Range.Partial[BigDecimal, NumericRange.Inclusive[BigDecimal]]): Double = {
+      val r = range.by(0)
+      Math.clamp(self, r.start.toDouble, r.end.toDouble)
+    }
 
     infix def in(min: Double, max: Double): Boolean = min <= self && self <= max
 
-    infix def notIn(min: Double, max: Double): Boolean = self in(min, max)
+    infix def notIn(min: Double, max: Double): Boolean = !(self in(min, max))
 
   }
 
 
   extension (self: Float) {
 
-    def coerceIn(min: Float, max: Float): Float = Math.clamp(self, min, max)
+    def clamp(min: Float, max: Float): Float = Math.clamp(self, min, max)
+
+    def clamp(range: Range.Partial[BigDecimal, NumericRange.Inclusive[BigDecimal]]): Float = {
+      val r = range.by(0)
+      Math.clamp(self, r.start.toFloat, r.end.toFloat)
+    }
 
     infix def in(min: Float, max: Float): Boolean = min <= self && self <= max
 
-    infix def notIn(min: Float, max: Float): Boolean = self in(min, max)
+    infix def notIn(min: Float, max: Float): Boolean = !(self in(min, max))
 
   }
 
   extension (self: Int) {
 
-    def coerceIn(min: Int, max: Int): Int = Math.clamp(self, min, max)
+    def clamp(min: Int, max: Int): Int = Math.clamp(self, min, max)
+
+    def clamp(range: Range): Int = Math.clamp(self, range.start, range.end)
 
     infix def in(min: Int, max: Int): Boolean = min <= self && self <= max
 
-    infix def notIn(min: Int, max: Int): Boolean = self in(min, max)
+    infix def notIn(min: Int, max: Int): Boolean = !(self in(min, max))
 
   }
 
   extension (self: Long) {
 
-    def coerceIn(min: Long, max: Long): Long = Math.clamp(self, min, max)
+    def clamp(min: Long, max: Long): Long = Math.clamp(self, min, max)
+
+    def clamp(range: Range.Partial[BigDecimal, NumericRange.Inclusive[BigDecimal]]): Long = {
+      val r = range.by(0)
+      Math.clamp(self, r.start.toLong, r.end.toLong)
+    }
 
     infix def in(min: Long, max: Long): Boolean = min <= self && self <= max
 
-    infix def notIn(min: Long, max: Long): Boolean = self in(min, max)
+    infix def notIn(min: Long, max: Long): Boolean = !(self in(min, max))
 
   }
 }
