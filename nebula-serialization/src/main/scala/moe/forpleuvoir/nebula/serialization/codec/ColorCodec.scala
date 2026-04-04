@@ -1,11 +1,11 @@
 package moe.forpleuvoir.nebula.serialization.codec
 
 import moe.forpleuvoir.nebula.common.color.Color
-import moe.forpleuvoir.nebula.serialization.Codec
 import moe.forpleuvoir.nebula.serialization.base.{SerializeArray, SerializeElement, SerializeObject, SerializePrimitive}
-import moe.forpleuvoir.nebula.serialization.extension.*
+import moe.forpleuvoir.nebula.serialization.codec.Codec
+import moe.forpleuvoir.nebula.serialization.extension.SerObjectOps.*
 
-import scala.util.Try
+import scala.util.{Success, Try}
 
 private def decodeColor(data: SerializeElement): Color = data match {
   case primitive: SerializePrimitive =>
@@ -43,6 +43,18 @@ object ColorCodec extends Codec[Color] {
 
   override def serialization(value: Color): SerializeElement = SerializePrimitive(value.toHex)
 
+}
+
+class ColorDefaultableCodec(default: Color) extends Codec[Color] {
+  override def deserialization(data: SerializeElement): Try[Color] = Success {
+    ColorCodec.deserialization(data).getOrElse(default)
+  }
+
+  override def serialization(value: Color): SerializeElement = ColorCodec.serialization(value)
+}
+
+object ColorDefaultableCodec {
+  def default(default: Color): ColorDefaultableCodec = new ColorDefaultableCodec(default)
 }
 
 given Codec[Color] = ColorCodec

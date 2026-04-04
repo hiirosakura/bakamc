@@ -1,7 +1,7 @@
 package moe.forpleuvoir.nebula.serialization.extension
 
 import moe.forpleuvoir.nebula.serialization.base.{Primitive, SerializeElement, SerializeNull, SerializePrimitive}
-import moe.forpleuvoir.nebula.serialization.{Deserializer, Serializer}
+import moe.forpleuvoir.nebula.serialization.codec.{Deserializer, Serializer}
 
 import scala.util.Try
 
@@ -21,13 +21,22 @@ extension [T](self: T) {
       case se: SerializeElement => se
       case p: Primitive => SerializePrimitive(p)
       case map: Map[_, _] => serObject(map.map((k, v) => k.toString -> v.toSerializeElement))
-      case ite:Iterable[_] => serArray(ite.map(_.toSerializeElement))
-      case array:Array[_] => serArray(array.map(_.toSerializeElement).toSeq)
-      case je:java.lang.Enum[_] => SerializePrimitive(je.name)
+      case ite: Iterable[_] => serArray(ite.map(_.toSerializeElement))
+      case array: Array[_] => serArray(array.map(_.toSerializeElement).toSeq)
+      case je: java.lang.Enum[_] => SerializePrimitive(je.name)
       case _ => ???
     }
   }
 
 }
 
-def deserialization[T](element: SerializeElement)(using serializer: Deserializer[T]): Try[T] = serializer.deserialization(element)
+extension (element: SerializeElement) {
+  /**
+   * 反序列化为指定类型
+   *
+   * @param serializer 反序列化器
+   * @tparam T
+   * @return
+   */
+  def deserialization[T](using serializer: Deserializer[T]): Try[T] = serializer.deserialization(element)
+}

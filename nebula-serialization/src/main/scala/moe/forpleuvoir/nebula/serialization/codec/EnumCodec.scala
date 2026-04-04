@@ -1,7 +1,7 @@
 package moe.forpleuvoir.nebula.serialization.codec
 
 import moe.forpleuvoir.nebula.serialization.base.{SerializeElement, SerializePrimitive}
-import moe.forpleuvoir.nebula.serialization.{Codec, Serializer}
+import moe.forpleuvoir.nebula.serialization.codec.{Codec, Serializer}
 
 import java.lang.Enum as JEnum
 import scala.reflect.ClassTag

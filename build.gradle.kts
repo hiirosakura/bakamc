@@ -58,6 +58,12 @@ subprojects {
         withType<Test> {
             useJUnitPlatform()
         }
+
+        test {
+            testLogging {
+                showStandardStreams = true
+            }
+        }
     }
 
 }

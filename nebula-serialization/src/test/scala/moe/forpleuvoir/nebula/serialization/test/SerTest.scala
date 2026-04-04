@@ -1,10 +1,12 @@
 package moe.forpleuvoir.nebula.serialization.test
 
 import moe.forpleuvoir.nebula.common.color.Color
+import moe.forpleuvoir.nebula.serialization.TestEnum
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
-import moe.forpleuvoir.nebula.serialization.codec.{JavaEnumCodec, given}
+import moe.forpleuvoir.nebula.serialization.codec.{Codec, JavaEnumCodec, given}
 import moe.forpleuvoir.nebula.serialization.extension.*
-import moe.forpleuvoir.nebula.serialization.{Codec, TestEnum}
+import moe.forpleuvoir.nebula.serialization.extension.SerArrayOps.*
+import moe.forpleuvoir.nebula.serialization.extension.SerObjectOps.*
 import org.junit.jupiter.api.Test
 
 class SerTest {
@@ -50,14 +52,14 @@ class SerTest {
       "saturation" := 50
       "value" := 100
     }
-    println(deserialization[Color](hc).get.asString)
+    println(hc.deserialization[Color].get.asString)
 
     var hsv = Color.fromHSV(359, 50f, 100f)
     println(hsv.serialization)
 
     println(hsv.asString)
 
-    val color: Color = deserialization[Color](c).get
+    val color: Color = c.deserialization[Color].get
     println(color.asString)
     println(color.hue)
     println(color.saturation)
@@ -92,24 +94,26 @@ class SerTest {
   def test3(): Unit = {
     val s1 = CE.GREEN.serialization
     println(s1)
-    val c = deserialization[CE](s1)
+    val c = s1.deserialization[CE]
     println(c)
 
     val u = User(name = "forpleuvoir", age = 18, color = CE.GREEN)
     val us = u.serialization
     println(us)
-    val u2 = deserialization[User](us)
+    val u2 = us.deserialization[User]
     println(u2)
 
     val t = (2, "forpleuvoir")
     val ts = t.serialization
     println(ts)
-    val t2 = deserialization[(Int, String)](ts)
+    val t2 = ts.deserialization[(Int, String)]
     println(t2)
 
   }
 
 }
+
+
 
 given Codec[(Int, String)] = Codec.derived
 

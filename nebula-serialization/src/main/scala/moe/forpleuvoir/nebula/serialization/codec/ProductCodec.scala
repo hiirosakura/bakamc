@@ -1,8 +1,10 @@
 package moe.forpleuvoir.nebula.serialization.codec
 
-import moe.forpleuvoir.nebula.serialization.Codec
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
-import moe.forpleuvoir.nebula.serialization.extension.{:=, add, buildSerArray, buildSerObject}
+import moe.forpleuvoir.nebula.serialization.codec.Codec
+import moe.forpleuvoir.nebula.serialization.extension.SerArrayOps.*
+import moe.forpleuvoir.nebula.serialization.extension.SerObjectOps.*
+import moe.forpleuvoir.nebula.serialization.extension.{buildSerArray, buildSerObject}
 
 import scala.deriving.Mirror
 import scala.util.Try
