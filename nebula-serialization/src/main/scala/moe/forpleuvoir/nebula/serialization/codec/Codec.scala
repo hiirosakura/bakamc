@@ -25,7 +25,7 @@ object Codec {
 
   export PrimitiveCodec._
 
-  def build[T]: CodecBuilder[T, EmptyTuple] = CodecBuilder[T]
+  def create[T]: CodecBuilder[T, EmptyTuple] = CodecBuilder[T]
 
 
 }

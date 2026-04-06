@@ -29,7 +29,7 @@ class TestClass(val a: Int, val b: Float, val c: String, val d: Double) {
 }
 
 object TestClass {
-  val codec: Codec[TestClass] = Codec.build[TestClass]
+  val codec: Codec[TestClass] = Codec.create[TestClass]
     .fieldUsingCodec("a")(_.a)
     .field("_b?")(_.b)(Codec.Float(32, range = (0, 100)))
     .field("c")(_.c)(Codec.String("默认值"))
