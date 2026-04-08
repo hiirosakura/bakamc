@@ -7,6 +7,9 @@
  */
 
 rootProject.name = "bakamc"
-include("nebula-serialization")
 include("nebula-common")
+include("nebula-serialization")
+include("nebula-config")
+
+
 include("bakamc-common")

@@ -162,8 +162,26 @@ case class SerializePrimitive private(private[serialization] val value: Primitiv
   }
 
   override def toString: String = value match {
-    case s: String => s"\"$s\""
+    case s: String => s"\"${escape(s)}\""
     case _ => value.toString
+  }
+
+  private def escape(s: String): String = {
+    val sb = new StringBuilder
+    s.foreach {
+      case '"' => sb.append("\\\"")
+      case '\\' => sb.append("\\\\")
+      case '\b' => sb.append("\\b")
+      case '\f' => sb.append("\\f")
+      case '\n' => sb.append("\\n")
+      case '\r' => sb.append("\\r")
+      case '\t' => sb.append("\\t")
+      case c if c.isControl =>
+        // 处理控制字符，转为 \u00XX 格式
+        sb.append(f"\\u${c.toInt}%04x")
+      case c => sb.append(c)
+    }
+    sb.toString()
   }
 
   override def hashCode(): Int = value.hashCode()

@@ -92,10 +92,7 @@ class JavaBeanCodec[T](using tag: ClassTag[T]) extends Codec[T] {
       case t if t == classOf[BigInt] => BigInt.asInstanceOf[Codec[?]]
       case t if t == classOf[BigDecimal] => BigDecimal.asInstanceOf[Codec[?]]
       case t if t.isEnum => JavaEnumCodec.asInstanceOf[Codec[?]]
-      case _ =>
-        // 对于其他类型，尝试使用派生的 Codec
-        // 注意：这只适用于 Scala 类型，对于 Java 类型可能需要特殊处理
-        summon[Codec[Any]].asInstanceOf[Codec[?]]
+      case _ => throw new IllegalArgumentException(s"Unsupported type: ${field.getType}")
     }
   }
 
