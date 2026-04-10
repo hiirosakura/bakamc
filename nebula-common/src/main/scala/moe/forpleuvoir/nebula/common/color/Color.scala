@@ -252,7 +252,12 @@ object Color {
   //基础分量
   extension (color: Color) {
 
-    def toHex: String = f"#$color%08X"
+    def toHex: String = {
+      if (alpha == 255)
+        f"#${color & 0xFFFFFF}%06X"
+      else
+        f"#$color%08X"
+    }
 
     def asString: String =
       s"Color(hex: ${color.toHex}, alpha: ${color.alpha}, rgb: (${color.red}, ${color.green}, ${color.blue}), hsv: (${HSVHelper.getHue(color)}, ${HSVHelper.getSaturation(color)}, ${HSVHelper.getValue(color)}))"
@@ -449,7 +454,7 @@ object Color {
       Color.fromARGB(red, green, blue, a)
     }
 
-    infix def + (other: Color): Color = {
+    infix def +(other: Color): Color = {
       val red = (color.red + other.red).clamp(0, 255)
       val green = (color.green + other.green).clamp(0, 255)
       val blue = (color.blue + other.blue).clamp(0, 255)
@@ -457,7 +462,7 @@ object Color {
       Color.fromARGB(red, green, blue, a)
     }
 
-    infix def - (other: Color): Color = {
+    infix def -(other: Color): Color = {
       val red = (color.red - other.red).clamp(0, 255)
       val green = (color.green - other.green).clamp(0, 255)
       val blue = (color.blue - other.blue).clamp(0, 255)
@@ -465,7 +470,7 @@ object Color {
       Color.fromARGB(red, green, blue, a)
     }
 
-    infix def * (other: Color): Color = {
+    infix def *(other: Color): Color = {
       val red = (color.redF * other.redF).clamp(0, 1)
       val green = (color.greenF * other.greenF).clamp(0, 1)
       val blue = (color.blueF * other.blueF).clamp(0, 1)
@@ -473,7 +478,7 @@ object Color {
       Color.fromARGB(red, green, blue, a)
     }
 
-    infix def / (other: Color): Color = {
+    infix def /(other: Color): Color = {
       val red = (color.redF / other.redF).clamp(0, 1)
       val green = (color.greenF / other.greenF).clamp(0, 1)
       val blue = (color.blueF / other.blueF).clamp(0, 1)

@@ -1,10 +1,9 @@
 package moe.forpleuvoir.nebula.serialization.codec
 
-import moe.forpleuvoir.nebula.serialization.base.SerializeElement
+import moe.forpleuvoir.nebula.serialization.base.{SerializeArray, SerializeElement, SerializeObject}
 import moe.forpleuvoir.nebula.serialization.codec.Codec
 import moe.forpleuvoir.nebula.serialization.extension.SerArrayOps.*
 import moe.forpleuvoir.nebula.serialization.extension.SerObjectOps.*
-import moe.forpleuvoir.nebula.serialization.extension.{buildSerArray, buildSerObject}
 
 import scala.deriving.Mirror
 import scala.util.Try
@@ -47,14 +46,14 @@ class ProductCodec[P](
   override def serialization(value: P): SerializeElement = {
     val p = value.asInstanceOf[Product]
     if (isTuple) {
-      buildSerArray {
+      SerializeArray.build {
         codecs.zipWithIndex.foreach { (codec, idx) =>
           val fieldValue = p.productElement(idx)
           add(codec.asInstanceOf[Codec[Any]].serialization(fieldValue))
         }
       }
     } else {
-      buildSerObject {
+      SerializeObject.build {
         labels.zip(codecs).zipWithIndex.foreach { case ((label, codec), idx) =>
           val fieldValue = p.productElement(idx)
           label := codec.asInstanceOf[Codec[Any]].serialization(fieldValue)

@@ -1,10 +1,11 @@
 package moe.forpleuvoir.nebula.serialization.extension
 
 import moe.forpleuvoir.nebula.serialization.base.{Primitive, SerializeArray, SerializeElement, SerializePrimitive}
-import moe.forpleuvoir.nebula.serialization.codec.Serializer
+import moe.forpleuvoir.nebula.serialization.codec.{Serializable, Serializer}
 
 /**
  * need import moe.forpleuvoir.nebula.serialization.extension.SerArrayOps._
+ *
  * @param block
  * @return
  */
@@ -14,7 +15,7 @@ def buildSerArray(block: SerializeArray ?=> Unit): SerializeArray = {
   array
 }
 
-inline def serArray(elements: SerializeElement | Primitive*) = SerializeArray(elements *)
+inline def serArray(elements: SerializeElement | Serializable | Primitive*) = SerializeArray(elements *)
 
 def serArray[T](elements: T*)(using s: Serializer[T]) = {
   val array = SerializeArray()

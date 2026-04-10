@@ -166,7 +166,7 @@ class JsonTest {
       |    # 深度嵌套的多行文本，测试去缩进（Dedent）
       |    motd: {
       |      content: '''
-      |        欢迎来到 Nebula 测试服务器！
+      |          欢迎来到 Nebula 测试服务器！
       |
       |        本行上方是一个纯空行（不带空格）。
       |          本行比第一行多两个空格（相对缩进）。
@@ -179,7 +179,7 @@ class JsonTest {
       |# 测试数组中的混合多行文本
       |mod_list: [
       |  '''
-      |  Hiiro Sakura Core
+      |    Hiiro Sakura Core
       |  Version: 2.3.0
       |  '''
       |  # 紧跟一个带特殊字符的字符串

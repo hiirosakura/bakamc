@@ -2,10 +2,10 @@ package moe.forpleuvoir.nebula.serialization.test
 
 import moe.forpleuvoir.nebula.serialization.extension.SerObjectOps.*
 import moe.forpleuvoir.nebula.serialization.extension.buildSerObject
-import moe.forpleuvoir.nebula.serialization.hjson.CommentedHJsonEncoder
+import moe.forpleuvoir.nebula.serialization.hjson.HJsonCommentedEncoder
 
 // 1. 实现一个具体的测试类
-class TestConfigEncoder(commentMap: Map[String, String]) extends CommentedHJsonEncoder {
+class TestConfigEncoder(commentMap: Map[String, String]) extends HJsonCommentedEncoder {
   // 实现接口，让 Encoder 能拿到注释
   override def getComment(path: String): Option[String] = commentMap.get(path)
 }

@@ -1,6 +1,9 @@
 //noinspection DuplicatedCode
 package moe.forpleuvoir.nebula.serialization.base
 
+import moe.forpleuvoir.nebula.serialization.codec.Serializable
+import moe.forpleuvoir.nebula.serialization.extension.{SerArrayOps, SerObjectOps, buildSerArray, buildSerObject}
+
 import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, Buffer}
 import scala.util.Try
@@ -294,11 +297,16 @@ case class SerializeArray(private val elements: mutable.Buffer[SerializeElement]
 
 object SerializeArray {
 
-  def apply(elements: SerializeElement | Primitive*): SerializeArray =
+  def apply(elements: SerializeElement | Serializable | Primitive*): SerializeArray =
     new SerializeArray(ArrayBuffer.from(elements.map {
       case v: SerializeElement => v
       case v: Primitive => SerializePrimitive(v)
+      case v: Serializable => v.serialization
     }))
+
+  def build(block: SerializeArray ?=> Unit): SerializeArray = buildSerArray(block)
+  
+  export SerArrayOps._
 
 }
 //endregion
@@ -377,10 +385,11 @@ case class SerializeObject private(private val members: mutable.Map[String, Seri
 
   override def asObject: Option[SerializeObject] = Option(this)
 
-  def update(key: String, value: SerializeElement | Primitive): Unit = {
+  def update(key: String, value: SerializeElement | Serializable | Primitive): Unit = {
     members.update(key, value match {
       case v: SerializeElement => v
       case v: Primitive => SerializePrimitive(v)
+      case v: Serializable => v.serialization
     })
   }
 
@@ -392,11 +401,12 @@ case class SerializeObject private(private val members: mutable.Map[String, Seri
 
 object SerializeObject {
 
-  def apply(members: (String, SerializeElement | Primitive)*): SerializeObject = {
+  def apply(members: (String, SerializeElement | Serializable | Primitive)*): SerializeObject = {
     new SerializeObject(mutable.LinkedHashMap.from(members.map { (key, value) =>
       val v = value match {
         case v: SerializeElement => v
         case v: Primitive => SerializePrimitive(v)
+        case v: Serializable => v.serialization
       }
       (key, v)
     }))
@@ -411,6 +421,10 @@ object SerializeObject {
       (key, v)
     }))
   }
+
+  def build(block: SerializeObject ?=> Unit): SerializeObject = buildSerObject(block)
+
+  export SerObjectOps._
 
 }
 //endregion

@@ -1,35 +1,31 @@
 package moe.forpleuvoir.nebula.common.util
 
-import scala.collection.mutable.ArrayBuffer
-import scala.util.control.Breaks
+import scala.annotation.tailrec
 
 extension [T](self: T) {
 
   def countParents(parentSupplier: T => Option[T]): Int = {
-    var count = 0
-    var current: Option[T] = Some(self)
-    Breaks.breakable {
-      while (current.isDefined) {
-        val parent = parentSupplier(current.get)
-        if (parent.isEmpty) {
-          Breaks.break()
-        } else {
-          count += 1
-          current = parent
-        }
+    @tailrec
+    def loop(current: T, count: Int): Int = {
+      parentSupplier(current) match {
+        case Some(parent) => loop(parent, count + 1)
+        case None => count
       }
     }
-    count
+    loop(self, 0)
   }
 
-  def pathToRoot(limit: Int = Int.MaxValue, parentSupplier: T => Option[T]): List[T] = {
-    val path = ArrayBuffer[T]()
-    var currentNode: Option[T] = Some(self)
-    while (currentNode.isDefined && path.size <= limit) {
-      path += currentNode.get
-      currentNode = parentSupplier(currentNode.get)
+
+  def parents(limit: Int = Int.MaxValue)(parentSupplier: T => Option[T]): List[T] = {
+    @tailrec
+    def loop(current: T, acc: List[T], depth: Int): List[T] = {
+      if (depth >= limit) acc.reverse
+      else parentSupplier(current) match {
+        case Some(parent) => loop(parent, current :: acc, depth + 1)
+        case None => (current :: acc).reverse
+      }
     }
-    path.reverse.toList
+    loop(self, Nil, 0)
   }
 
 }

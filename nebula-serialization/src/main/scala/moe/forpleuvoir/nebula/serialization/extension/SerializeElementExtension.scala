@@ -1,7 +1,7 @@
 package moe.forpleuvoir.nebula.serialization.extension
 
 import moe.forpleuvoir.nebula.serialization.base.{Primitive, SerializeElement, SerializeNull, SerializePrimitive}
-import moe.forpleuvoir.nebula.serialization.codec.{Deserializer, Serializer}
+import moe.forpleuvoir.nebula.serialization.codec.{Deserializer, Serializable, Serializer}
 
 import scala.util.Try
 
@@ -24,7 +24,8 @@ extension [T](self: T) {
       case ite: Iterable[_] => serArray(ite.map(_.toSerializeElement))
       case array: Array[_] => serArray(array.map(_.toSerializeElement).toSeq)
       case je: java.lang.Enum[_] => SerializePrimitive(je.name)
-      case _ => ???
+      case s: Serializable => s.serialization
+      case _ => throw new UnsupportedOperationException(s"Unsupported type ${self.getClass.getName}")
     }
   }
 

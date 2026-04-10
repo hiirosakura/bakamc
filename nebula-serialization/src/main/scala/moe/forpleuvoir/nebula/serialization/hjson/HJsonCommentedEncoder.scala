@@ -2,7 +2,7 @@ package moe.forpleuvoir.nebula.serialization.hjson
 
 import moe.forpleuvoir.nebula.serialization.base.{SerializeElement, SerializeObject}
 
-trait CommentedHJsonEncoder extends HJsonEncoder {
+trait HJsonCommentedEncoder extends HJsonEncoder {
 
   def getComment(path: String): Option[String]
 

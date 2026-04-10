@@ -170,35 +170,6 @@ object HJsonLexer extends Lexer {
     (finalContent, end + 3)
   }
 
-//  private def readMultilineString(input: String, start: Int): (String, Int) = {
-//    val end = input.indexOf("'''", start)
-//    if (end == -1) throw new IllegalArgumentException("Unclosed multiline string")
-//
-//    val raw = input.substring(start, end)
-//    val lines = raw.replace("\r\n", "\n").split("\n", -1)
-//
-//    // 1. 预处理：去掉第一行（如果紧跟在 ''' 后面）
-//    val initialLines = if (lines.nonEmpty && lines.head.trim.isEmpty) lines.tail else lines
-//
-//    // 2. 关键点：识别“对齐缩进”
-//    // 在 Hjson 中，最后一行（即紧接在结尾 ''' 之前的那一行）通常只包含缩进
-//    // 我们需要把这个缩进量记录下来，并从所有行中减去它
-//    val lastLine = lines.lastOption.getOrElse("")
-//    val baseIndent = lastLine.takeWhile(_ == ' ').length
-//
-//    // 3. 执行 Dedent (去缩进) 并去掉由于格式化产生的最后一行空行
-//    val processedLines = initialLines.map { line =>
-//      if (line.startsWith(" " * baseIndent)) line.substring(baseIndent) else line.stripLeading()
-//    }
-//
-//    // 4. 这里的 dropRight(1) 是为了去掉最后那个为了换行写 ''' 而产生的空行
-//    val finalContent = (if (processedLines.lastOption.exists(_.trim.isEmpty))
-//      processedLines.dropRight(1)
-//    else processedLines).mkString("\n")
-//
-//    (finalContent.stripLineEnd, end + 3)
-//  }
-
   private def readUnquoted(input: String, start: Int): (String, Int) = {
     var i = start
     var break = false

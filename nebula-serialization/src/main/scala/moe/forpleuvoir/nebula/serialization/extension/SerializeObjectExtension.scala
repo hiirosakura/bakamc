@@ -1,10 +1,11 @@
 package moe.forpleuvoir.nebula.serialization.extension
 
 import moe.forpleuvoir.nebula.serialization.base.*
-import moe.forpleuvoir.nebula.serialization.codec.Serializer
+import moe.forpleuvoir.nebula.serialization.codec.{Serializable, Serializer}
 
 /**
  * need import import moe.forpleuvoir.nebula.serialization.extension.SerObjectOps._
+ *
  * @param block
  * @return
  */
@@ -14,7 +15,7 @@ def buildSerObject(block: SerializeObject ?=> Unit): SerializeObject = {
   obj
 }
 
-inline def serObject(members: (String, SerializeElement | Primitive)*) = SerializeObject(members *)
+inline def serObject(members: (String, SerializeElement | Serializable | Primitive)*) = SerializeObject(members *)
 
 def serObject(members: Map[String, SerializeElement | Primitive]) = SerializeObject(members)
 
@@ -24,7 +25,7 @@ def serObject[T](members: (String, T)*)(using s: Serializer[T]) = SerializeObjec
 object SerObjectOps {
 
   extension (key: String)(using obj: SerializeObject) {
-    infix def :=(value: SerializeElement | Primitive): Unit =
+    infix def :=(value: SerializeElement | Serializable | Primitive): Unit =
       obj.update(key, value)
 
     infix def :=[T](value: T)(using s: Serializer[T]): Unit =
