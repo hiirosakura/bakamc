@@ -22,10 +22,10 @@ trait ConfigGroup(
 
   private var _initialized: Boolean = false
 
-  override def init(): Unit = {
+  override def initialization(): Unit = {
     require(!_initialized, "ConfigGroup has been initialized")
     this.discoverAndRegisterNodes()
-    _children.foreach(_.init())
+    _children.foreach(_.initialization())
     _initialized = true
   }
 
@@ -33,23 +33,32 @@ trait ConfigGroup(
 
   def addChild[T <: ConfigNode](child: T): T = {
     if (_initialized) throw new IllegalStateException(s"ConfigGroup[$name] has been initialized")
+
+    //检查名字是否合法
+    require(
+      child.name.matches("^[a-zA-Z0-9_\\-]+$"),
+      s"Invalid config name: '${child.name}'. Allowed characters: letters (a-z, A-Z), digits (0-9), underscore (_), and hyphen (-)."
+    )
+
+    //检查是否已经有该名字的子节点
+    if (_children.exists(_.name == child.name)) {
+      throw new IllegalArgumentException(s"ConfigGroup[$name] already contains a child named \"${child.name}\"")
+    }
+
+    //给子节点设置父节点
     child match {
       case group: ConfigGroup => group.parent = Some(this)
       case item: ConfigItem[_] => item.parent = Some(this)
     }
+
     _children = _children :+ child
     child
   }
-
-  def items: List[ConfigItem[?]] = children.collect { case item: ConfigItem[_] => item }
-
-  def groups: List[ConfigGroup] = children.collect { case group: ConfigGroup => group }
 
   override def test(t: Regex): Boolean = {
     t.findFirstIn(this.name).isDefined
       || children.exists(_.test(t))
   }
-
 
   override def serialization: SerializeElement = SerializeObject.build {
     children.foreach { c =>
@@ -90,6 +99,10 @@ object ConfigGroup {
 
   extension (self: ConfigGroup) {
 
+    def items: List[ConfigItem[?]] = self.children.collect { case item: ConfigItem[_] => item }
+
+    def groups: List[ConfigGroup] = self.children.collect { case group: ConfigGroup => group }
+
     def flat: List[ConfigNode] = self :: self.children.flatMap {
       case group: ConfigGroup => group.flat
       case item: ConfigItem[_] => List(item)
@@ -120,7 +133,7 @@ object ConfigGroup {
           if (comment != null) {
             node.comment(comment.text)
           }
-          if (!self.children.contains(node)) {
+          if (!self.children.exists(c => c.name == node.name && c == node)) {
             self.addChild(node)
           }
         }

@@ -38,7 +38,7 @@ class ConfigManager(
 
   def savable: Boolean = shouldSave
 
-  def save: FiniteDuration = {
+  def save(): FiniteDuration = {
     val time = measureTime {
       components.foreach(_.onSave())
     }._2
@@ -46,9 +46,9 @@ class ConfigManager(
     time
   }
 
-  def asyncSave: Future[FiniteDuration] = Future(save)
+  def asyncSave(): Future[FiniteDuration] = Future(save())
 
-  def forceSave: FiniteDuration = {
+  def forceSave(): FiniteDuration = {
     val time = measureTime {
       components.foreach(_.onForcedSave())
     }._2
@@ -56,9 +56,9 @@ class ConfigManager(
     time
   }
 
-  def asyncForceSave: Future[FiniteDuration] = Future(forceSave)
+  def asyncForceSave: Future[FiniteDuration] = Future(forceSave())
 
-  def load: FiniteDuration = {
+  def load(): FiniteDuration = {
     val time = measureTime {
       components.foreach(_.onLoad())
     }._2
@@ -66,7 +66,7 @@ class ConfigManager(
     time
   }
 
-  def asyncLoad: Future[FiniteDuration] = Future(load)
+  def asyncLoad(): Future[FiniteDuration] = Future(load())
 
   def onSave(callback: FiniteDuration => Unit): Unit = {
     this.onSave = callback
@@ -88,9 +88,9 @@ object ConfigManager {
   extension (self: ConfigManager) {
 
     def startup(): Unit = {
-      self.init()
-      try self.load
-      finally self.forceSave
+      self.initialization()
+      try self.load()
+      finally self.forceSave()
     }
 
   }

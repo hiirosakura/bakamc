@@ -11,12 +11,12 @@ object JavaEnumCodec extends Serializer[JEnum[?]] {
 
   override def serialization(value: JEnum[?]): SerializeElement = SerializePrimitive(value.name())
 
-  inline def deserialization[E <: JEnum[E]](data: SerializeElement)(using tag: ClassTag[E]): Try[JEnum[E]] = {
+  inline def deserialization[E <: JEnum[E]](data: SerializeElement)(using tag: ClassTag[E]): Try[E] = {
     val enumType = tag.runtimeClass.asInstanceOf[Class[E]]
     deserialization(enumType, data)
   }
 
-  def deserialization[E <: JEnum[E]](enumType: Class[E], data: SerializeElement): Try[JEnum[E]] = Try {
+  def deserialization[E <: JEnum[E]](enumType: Class[E], data: SerializeElement): Try[E] = Try {
     val name = data.asString.get
     try {
       Enum.valueOf(enumType, name)
@@ -24,7 +24,7 @@ object JavaEnumCodec extends Serializer[JEnum[?]] {
       case _: Throwable =>
         enumType.getMethods.find { c => c.getName == "valueOf" && c.getReturnType == enumType } match {
           case Some(method) =>
-            method.invoke(null, name).asInstanceOf[JEnum[E]]
+            method.invoke(null, name).asInstanceOf[E]
           case None => enumType.getEnumConstants.find(_.name == name).get
         }
     }

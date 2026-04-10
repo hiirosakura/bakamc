@@ -62,6 +62,10 @@ trait HJsonEncoder extends SyntaxEncoder {
 
   protected def encodeArray(arr: SerializeArray, indent: Int): String = {
     if (arr.isEmpty) return "[]"
+
+    val singleLine = arr.iterator.map(encodeWithIndent(_, 0)).mkString(", ")
+    if (singleLine.length <= 40) return s"[$singleLine]"
+
     val sb = new StringBuilder("[\n")
     val nextIndent = indent + 2
     val spacing = " " * nextIndent

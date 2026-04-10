@@ -1,7 +1,7 @@
 //noinspection DuplicatedCode
 package moe.forpleuvoir.nebula.serialization.base
 
-import moe.forpleuvoir.nebula.serialization.codec.Serializable
+import moe.forpleuvoir.nebula.serialization.codec.{Serializable, Serializer}
 import moe.forpleuvoir.nebula.serialization.extension.{SerArrayOps, SerObjectOps, buildSerArray, buildSerObject}
 
 import scala.collection.mutable
@@ -304,8 +304,16 @@ object SerializeArray {
       case v: Serializable => v.serialization
     }))
 
+  def create[T](elements: T*)(using s: Serializer[T]): SerializeArray = {
+    val array = SerializeArray()
+    elements.foreach { elem =>
+      array.addOne(s.serialization(elem))
+    }
+    array
+  }
+
   def build(block: SerializeArray ?=> Unit): SerializeArray = buildSerArray(block)
-  
+
   export SerArrayOps._
 
 }

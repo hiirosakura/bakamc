@@ -27,6 +27,7 @@ object Codec {
 
   def create[T]: CodecBuilder[T, EmptyTuple] = CodecBuilder[T]
 
+  export moe.forpleuvoir.nebula.serialization.extension.{deserialization, serialization}
 
 }
 

@@ -26,9 +26,9 @@ object HJsonConfigPersistence {
 
 private class ConfigEncoder(manager: ConfigGroup) extends HJsonCommentedEncoder {
 
-  private lazy val comments: Map[String, Option[String]] =
-    manager.flat.map(node => node.pathWithOutRoot -> node.comment).toMap
+  private lazy val comments: Map[String, String] =
+    manager.flat.view.filter(_.comment.nonEmpty).map(node => node.pathWithOutRoot -> node.comment.get).toMap
 
-  override def getComment(path: String): Option[String] = comments(path)
+  override def getComment(path: String): Option[String] = comments.get(path)
 
 }

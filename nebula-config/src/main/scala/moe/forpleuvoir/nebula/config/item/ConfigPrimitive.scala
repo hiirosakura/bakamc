@@ -1,23 +1,14 @@
 package moe.forpleuvoir.nebula.config.item
 
-import moe.forpleuvoir.nebula.config.ConfigItem
-import moe.forpleuvoir.nebula.serialization.base.{Primitive, SerializeElement}
+import moe.forpleuvoir.nebula.config.ConfigWithCodec
+import moe.forpleuvoir.nebula.serialization.base.Primitive
 import moe.forpleuvoir.nebula.serialization.codec.Codec
 
 class ConfigPrimitive[T <: Primitive](
   name: String,
   defaultValue: T,
   codec: Codec[T]
-) extends ConfigItem[T](name, defaultValue) {
-
-  override def serialization: SerializeElement = codec.serialization(this.value)
-
-  override def deserialization(data: SerializeElement): Unit = {
-    codec.deserialization(data).foreach { value => setValue(value) }
-  }
-
-}
-
+) extends ConfigWithCodec[T](name, defaultValue, codec)
 
 class ConfigNumber[T <: Primitive : Ordering](
   name: String,
@@ -154,7 +145,12 @@ object ConfigString {
 class ConfigBoolean(
   name: String,
   defaultValue: Boolean
-) extends ConfigPrimitive[Boolean](name, defaultValue, Codec.Boolean)
+) extends ConfigPrimitive[Boolean](name, defaultValue, Codec.Boolean) {
+
+  def toggle(): this.type = {
+    this.setValue(!this.value)
+  }
+}
 
 object ConfigBoolean {
   def apply(name: String, defaultValue: Boolean): ConfigBoolean =

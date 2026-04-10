@@ -1,7 +1,9 @@
 package moe.forpleuvoir.nebula.config
 
-import scala.util.matching.Regex
+import moe.forpleuvoir.nebula.serialization.base.SerializeElement
+import moe.forpleuvoir.nebula.serialization.codec.Codec
 
+import scala.util.matching.Regex
 
 trait ConfigItem[C](
   override val name: String,
@@ -10,7 +12,7 @@ trait ConfigItem[C](
 
   protected var _value: C = defaultValue
 
-  override def init(): Unit = {}
+  override def initialization(): Unit = {}
 
   override def test(t: Regex): Boolean = {
     t.findFirstIn(this.name).isDefined || t.findFirstIn(this.value.toString).isDefined
@@ -33,5 +35,17 @@ trait ConfigItem[C](
     _observers.foreach(callback => callback(this))
   }
 
+}
+
+class ConfigWithCodec[C](
+  name: String,
+  defaultValue: C,
+  codec: Codec[C],
+) extends ConfigItem[C](name, defaultValue) {
+
+  override def deserialization(data: SerializeElement): Unit =
+    codec.deserialization(data).foreach(value => this.setValue(value))
+
+  override def serialization: SerializeElement = codec.serialization(getValue)
 
 }
