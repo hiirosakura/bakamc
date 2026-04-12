@@ -233,6 +233,15 @@ object Color {
 
   def fromRGB(rgbValue: Int): Color = rgbValue.alpha(255)
 
+
+  /**
+   *
+   * @param hue        range 0-360
+   * @param saturation range 0-100
+   * @param value      range 0-100
+   * @param alpha      intRange 0-255,Float,Double Range 0.0-1.0
+   * @return
+   */
   def fromHSV(
     hue: Int | Float | Double,
     saturation: Int | Float | Double,
@@ -247,10 +256,12 @@ object Color {
     color
   }
 
-  def fromHex(hex: String): Color = hexToInt(hex)
+  def fromHexString(hex: String): Color = hexToInt(hex)
 
   //基础分量
   extension (color: Color) {
+
+    def argb: Int = color
 
     def toHex: String = {
       if (alpha == 255)
@@ -340,7 +351,7 @@ object Color {
           require(d >= 0.0 && d <= 360.0, s"hue value $d is out of range 0.0-360.0")
           d.toFloat
       }
-      HSVHelper.setValue(color, _h)
+      HSVHelper.setHue(color, _h)
     }
     //endregion
 

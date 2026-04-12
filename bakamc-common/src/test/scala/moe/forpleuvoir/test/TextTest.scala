@@ -1,14 +1,18 @@
 package moe.forpleuvoir.test
 
-import moe.forpleuvoir.bakamc.common.extension.Literal
+import moe.forpleuvoir.bakamc.common.inlinestyletext.modifier.{ClickEventModifier, ColorModifier}
+import moe.forpleuvoir.bakamc.common.inlinestyletext.{Decoder, Lexer}
 import org.junit.jupiter.api.Test
 
 class TextTest {
 
+  val text = "&{s[360 100 20],!i,b,c:run_command=>/test}这是文本 &{#ccff55}这是第二段文本"
+
   @Test
   def test(): Unit = {
-    val component = Literal("aaaa")
-    println(component.content())
+    val tokens = Lexer.tokenize(text)
+    val component = Decoder.decode(tokens, List(ColorModifier(true, true),ClickEventModifier))
+    println(component)
   }
 
 }

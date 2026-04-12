@@ -81,6 +81,12 @@ object TestConfig extends ConfigManager("test_config") {
     val test3 = ConfigBoolean("flag", true)
   }
 
+  val group3: ConfigGroup = Group3
+
+}
+
+object Group3 extends ConfigGroup("group3") {
+  val test3 = ConfigBoolean("flag", true)
 }
 
 enum NebulaEnum derives Codec {

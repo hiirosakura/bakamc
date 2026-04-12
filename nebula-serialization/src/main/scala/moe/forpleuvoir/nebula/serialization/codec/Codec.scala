@@ -1,6 +1,7 @@
 package moe.forpleuvoir.nebula.serialization.codec
 
 import moe.forpleuvoir.nebula.serialization.codec.{ProductCodec, ScalaEnumCodec}
+import moe.forpleuvoir.nebula.serialization.extension.{SerArrayOps, SerObjectOps}
 
 import scala.compiletime.{constValueTuple, erasedValue, summonInline}
 import scala.deriving.Mirror
@@ -28,6 +29,9 @@ object Codec {
   def create[T]: CodecBuilder[T, EmptyTuple] = CodecBuilder[T]
 
   export moe.forpleuvoir.nebula.serialization.extension.{deserialization, serialization}
+
+  export SerArrayOps._
+  export SerObjectOps._
 
 }
 

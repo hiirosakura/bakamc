@@ -10,7 +10,7 @@ import scala.util.{Success, Try}
 private def decodeColor(data: SerializeElement): Color = data match {
   case primitive: SerializePrimitive =>
     if (primitive.isNumber) Color.fromARGB(primitive.asInt.get)
-    else if (primitive.isString) Color.fromHex(primitive.asString.get)
+    else if (primitive.isString) Color.fromHexString(primitive.asString.get)
     else throw new IllegalArgumentException("Invalid input: expected an number or string, but got a " + primitive.getClass.getName)
   case obj: SerializeObject =>
     if (obj.containsKeys("red", "green", "blue")) {

@@ -26,6 +26,12 @@ class ConfigManager(
     component
   }
 
+  override def initialization(): Unit = {
+    components.foreach(_.beginInit())
+    super.initialization()
+    components.foreach(_.finishInit())
+  }
+
   private var shouldSave: Boolean = false
 
   def markSavable(): Unit = {

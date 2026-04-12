@@ -360,7 +360,7 @@ case class SerializeObject private(private val members: mutable.Map[String, Seri
     val sb = StringBuffer("{")
     members.zipWithIndex.foreach { case ((key, value), index) =>
       if (index > 0) sb.append(", ")
-      sb.append(s"$key : $value")
+      sb.append(s"$key: $value")
     }
     sb.append("}").toString
   }
