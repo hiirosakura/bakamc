@@ -4,7 +4,6 @@ plugins {
 }
 
 dependencies {
-    // 所有模块都需要的 Scala 3.8 核心库
     implementation(rootProject.libs.scalaLibrary3)
 }
 
@@ -30,10 +29,8 @@ subprojects {
     }
 
     dependencies {
-        // 所有模块都需要的 Scala 3.8 核心库
         implementation(rootProject.libs.scalaLibrary3)
 
-        // 所有模块统一的测试配置
         testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
         testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
 

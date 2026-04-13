@@ -1,4 +1,4 @@
-package moe.forpleuvoir.bakamc.common.inlinestyletext
+package cn.bakamc.common.inlinestyletext
 
 import net.kyori.adventure.text.Component
 

@@ -1,4 +1,4 @@
-package moe.forpleuvoir.bakamc.common.config.comment
+package cn.bakamc.common.config.comment
 
 import moe.forpleuvoir.nebula.config.component.ConfigManagerComponent
 import moe.forpleuvoir.nebula.config.persistence.ConfigPersistence

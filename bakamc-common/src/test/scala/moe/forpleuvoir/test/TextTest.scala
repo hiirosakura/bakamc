@@ -1,7 +1,7 @@
 package moe.forpleuvoir.test
 
-import moe.forpleuvoir.bakamc.common.inlinestyletext.modifier.{ClickEventModifier, ColorModifier}
-import moe.forpleuvoir.bakamc.common.inlinestyletext.{Decoder, Lexer}
+import cn.bakamc.common.inlinestyletext.modifier.{ClickEventModifier, ColorModifier}
+import cn.bakamc.common.inlinestyletext.{Decoder, Lexer}
 import org.junit.jupiter.api.Test
 
 class TextTest {

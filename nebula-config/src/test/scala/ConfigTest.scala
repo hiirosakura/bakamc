@@ -17,7 +17,12 @@ class ConfigTest {
   def test1(): Unit = {
     TestConfig.startup()
     println("**********************")
+    println(TestConfig.findNode("group2.num"))
+    println(TestConfig.Group2.test2.pathWithRoot)
+    println(TestConfig.Group2.test2.path)
     println(HJsonDialect.encode(TestConfig.serialization))
+    
+    
   }
 
 }

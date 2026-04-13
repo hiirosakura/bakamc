@@ -1,6 +1,6 @@
-package moe.forpleuvoir.bakamc.common.inlinestyletext
+package cn.bakamc.common.inlinestyletext
 
- enum Token {
+enum Token {
   case ControlStart(pos: Int)
   case ControlEnd(pos: Int)
   case Expression(raw: String, pos: Int)

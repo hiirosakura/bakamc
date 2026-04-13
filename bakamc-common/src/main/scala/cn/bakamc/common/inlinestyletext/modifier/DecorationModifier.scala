@@ -1,6 +1,6 @@
-package moe.forpleuvoir.bakamc.common.inlinestyletext.modifier
+package cn.bakamc.common.inlinestyletext.modifier
 
-import moe.forpleuvoir.bakamc.common.inlinestyletext.TextModifier
+import cn.bakamc.common.inlinestyletext.TextModifier
 import moe.forpleuvoir.nebula.serialization.codec.{ArrayCodec, Codec, given_Codec_String}
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.{ShadowColor, TextDecoration}

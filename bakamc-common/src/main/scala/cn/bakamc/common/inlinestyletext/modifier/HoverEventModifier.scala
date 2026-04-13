@@ -1,6 +1,6 @@
-package moe.forpleuvoir.bakamc.common.inlinestyletext.modifier
+package cn.bakamc.common.inlinestyletext.modifier
 
-import moe.forpleuvoir.bakamc.common.inlinestyletext.{Decoder, Lexer, TextModifier}
+import cn.bakamc.common.inlinestyletext.{Decoder, Lexer, TextModifier}
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.event.HoverEvent
 

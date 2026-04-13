@@ -1,0 +1,16 @@
+name: BakaMC
+version: '1.0.0'
+main: cn.bakamc.folia.BakaMC
+bootstrapper: cn.bakamc.folia.BakaMCBootstrap
+loader: cn.bakamc.folia.BakaMCLoader
+api-version: '1.21'
+author: forpleuvoir
+
+folia-supported: true
+
+description: 这是什么插件
+
+load: POSTWORLD
+
+#dependencies:
+#  server:

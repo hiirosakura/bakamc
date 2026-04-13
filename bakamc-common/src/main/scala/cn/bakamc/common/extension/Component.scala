@@ -1,4 +1,4 @@
-package moe.forpleuvoir.bakamc.common.extension
+package cn.bakamc.common.extension
 
 import net.kyori.adventure.text.*
 import net.kyori.adventure.text.format.Style

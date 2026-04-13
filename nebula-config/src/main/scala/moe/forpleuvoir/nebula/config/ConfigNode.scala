@@ -36,14 +36,21 @@ object ConfigNode {
 
   extension [T <: ConfigNode](self: T) {
 
-    def path: String = self.parent match {
-      case Some(parent) => parent.path + "." + self.name
-      case None => self.name
+    def path: String = {
+      if (self.isRoot) {
+        ""
+      } else {
+        self.parent match {
+          case Some(parent) if !parent.isRoot =>
+            parent.path + "." + self.name
+          case _ => self.name
+        }
+      }
     }
 
-    def pathWithOutRoot: String = path.split("\\.").drop(1).mkString(".")
+    def pathWithRoot: String = self.root.map(_.name + "." + self.path).getOrElse(self.path)
 
-    def isRoot: Boolean = self.parent.isEmpty
+    def isRoot: Boolean = self.parent.isEmpty && self.root.contains(self)
 
     def comment: Option[String] = self.getMetadata("comment").map(_.toString)
 

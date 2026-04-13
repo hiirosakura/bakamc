@@ -1,7 +1,7 @@
-package moe.forpleuvoir.bakamc.common.inlinestyletext.modifier
+package cn.bakamc.common.inlinestyletext.modifier
 
-import moe.forpleuvoir.bakamc.common.extension.flat
-import moe.forpleuvoir.bakamc.common.inlinestyletext.TextModifier
+import cn.bakamc.common.extension.flat
+import cn.bakamc.common.inlinestyletext.TextModifier
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.util.primitive.CoerceInExtension.clamp
 import moe.forpleuvoir.nebula.serialization.codec.{Codec, given_Codec_Boolean}

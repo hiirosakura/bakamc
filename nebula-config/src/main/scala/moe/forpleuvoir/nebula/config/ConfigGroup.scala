@@ -4,6 +4,7 @@ import moe.forpleuvoir.nebula.serialization.base.{SerializeElement, SerializeObj
 import moe.forpleuvoir.nebula.serialization.extension.SerObjectOps.:=
 
 import java.lang.reflect.Field
+import scala.annotation.tailrec
 import scala.util.matching.Regex
 
 trait ConfigGroup(
@@ -106,6 +107,19 @@ object ConfigGroup {
     def flat: List[ConfigNode] = self :: self.children.flatMap {
       case group: ConfigGroup => group.flat
       case item: ConfigItem[_] => List(item)
+    }
+
+    def findNode(path: String): Option[ConfigNode] = {
+      if (path.isEmpty) return Some(self)
+
+      val segments = path.split('.').toList
+
+      segments.foldLeft(Option[ConfigNode](self)) { (currentNode, name) =>
+        currentNode.flatMap {
+          case g: ConfigGroup => g.children.find(_.name == name)
+          case _ => None
+        }
+      }
     }
 
     private def getDeclaredNodes = self.getClass.getDeclaredFields.filter { field =>

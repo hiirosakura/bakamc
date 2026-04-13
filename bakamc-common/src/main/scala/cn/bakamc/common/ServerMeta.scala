@@ -1,4 +1,4 @@
-package moe.forpleuvoir.bakamc.common
+package cn.bakamc.common
 
 import moe.forpleuvoir.nebula.serialization.codec.{Codec, given_Codec_String}
 

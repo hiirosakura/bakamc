@@ -1,4 +1,4 @@
-package moe.forpleuvoir.bakamc.common.inlinestyletext
+package cn.bakamc.common.inlinestyletext
 
 object Lexer {
 
