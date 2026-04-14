@@ -15,70 +15,70 @@ import scala.collection.mutable
 case class ColorModifier(
   shadow: Boolean,
   gradient: Boolean
-) extends TextModifier derives Codec {
+) extends TextModifier {
 
-  override def modify(exp: String): Option[Component => Component] = {
+  override def modify(exp: String, origin: Component): Option[Component] = {
     val shouldApplyShadow = exp.startsWith("s") && this.shadow
     val cleanExp = if (exp.startsWith("s")) exp.substring(1) else exp
 
     if (cleanExp == "#null") {
-      return Some { text =>
+      return Some {
         if (shouldApplyShadow) {
-          text.style(text.style().shadowColor(null))
-        } else
-          text.color(null)
+          origin.shadowColor(null)
+        } else {
+          origin.color(null)
+        }
       }
     } else if (exp == "s#none") {
       return if (shouldApplyShadow) {
-        Some { text =>
-          text.style(text.style().shadowColor(ShadowColor.none()))
+        Some {
+          origin.shadowColor(ShadowColor.none())
         }
       } else None
     }
 
-    parseRGBColor(cleanExp, shouldApplyShadow)
-      .orElse(parseHSVColor(cleanExp, shouldApplyShadow))
+    parseRGBColor(cleanExp, shouldApplyShadow, origin)
+      .orElse(parseHSVColor(cleanExp, shouldApplyShadow, origin))
   }
 
-  private def singleColorModifier(color: Color, shadow: Boolean): Option[Component => Component] = Some { text =>
-    var style = text.style()
+  private def singleColorModifier(color: Color, shadow: Boolean, origin: Component): Option[Component] = Some {
     if (shadow) {
-      style = style.shadowColor(ShadowColor.shadowColor(color.argb))
+      origin.shadowColor(ShadowColor.shadowColor(color.argb))
     } else {
-      style = style.color(TextColor.color(color.argb))
+      origin.color(TextColor.color(color.argb))
     }
-    text.style(style)
   }
 
-  private def parseRGBColor(exp: String, shadow: Boolean): Option[Component => Component] = {
-    try singleColorModifier(Color.fromHexString(exp), shadow)
-    catch case _: Throwable => if (gradient) parseRGBGradient(exp, shadow) else None
+  private def parseRGBColor(exp: String, shadow: Boolean, origin: Component): Option[Component] = {
+    try singleColorModifier(Color.fromHexString(exp), shadow, origin)
+    catch case _: Throwable => if (gradient) parseRGBGradient(exp, shadow, origin) else None
   }
 
-  private def parseRGBGradient(exp: String, shadow: Boolean): Option[Component => Component] = {
+  private def parseRGBGradient(exp: String, shadow: Boolean, origin: Component): Option[Component] = {
     val colors = try exp.split("->").map(Color.fromHexString)
     catch case _: Throwable => return None
-    if (colors.length < 2) return None
-    Some {
-      case t: TextComponent =>
-        multiGradientText(t, colors.toList, shadow, false)
-      case other => other
+
+    if (colors.length < 2) return singleColorModifier(colors.head, shadow, origin)
+
+    origin match {
+      case t: TextComponent => Some(multiGradientText(t, colors.toList, shadow, false))
+      case _ => None
     }
   }
 
-  private def parseHSVColor(exp: String, shadow: Boolean): Option[Component => Component] = {
-    try singleColorModifier(parseHSV(exp).get, shadow)
-    catch case _: Throwable => if (gradient) parseHSVGradient(exp, shadow) else None
+  private def parseHSVColor(exp: String, shadow: Boolean, origin: Component): Option[Component] = {
+    try singleColorModifier(parseHSV(exp).get, shadow, origin)
+    catch case _: Throwable => if (gradient) parseHSVGradient(exp, shadow, origin) else None
   }
 
-  private def parseHSVGradient(exp: String, shadow: Boolean): Option[Component => Component] = {
+  private def parseHSVGradient(exp: String, shadow: Boolean, origin: Component): Option[Component] = {
     val colors = try exp.split("->").map(e => parseHSV(e).get)
     catch case _: Throwable => return None
-    if (colors.length < 2) return None
-    Some {
-      case t: TextComponent =>
-        multiGradientText(t, colors.toList, shadow, true)
-      case other => other
+    if (colors.length < 2) return singleColorModifier(colors.head, shadow, origin)
+
+    origin match {
+      case t: TextComponent => Some(multiGradientText(t, colors.toList, shadow, true))
+      case _ => None
     }
   }
 
@@ -169,4 +169,15 @@ case class ColorModifier(
       else None
     case _ => None
   }
+}
+
+
+object ColorModifier {
+  final val DEFAULT = new ColorModifier(true, true)
+
+
+  final val CODEC = Codec.create[ColorModifier]
+    .field("shadow").getter(_.shadow).usingCodec
+    .field("gradient").getter(_.gradient).usingCodec
+    .build((shadow, gradient) => new ColorModifier(shadow, gradient))
 }

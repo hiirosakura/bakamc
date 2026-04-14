@@ -1,11 +1,13 @@
 package moe.forpleuvoir.nebula.serialization.codec
 
+import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.codec.{ProductCodec, ScalaEnumCodec}
 import moe.forpleuvoir.nebula.serialization.extension.{SerArrayOps, SerObjectOps}
 
 import scala.compiletime.{constValueTuple, erasedValue, summonInline}
 import scala.deriving.Mirror
 import scala.reflect.ClassTag
+import scala.util.Try
 
 trait Codec[T] extends Serializer[T], Deserializer[T]
 
@@ -24,14 +26,30 @@ object Codec {
     }
   }
 
-  export PrimitiveCodec._
 
   def create[T]: CodecBuilder[T, EmptyTuple] = CodecBuilder[T]
 
-  export moe.forpleuvoir.nebula.serialization.extension.{deserialization, serialization}
+  def delegated[A, B](toDelegate: A => B, fromDelegate: B => A)(using Codec[B]): Codec[A] = new Codec[A] {
+
+    override def deserialization(data: SerializeElement): Try[A] = Try {
+      fromDelegate(data.deserialization[B].get)
+    }
+
+    override def serialization(value: A): SerializeElement =
+      toDelegate(value).serialization
+
+  }
+
+  inline def decode[T](data: SerializeElement)(using deserializer: Deserializer[T]): Try[T] =
+    deserializer.deserialization(data)
+
+  inline def encode[T](data: T)(using serializer: Serializer[T]): SerializeElement = serializer.serialization(data)
 
   export SerArrayOps._
   export SerObjectOps._
+  export PrimitiveCodec._
+  export moe.forpleuvoir.nebula.serialization.extension.{deserialization, serialization}
+
 
 }
 

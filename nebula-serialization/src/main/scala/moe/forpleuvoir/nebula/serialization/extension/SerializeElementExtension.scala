@@ -13,7 +13,7 @@ extension [T](self: T) {
    * @tparam S
    * @return
    */
-  def serialization[S <: Serializer[T]](using serializer: S): SerializeElement = serializer.serialization(self)
+  inline def serialization[S <: Serializer[T]](using serializer: S): SerializeElement = serializer.serialization(self)
 
   def toSerializeElement: SerializeElement = {
     self match {
@@ -35,9 +35,9 @@ extension (element: SerializeElement) {
   /**
    * 反序列化为指定类型
    *
-   * @param serializer 反序列化器
+   * @param deserializer 反序列化器
    * @tparam T
    * @return
    */
-  def deserialization[T](using serializer: Deserializer[T]): Try[T] = serializer.deserialization(element)
+  inline def deserialization[T](using deserializer: Deserializer[T]): Try[T] = deserializer.deserialization(element)
 }

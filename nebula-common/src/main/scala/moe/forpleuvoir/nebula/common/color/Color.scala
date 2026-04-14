@@ -261,7 +261,7 @@ object Color {
   //基础分量
   extension (color: Color) {
 
-    def argb: Int = color
+    inline def argb: Int = color
 
     def toHex: String = {
       if (alpha == 255)

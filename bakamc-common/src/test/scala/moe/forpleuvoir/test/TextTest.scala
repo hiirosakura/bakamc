@@ -1,7 +1,10 @@
 package moe.forpleuvoir.test
 
-import cn.bakamc.common.inlinestyletext.modifier.{ClickEventModifier, ColorModifier}
-import cn.bakamc.common.inlinestyletext.{Decoder, Lexer}
+import cn.bakamc.common.inlinestyletext.InlineStyleTextParser
+import moe.forpleuvoir.nebula.serialization.codec.Codec
+import moe.forpleuvoir.nebula.serialization.codec.Codec.serialization
+import moe.forpleuvoir.nebula.serialization.hjson.HJsonDialect
+import moe.forpleuvoir.nebula.serialization.json.JsonDialect
 import org.junit.jupiter.api.Test
 
 class TextTest {
@@ -10,9 +13,19 @@ class TextTest {
 
   @Test
   def test(): Unit = {
-    val tokens = Lexer.tokenize(text)
-    val component = Decoder.decode(tokens, List(ColorModifier(true, true),ClickEventModifier))
+    val parser = InlineStyleTextParser.DEFAULT
+    val component = parser.parse(text)
     println(component)
+
+    given Codec[InlineStyleTextParser] = InlineStyleTextParser.CODEC
+
+    val s = parser.serialization
+    val hs = HJsonDialect.encode(s)
+    println(hs)
+    println(HJsonDialect.parse(hs).get)
+    val js = JsonDialect.encode(s)
+    println(js)
+    println(HJsonDialect.parse(js).get)
   }
 
 }

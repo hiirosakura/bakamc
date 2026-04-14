@@ -1,25 +1,28 @@
 package cn.bakamc.common.inlinestyletext.modifier
 
 import cn.bakamc.common.inlinestyletext.TextModifier
-import cn.bakamc.common.inlinestyletext.modifier.LegacyColorModifier.DefaultCodes
-import moe.forpleuvoir.nebula.serialization.codec.{Codec, SetCodec, given_Codec_Char}
+import cn.bakamc.common.inlinestyletext.modifier.LegacyChatFormattingModifier.DefaultCodes
+import moe.forpleuvoir.nebula.serialization.base.{SerializeElement, SerializePrimitive}
+import moe.forpleuvoir.nebula.serialization.codec.Codec
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.{NamedTextColor, ShadowColor, TextDecoration}
 
+import scala.util.Try
+
 case class LegacyChatFormattingModifier(
   prefix: Char = '$',
-  allowedCodes: Set[Char] = DefaultCodes
+  allowedCodes: List[Char] = DefaultCodes
 ) extends TextModifier {
 
-  private val validCodes: Set[Char] = allowedCodes.intersect(LegacyColorModifier.DefaultCodes)
+  private val validCodes: List[Char] = allowedCodes.intersect(LegacyChatFormattingModifier.DefaultCodes)
 
-  override def modify(exp: String): Option[Component => Component] = {
+  override def modify(exp: String, origin: Component): Option[Component] = {
     // 检查是否符合前缀要求且长度为 2 (例如 $c)
     if (exp.length == 2 && exp.head == prefix) {
       val code = exp(1)
       if (validCodes.contains(code)) {
         // 返回对应的 Component 转换函数
-        Some(c => applyLegacyCode(c, code))
+        Some(applyLegacyCode(origin, code))
       } else None
     } else None
   }
@@ -66,19 +69,24 @@ case class LegacyChatFormattingModifier(
   }
 }
 
-object LegacyColorModifier {
+object LegacyChatFormattingModifier {
 
-  final val DefaultCodes: Set[Char] = "0123456789abcdefklmonr".toSet
+  val DefaultCodes: List[Char] = "0123456789abcdefklmonr".toList
+
+  val DEFAULT: LegacyChatFormattingModifier = LegacyChatFormattingModifier()
+
+  private given Codec[List[Char]] = new Codec[List[Char]] {
+    override def deserialization(data: SerializeElement): Try[List[Char]] = Try {
+      data.asString.get.toList
+    }
+
+    override def serialization(value: List[Char]): SerializeElement =
+      SerializePrimitive(value.mkString)
+  }
 
   val CODEC: Codec[LegacyChatFormattingModifier] = Codec.create[LegacyChatFormattingModifier]
-    .field("prefix")
-      .getter(_.prefix)
-      .default('$')
-      .codec(Codec.Char)
-    .field("allowed_codes")
-      .getter(_.allowedCodes)
-      .default(DefaultCodes)
-      .codec(SetCodec[Char]())
+    .field("prefix").getter(_.prefix).default('$').codec(Codec.Char)
+    .field("allowed_codes").getter(_.allowedCodes).default(DefaultCodes).usingCodec
     .build((prefix, allowedCodes) =>
       LegacyChatFormattingModifier(prefix, allowedCodes)
     )

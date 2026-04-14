@@ -8,10 +8,16 @@ import scala.util.Try
 
 trait HJsonEncoder extends SyntaxEncoder {
 
+  /**
+   * 根对象是否需要带大括号
+   * @return
+   */
+  def rootObjectQuote: Boolean = false
+
   override def encode(element: SerializeElement): String = {
     // 官方 HJson 倾向于 Root Object 不带大括号，这里提供标准输出
     element match {
-      case obj: SerializeObject if obj.nonEmpty => encodeRootObject(obj)
+      case obj: SerializeObject if (obj.nonEmpty && !rootObjectQuote) => encodeRootObject(obj)
       case _ => encodeWithIndent(element, 0)
     }
   }
@@ -29,11 +35,11 @@ trait HJsonEncoder extends SyntaxEncoder {
     sb.toString()
   }
 
-  protected def encodeWithIndent(element: SerializeElement, indent: Int): String = {
+  protected def encodeWithIndent(element: SerializeElement, indent: Int, forceQuoteString: Boolean = false): String = {
     element match {
       case obj: SerializeObject => encodeObject(obj, indent)
       case arr: SerializeArray => encodeArray(arr, indent)
-      case prim: SerializePrimitive => encodePrimitive(prim.value, indent)
+      case prim: SerializePrimitive => encodePrimitive(prim.value, indent, forceQuoteString)
       case SerializeNull => "null"
     }
   }
@@ -63,7 +69,7 @@ trait HJsonEncoder extends SyntaxEncoder {
   protected def encodeArray(arr: SerializeArray, indent: Int): String = {
     if (arr.isEmpty) return "[]"
 
-    val singleLine = arr.iterator.map(encodeWithIndent(_, 0)).mkString(", ")
+    val singleLine = arr.iterator.map(encodeWithIndent(_, 0, true)).mkString(", ")
     if (singleLine.length <= 40) return s"[$singleLine]"
 
     val sb = new StringBuilder("[\n")
@@ -79,17 +85,16 @@ trait HJsonEncoder extends SyntaxEncoder {
     sb.append(" " * indent).append("]").toString()
   }
 
-  protected def encodePrimitive(value: Primitive, indent: Int): String = {
+  protected def encodePrimitive(value: Primitive, indent: Int, forceQuoteString: Boolean): String = {
     value match {
       case s: String if s.contains("\n") =>
         val spacing = " " * indent
-        // 这里的改进：确保多行字符串的每一行都跟随当前的缩进，
         // 或者保持原样但明确界限。
         val indentedContent = s.linesIterator.map(line => s"  $spacing$line").mkString("\n")
         s"'''\n$indentedContent\n$spacing'''"
 
       case s: String =>
-        if (shouldQuote(s) || isReservedKeyword(s)) s"\"${escapeString(s)}\"" else s
+        if (forceQuoteString || shouldQuote(s) || isReservedKeyword(s)) s"\"${escapeString(s)}\"" else s
 
       case other => other.toString
     }

@@ -166,6 +166,7 @@ case class SerializePrimitive private(private[serialization] val value: Primitiv
 
   override def toString: String = value match {
     case s: String => s"\"${escape(s)}\""
+    case c: Char => s"\'${escape(c.toString)}\'"
     case _ => value.toString
   }
 

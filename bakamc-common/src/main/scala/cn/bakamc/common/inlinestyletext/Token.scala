@@ -1,6 +1,6 @@
 package cn.bakamc.common.inlinestyletext
 
-enum Token {
+private[inlinestyletext] enum Token {
   case ControlStart(pos: Int)
   case ControlEnd(pos: Int)
   case Expression(raw: String, pos: Int)

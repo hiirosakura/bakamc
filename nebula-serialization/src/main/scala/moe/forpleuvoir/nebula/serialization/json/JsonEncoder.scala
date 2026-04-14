@@ -77,6 +77,8 @@ class JsonEncoder(
     p.value match {
       case s: String =>
         sb.append("\"").append(escape(s)).append("\"")
+      case c: Char =>
+        sb.append("\"").append(escape(c.toString)).append("\"")
       case other =>
         sb.append(other.toString)
     }

@@ -1,6 +1,6 @@
 package cn.bakamc.common.inlinestyletext
 
-object Lexer {
+private[inlinestyletext] object Lexer {
 
   def tokenize(input: String): List[Token] = {
     val tokens = collection.mutable.ListBuffer.empty[Token]

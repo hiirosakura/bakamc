@@ -4,35 +4,42 @@ import net.kyori.adventure.text.Component
 
 import scala.collection.mutable
 
-object Decoder {
+private[inlinestyletext] object Decoder {
 
-  def decode(tokens: List[Token], modifiers: List[TextModifier]): Component = {
+  def decode(tokens: List[Token], modifiers: ModifierContainer): Component = {
     val components = mutable.ListBuffer.empty[Component]
-    var activeTransforms = List.empty[Component => Component]
+    // 存储当前文本段之前的所有表达式原始字符串
+    val pendingExpressions = mutable.ListBuffer.empty[String]
+
     tokens.foreach {
-      case Token.ControlStart(_) => activeTransforms = List.empty
+      case Token.ControlStart(_) =>
+        pendingExpressions.clear()
+
       case Token.Expression(raw, _) =>
-        modifiers.foreach { mod =>
-          mod.modify(raw).foreach(modifier =>
-            activeTransforms = activeTransforms :+ modifier
-          )
-        }
+        pendingExpressions += raw
+
       case Token.Literal(content, _) =>
-        val initial: Component = Component.text(content)
-        val processed = activeTransforms.foldLeft(initial) { (comp, transform) =>
-          transform(comp)
+        var current: Component = Component.text(content)
+        pendingExpressions.foreach { exp =>
+          modifiers.foreach { mod =>
+            // 如果修改器匹配并返回了新的 Component，则更新 current
+            mod.modify(exp, current).foreach { updated =>
+              current = updated
+            }
+          }
         }
-        components += processed
-        activeTransforms = List.empty
+        components += current
+
       case _ =>
     }
 
+    // 合并组件
     components.size match {
       case 0 => Component.empty()
       case 1 => components.head
       case _ =>
         import scala.jdk.CollectionConverters.*
-        Component.empty().children(components.asJava)
+        Component.text("").children(components.asJava)
     }
   }
 
