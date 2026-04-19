@@ -1,10 +1,12 @@
 package moe.forpleuvoir.test
 
 import cn.bakamc.common.inlinestyletext.InlineStyleTextParser
+import cn.bakamc.common.{ComponentAdapter, comp}
 import moe.forpleuvoir.nebula.serialization.codec.Codec
 import moe.forpleuvoir.nebula.serialization.codec.Codec.serialization
 import moe.forpleuvoir.nebula.serialization.hjson.HJsonDialect
 import moe.forpleuvoir.nebula.serialization.json.JsonDialect
+import net.kyori.adventure.text.Component
 import org.junit.jupiter.api.Test
 
 class TextTest {
@@ -26,6 +28,11 @@ class TextTest {
     val js = JsonDialect.encode(s)
     println(js)
     println(HJsonDialect.parse(js).get)
+
+    given ComponentAdapter = (input: Any) => Component.text(input.toString)
+
+    println(comp"$s sadad")
+
   }
 
 }

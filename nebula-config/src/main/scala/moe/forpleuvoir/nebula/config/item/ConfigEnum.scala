@@ -1,6 +1,6 @@
 package moe.forpleuvoir.nebula.config.item
 
-import moe.forpleuvoir.nebula.config.{ConfigItem, ConfigWithCodec}
+import moe.forpleuvoir.nebula.config.{Config, ConfigItem}
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.codec.{Codec, JavaEnumCodec}
 
@@ -25,7 +25,7 @@ class ConfigEnum[T <: ScalaEnum](
   name: String,
   defaultValue: T,
   codec: Codec[T]
-) extends ConfigWithCodec[T](name, defaultValue, codec)
+) extends Config[T](name, defaultValue, codec)
 
 object ConfigEnum {
   def apply[T <: ScalaEnum](name: String, defaultValue: T)(using codec: Codec[T]): ConfigEnum[T] = new ConfigEnum(name, defaultValue, codec)

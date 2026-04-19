@@ -1,6 +1,6 @@
 package moe.forpleuvoir.nebula.config.item
 
-import moe.forpleuvoir.nebula.config.ConfigWithCodec
+import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.serialization.base.Primitive
 import moe.forpleuvoir.nebula.serialization.codec.Codec
 
@@ -8,7 +8,7 @@ class ConfigPrimitive[T <: Primitive](
   name: String,
   defaultValue: T,
   codec: Codec[T]
-) extends ConfigWithCodec[T](name, defaultValue, codec)
+) extends Config[T](name, defaultValue, codec)
 
 class ConfigNumber[T <: Primitive : Ordering](
   name: String,

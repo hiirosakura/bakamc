@@ -11,7 +11,8 @@ private case class FieldInfo[T, A](
   name: String,
   getter: T => A,
   codec: Codec[A],
-  default: Option[A]
+  default: Option[A],
+  isOption: Boolean = false
 )
 
 class CodecBuilder[T, Fields <: Tuple](
@@ -30,7 +31,11 @@ class CodecBuilder[T, Fields <: Tuple](
     override def serialization(value: T): SerializeElement = buildSerObject {
       fields.foreach { f =>
         val info = f.asInstanceOf[FieldInfo[T, Any]]
-        info.name := info.codec.serialization(info.getter(value))
+        info.getter(value) match {
+          case None if info.isOption =>
+          case v =>
+            info.name := info.codec.serialization(v)
+        }
       }
     }
 
@@ -38,28 +43,39 @@ class CodecBuilder[T, Fields <: Tuple](
       val obj = data.asObject.getOrElse(throw new Exception("Not an object"))
       val values = fields.map { f =>
         val info = f.asInstanceOf[FieldInfo[T, Any]]
-        val fieldData = obj.get(info.name).getOrElse(SerializeNull)
-        info.codec.deserialization(fieldData)
-          .recover { case _ if info.default.isDefined => info.default.get }
-          .getOrElse(throw new NoSuchElementException(s"Field '${info.name}' is missing and has no default"))
+        val fieldData = obj.get(info.name)
+
+        if (info.isOption && fieldData.isEmpty) {
+          if (info.default.isDefined) {
+            info.default.get
+          } else {
+            None
+          }
+        } else {
+          val actualData = fieldData.getOrElse(SerializeNull)
+          info.codec.deserialization(actualData)
+            .recover { case _ if info.default.isDefined => info.default.get }
+            .getOrElse(throw new NoSuchElementException(s"Field '${info.name}' is missing and has no default"))
+
+        }
       }
       constructor(Tuple.fromArray(values.toArray).asInstanceOf[Fields])
     }
   }
 }
 
+
 // --- 状态 1: 刚调用完 .field("...") ---
 class FieldInitial[T, Fields <: Tuple](builder: CodecBuilder[T, Fields], name: String) {
 
   // 先设置 Getter，进入状态 2
-  def getter[A](g: T => A): FieldWithGetter[T, Fields, A] =
-    new FieldWithGetter(builder, name, g)
+  def getter[A](getter: T => A): FieldWithGetter[T, Fields, A] =
+    new FieldWithGetter(builder, name, getter)
 
-  // 先设置 Codec，进入状态 3
-  def codec[A](c: Codec[A]): FieldWithCodec[T, Fields, A] =
-    new FieldWithCodec(builder, name, c)
+  // 先设置 默认值，进入状态 3
+  def default[A](default: A): FieldWithDefault[T, Fields, A] =
+    new FieldWithDefault(builder, name, default)
 
-  def usingCodec[A](using c: Codec[A]): FieldWithCodec[T, Fields, A] = codec(c)
 }
 
 // --- 状态 2: 已经有了 Getter，等 Codec 结束 ---
@@ -69,29 +85,36 @@ class FieldWithGetter[T, Fields <: Tuple, A](
   _getter: T => A,
   _default: Option[A] = None
 ) {
-  def default(d: A): FieldWithGetter[T, Fields, A] = new FieldWithGetter(builder, name, _getter, Some(d))
+
+  def default(default: A): FieldWithGetter[T, Fields, A] =
+    new FieldWithGetter(builder, name, _getter, Some(default))
 
   // 用 Codec 结尾，直接回到 Builder
-  def codec(c: Codec[A]): CodecBuilder[T, Tuple.Append[Fields, A]] =
+  def codec(using c: Codec[A]): CodecBuilder[T, Tuple.Append[Fields, A]] =
     builder.addField(FieldInfo(name, _getter, c, _default))
 
-  def usingCodec(using c: Codec[A]): CodecBuilder[T, Tuple.Append[Fields, A]] = codec(c)
+  def optionCodec[B](using c: Codec[B])(using ev: A <:< Option[B]): CodecBuilder[T, Tuple.Append[Fields, Option[B]]] = {
+    val optionCodec = Codec.option[B](using c)
+    val adaptedGetter: T => Option[B] = _getter.andThen(ev)
+    val adaptedDefault: Option[Option[B]] = _default.map(d => ev(d))
+    builder.addField(FieldInfo(name, adaptedGetter, optionCodec, adaptedDefault, isOption = true))
+  }
 }
 
-// --- 状态 3: 已经有了 Codec，等 Getter 结束 ---
-class FieldWithCodec[T, Fields <: Tuple, A](
+// --- 状态 3: 已经有了 默认值，等 Getter ---
+class FieldWithDefault[T, Fields <: Tuple, A](
   builder: CodecBuilder[T, Fields],
   name: String,
-  _codec: Codec[A],
-  _default: Option[A] = None
+  _default: A
 ) {
-  def default(d: A): FieldWithCodec[T, Fields, A] = new FieldWithCodec(builder, name, _codec, Some(d))
 
-  // 用 Getter 结尾，直接回到 Builder
-  def getter(g: T => A): CodecBuilder[T, Tuple.Append[Fields, A]] =
-    builder.addField(FieldInfo(name, g, _codec, _default))
+  def getter(getter: T => A): FieldWithGetter[T, Fields, A] =
+    new FieldWithGetter(builder, name, getter, Some(_default))
+
 }
+
 
 object CodecBuilder {
   def apply[T]: CodecBuilder[T, EmptyTuple] = new CodecBuilder(Nil)
 }
+

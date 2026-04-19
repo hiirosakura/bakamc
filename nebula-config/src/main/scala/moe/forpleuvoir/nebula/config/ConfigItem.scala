@@ -37,7 +37,7 @@ trait ConfigItem[C](
 
 }
 
-class ConfigWithCodec[C](
+class Config[C](
   name: String,
   defaultValue: C,
   codec: Codec[C],
@@ -48,4 +48,11 @@ class ConfigWithCodec[C](
 
   override def serialization: SerializeElement = codec.serialization(getValue)
 
+}
+
+object Config {
+  def apply[C](
+    name: String,
+    defaultValue: C,
+  )(using codec: Codec[C]): Config[C] = new Config[C](name, defaultValue, codec)
 }

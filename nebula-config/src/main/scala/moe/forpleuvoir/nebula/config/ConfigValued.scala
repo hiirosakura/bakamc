@@ -44,6 +44,8 @@ trait ConfigValued[C] extends Defaultable, Observable {
 
 object ConfigValued {
 
+  given [C] => Conversion[ConfigValued[C], C] = _.getValue
+
   extension [C](self: ConfigValued[C]) {
 
     def apply(): C = self.getValue

@@ -1,6 +1,6 @@
 package moe.forpleuvoir.nebula.config.item
 
-import moe.forpleuvoir.nebula.config.ConfigWithCodec
+import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.serialization.codec.{DurationCodec, FiniteDurationCodec}
 
 import java.util.concurrent.TimeUnit
@@ -10,7 +10,7 @@ class ConfigFiniteDuration(
   name: String,
   defaultValue: FiniteDuration,
   range: (FiniteDuration, FiniteDuration)
-) extends ConfigWithCodec[FiniteDuration](name, defaultValue, FiniteDurationCodec) {
+) extends Config[FiniteDuration](name, defaultValue, FiniteDurationCodec) {
   require(range._1 <= range._2, "min[${range._1}] must be less than or equal to max[${range._2}]")
 
   private def clamp(v: FiniteDuration, min: FiniteDuration, max: FiniteDuration): FiniteDuration = {
@@ -38,7 +38,7 @@ object ConfigFiniteDuration {
 class ConfigDuration(
   name: String,
   defaultValue: Duration,
-) extends ConfigWithCodec[Duration](name, defaultValue, DurationCodec)
+) extends Config[Duration](name, defaultValue, DurationCodec)
 
 object ConfigDuration {
 

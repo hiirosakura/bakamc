@@ -96,7 +96,8 @@ object ConfigManager {
     def startup(): Unit = {
       self.initialization()
       try self.load()
-      finally self.forceSave()
+      catch case e: Throwable => self.forceSave()
+      finally self.save()
     }
 
   }

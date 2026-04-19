@@ -1,5 +1,6 @@
 package cn.bakamc.common.inlinestyletext
 
+import cn.bakamc.common.inlinestyletext.modifier.{ColorModifier, DecorationModifier, LegacyChatFormattingModifier}
 import moe.forpleuvoir.nebula.serialization.codec.Codec
 import net.kyori.adventure.text.Component
 
@@ -22,5 +23,11 @@ object InlineStyleTextParser {
   final val CODEC: Codec[InlineStyleTextParser] = Codec.delegated[InlineStyleTextParser, ModifierContainer](_.modifiers, InlineStyleTextParser(_))
 
   final val DEFAULT: InlineStyleTextParser = InlineStyleTextParser(ModifierContainer.DEFAULT)
+
+  final val NONE_EVENT: InlineStyleTextParser = InlineStyleTextParser(ModifierContainer(
+    LegacyChatFormattingModifier.DEFAULT,
+    DecorationModifier.DEFAULT,
+    ColorModifier.DEFAULT,
+  ))
 
 }

@@ -1,13 +1,10 @@
 package cn.bakamc.common.extension
 
+import moe.forpleuvoir.nebula.common.color.Color
 import net.kyori.adventure.text.*
-import net.kyori.adventure.text.format.Style
+import net.kyori.adventure.text.format.{Style, TextColor}
 
 import scala.collection.mutable
-
-def Literal(content: String): TextComponent = Component.text(content)
-
-def Translate(key: String, fallback: String | Null = null)(args: ComponentLike*): TranslatableComponent = Component.translatable(key, fallback, args *)
 
 extension (self: Component) {
 
@@ -32,4 +29,18 @@ extension (self: Component) {
     buffer.toList
   }
 
+}
+
+
+object Text {
+
+  given Conversion[Color, TextColor] = TextColor.color(_)
+
+  given Conversion[Int, TextColor] = TextColor.color(_)
+
+  def literal(content: String): TextComponent = Component.text(content)
+
+  def translate(key: String, fallback: String | Null = null)(args: ComponentLike*): TranslatableComponent = Component.translatable(key, fallback, args *)
+
+  def translate(key: String): TranslatableComponent = Component.translatable(key)
 }

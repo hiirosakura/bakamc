@@ -1,7 +1,6 @@
 package moe.forpleuvoir.nebula.serialization.codec
 
-import moe.forpleuvoir.nebula.serialization.base.SerializeElement
-import moe.forpleuvoir.nebula.serialization.codec.{ProductCodec, ScalaEnumCodec}
+import moe.forpleuvoir.nebula.serialization.base.{SerializeElement, SerializeNull}
 import moe.forpleuvoir.nebula.serialization.extension.{SerArrayOps, SerObjectOps}
 
 import scala.compiletime.{constValueTuple, erasedValue, summonInline}
@@ -20,7 +19,7 @@ object Codec {
           case e: scala.reflect.Enum =>
             enumCodec[T & scala.reflect.Enum](using s.asInstanceOf[Mirror.SumOf[T & scala.reflect.Enum]])
               .asInstanceOf[Codec[T]]
-          case _ => throw new IllegalStateException("Not a Scala Enum")
+          case _ => productCodec[T](using m.asInstanceOf[Mirror.ProductOf[T]])
         }
       case p: Mirror.ProductOf[T] => productCodec[T](using p)
     }
@@ -50,6 +49,43 @@ object Codec {
   export PrimitiveCodec._
   export moe.forpleuvoir.nebula.serialization.extension.{deserialization, serialization}
 
+  def option[T](using codec: Codec[T]): Codec[Option[T]] = new Codec[Option[T]] {
+    override def deserialization(data: SerializeElement): Try[Option[T]] = Try {
+      data match {
+        case SerializeNull => None
+        case _ => Some(data.deserialization[T].get)
+      }
+    }
+
+    override def serialization(value: Option[T]): SerializeElement =
+      value match {
+        case None => SerializeNull
+        case Some(value) => value.serialization
+      }
+  }
+
+
+  given Codec[Int] = PrimitiveCodec.Int
+
+  given Codec[Byte] = PrimitiveCodec.Byte
+
+  given Codec[Short] = PrimitiveCodec.Short
+
+  given Codec[Long] = PrimitiveCodec.Long
+
+  given Codec[Float] = PrimitiveCodec.Float
+
+  given Codec[Double] = PrimitiveCodec.Double
+
+  given Codec[Char] = PrimitiveCodec.Char
+
+  given Codec[String] = PrimitiveCodec.String
+
+  given Codec[BigDecimal] = PrimitiveCodec.BigDecimal
+
+  given Codec[BigInt] = PrimitiveCodec.BigInt
+
+  given Codec[Boolean] = PrimitiveCodec.Boolean
 
 }
 

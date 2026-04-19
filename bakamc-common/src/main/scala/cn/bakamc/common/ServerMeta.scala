@@ -1,6 +1,7 @@
 package cn.bakamc.common
 
-import moe.forpleuvoir.nebula.serialization.codec.{Codec, given_Codec_String}
+import moe.forpleuvoir.nebula.serialization.codec.Codec
+import moe.forpleuvoir.nebula.serialization.codec.Codec.given_Codec_String
 
 case class ServerMeta(name: String) derives Codec
 

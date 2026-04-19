@@ -5,6 +5,12 @@ paperUserDev = "2.0.0-beta.21"
 runTask = "3.0.2"
 shadow = "9.4.1"
 
+#database
+slick = "3.6.1"
+hikariCP = "7.0.2"
+mysql = "9.6.0"
+
+
 
 #minecraft
 adventure = "4.26.1"
@@ -14,6 +20,11 @@ adventure = "4.26.1"
 scalaLibrary3 = { group = "org.scala-lang", name = "scala3-library_3", version.ref = "scalaLibrary3" }
 adventureApi = { group = "net.kyori", name = "adventure-api", version.ref = "adventure" }
 slf4j = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4jVersion" }
+
+slick = { group = "com.typesafe.slick", name = "slick_3", version.ref = "slick" }
+slickHikariCP = { group = "com.typesafe.slick", name = "slick-hikaricp_3", version.ref = "slick" }
+hikariCP = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikariCP" }
+mysqlConnector = { group = "com.mysql", name = "mysql-connector-j", version.ref = "mysql" }
 
 [plugins]
 paperUserDev = { id = "io.papermc.paperweight.userdev", version.ref = "paperUserDev" }

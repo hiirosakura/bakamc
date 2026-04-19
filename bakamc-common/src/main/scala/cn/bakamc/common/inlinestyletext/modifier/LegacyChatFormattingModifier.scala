@@ -85,8 +85,8 @@ object LegacyChatFormattingModifier {
   }
 
   val CODEC: Codec[LegacyChatFormattingModifier] = Codec.create[LegacyChatFormattingModifier]
-    .field("prefix").getter(_.prefix).default('$').codec(Codec.Char)
-    .field("allowed_codes").getter(_.allowedCodes).default(DefaultCodes).usingCodec
+    .field("prefix").getter(_.prefix).default('$').codec(using Codec.Char)
+    .field("allowed_codes").getter(_.allowedCodes).default(DefaultCodes).codec
     .build((prefix, allowedCodes) =>
       LegacyChatFormattingModifier(prefix, allowedCodes)
     )

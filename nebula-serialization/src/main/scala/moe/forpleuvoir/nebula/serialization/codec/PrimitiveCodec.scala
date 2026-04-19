@@ -133,29 +133,8 @@ object PrimitiveCodec {
 
   def Boolean(defaultValue: Boolean): Codec[Boolean] = default(defaultValue, { e => e.asBoolean.get })
   //endregion
+
 }
-
-given Codec[Int] = PrimitiveCodec.Int
-
-given Codec[Byte] = PrimitiveCodec.Byte
-
-given Codec[Short] = PrimitiveCodec.Short
-
-given Codec[Long] = PrimitiveCodec.Long
-
-given Codec[Float] = PrimitiveCodec.Float
-
-given Codec[Double] = PrimitiveCodec.Double
-
-given Codec[Char] = PrimitiveCodec.Char
-
-given Codec[String] = PrimitiveCodec.String
-
-given Codec[BigDecimal] = PrimitiveCodec.BigDecimal
-
-given Codec[BigInt] = PrimitiveCodec.BigInt
-
-given Codec[Boolean] = PrimitiveCodec.Boolean
 
 
 private class PrimitiveDefaultCodec[T <: Primitive](default: T, private val codec: Codec[T]) extends Codec[T] {

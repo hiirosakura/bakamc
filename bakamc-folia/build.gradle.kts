@@ -15,6 +15,12 @@ dependencies {
 
     implementation(project(":nebula-config"))
     implementation(project(":bakamc-common"))
+
+    compileOnly(libs.slick)
+    compileOnly(libs.slickHikariCP)
+    compileOnly(libs.hikariCP)
+    compileOnly(libs.mysqlConnector)
+
 }
 
 
@@ -27,6 +33,18 @@ paperweight {
 }
 
 tasks {
+
+    processResources {
+        val props = mapOf(
+            "projectVersion" to project.version,
+            "apiVersion" to minecraftVersion.substringBeforeLast('.'),
+            "description" to "这是什么插件"
+        )
+        inputs.properties(props)
+        filesMatching("paper-plugin.yml") {
+            expand(props)
+        }
+    }
 
     runServer {
         minecraftVersion(minecraftVersion)

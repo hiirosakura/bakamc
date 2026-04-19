@@ -168,6 +168,10 @@ opaque type Color = Int
 
 object Color {
 
+  given Conversion[Color, Int] = _.argb
+
+  given Conversion[Color, String] = _.toHexStr
+
   private def hexToInt(hex: String): Int = {
     val str = hex.replaceAll("0x|0X|#", "")
     str.length match {
@@ -231,8 +235,7 @@ object Color {
 
   def fromARGB(argbValue: Int): Color = argbValue
 
-  def fromRGB(rgbValue: Int): Color = rgbValue.alpha(255)
-
+  def fromRGB(rgbValue: Int): Color = 0xFF000000 | (rgbValue & 0x00FFFFFF)
 
   /**
    *
@@ -263,15 +266,15 @@ object Color {
 
     inline def argb: Int = color
 
-    def toHex: String = {
+    def toHexStr: String = {
       if (alpha == 255)
         f"#${color & 0xFFFFFF}%06X"
       else
         f"#$color%08X"
     }
 
-    def asString: String =
-      s"Color(hex: ${color.toHex}, alpha: ${color.alpha}, rgb: (${color.red}, ${color.green}, ${color.blue}), hsv: (${HSVHelper.getHue(color)}, ${HSVHelper.getSaturation(color)}, ${HSVHelper.getValue(color)}))"
+    def display: String =
+      s"Color(hex: ${color.toHexStr}, alpha: ${color.alpha}, rgb: (${color.red}, ${color.green}, ${color.blue}), hsv: (${HSVHelper.getHue(color)}, ${HSVHelper.getSaturation(color)}, ${HSVHelper.getValue(color)}))"
 
     //region Alpha
 
@@ -280,7 +283,7 @@ object Color {
     def alphaF: Float = alpha / 255.0f
 
     def alpha(alpha: Int | Float | Double): Color =
-      (normalize(alpha)("alpha") << 24) | color & 0x00FFFFFF
+      (normalize(alpha)("alpha") << 24) | (color & 0x00FFFFFF)
 
     //endregion
 
@@ -291,7 +294,7 @@ object Color {
     def redF: Float = red / 255.0f
 
     def red(red: Int | Float | Double): Color =
-      (normalize(red)("red") << 16) | color & 0xFF00FFFF
+      (normalize(red)("red") << 16) | (color & 0xFF00FFFF)
 
     //endregion
 
@@ -302,7 +305,7 @@ object Color {
     def greenF: Float = green / 255.0f
 
     def green(green: Int | Float | Double): Color =
-      (normalize(green)("green") << 8) | color & 0xFFFF00FF
+      (normalize(green)("green") << 8) | (color & 0xFFFF00FF)
 
     //endregion
 
@@ -313,7 +316,7 @@ object Color {
     def blueF: Float = blue / 255.0f
 
     def blue(blue: Int | Float | Double): Color =
-      normalize(blue)("blue") | color & 0xFFFFFF00
+      normalize(blue)("blue") | (color & 0xFFFFFF00)
 
     //endregion
 

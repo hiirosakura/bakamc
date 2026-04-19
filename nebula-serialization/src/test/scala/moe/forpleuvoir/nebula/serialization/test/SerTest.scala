@@ -3,6 +3,7 @@ package moe.forpleuvoir.nebula.serialization.test
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.serialization.TestEnum
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
+import moe.forpleuvoir.nebula.serialization.codec.PrimitiveCodec.given
 import moe.forpleuvoir.nebula.serialization.codec.{Codec, JavaEnumCodec, given}
 import moe.forpleuvoir.nebula.serialization.extension.*
 import moe.forpleuvoir.nebula.serialization.extension.SerArrayOps.*
@@ -52,15 +53,15 @@ class SerTest {
       "saturation" := 50
       "value" := 100
     }
-    println(hc.deserialization[Color].get.asString)
+    println(hc.deserialization[Color].get.display)
 
     var hsv = Color.fromHSV(359, 50f, 100f)
     println(hsv.serialization)
 
-    println(hsv.asString)
+    println(hsv.display)
 
     val color: Color = c.deserialization[Color].get
-    println(color.asString)
+    println(color.display)
     println(color.hue)
     println(color.saturation)
     println(color.value)
@@ -112,7 +113,6 @@ class SerTest {
   }
 
 }
-
 
 
 given Codec[(Int, String)] = Codec.derived

@@ -41,7 +41,7 @@ object ColorCodec extends Codec[Color] {
 
   override def deserialization(data: SerializeElement): Try[Color] = Try(decodeColor(data))
 
-  override def serialization(value: Color): SerializeElement = SerializePrimitive(value.toHex)
+  override def serialization(value: Color): SerializeElement = SerializePrimitive(value.toHexStr)
 
 }
 

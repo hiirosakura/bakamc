@@ -4,7 +4,8 @@ import cn.bakamc.common.extension.flat
 import cn.bakamc.common.inlinestyletext.TextModifier
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.util.primitive.CoerceInExtension.clamp
-import moe.forpleuvoir.nebula.serialization.codec.{Codec, given_Codec_Boolean}
+import moe.forpleuvoir.nebula.serialization.codec.Codec
+import moe.forpleuvoir.nebula.serialization.codec.Codec.given_Codec_Boolean
 import net.kyori.adventure.text.format.{ShadowColor, TextColor}
 import net.kyori.adventure.text.{Component, TextComponent}
 
@@ -43,9 +44,9 @@ case class ColorModifier(
 
   private def singleColorModifier(color: Color, shadow: Boolean, origin: Component): Option[Component] = Some {
     if (shadow) {
-      origin.shadowColor(ShadowColor.shadowColor(color.argb))
+      origin.shadowColor(ShadowColor.shadowColor(color))
     } else {
-      origin.color(TextColor.color(color.argb))
+      origin.color(TextColor.color(color))
     }
   }
 
@@ -103,9 +104,9 @@ case class ColorModifier(
         startColor.lerp(endColor, localT, true)
 
       val style = if (shadow) {
-        comp.style().shadowColor(ShadowColor.shadowColor(interpolated.argb))
+        comp.style().shadowColor(ShadowColor.shadowColor(interpolated))
       } else {
-        comp.style().color(TextColor.color(interpolated.argb))
+        comp.style().color(TextColor.color(interpolated))
       }
       comp.style(style)
     }
@@ -175,9 +176,8 @@ case class ColorModifier(
 object ColorModifier {
   final val DEFAULT = new ColorModifier(true, true)
 
-
   final val CODEC = Codec.create[ColorModifier]
-    .field("shadow").getter(_.shadow).usingCodec
-    .field("gradient").getter(_.gradient).usingCodec
+    .field("shadow").getter(_.shadow).codec
+    .field("gradient").getter(_.gradient).codec
     .build((shadow, gradient) => new ColorModifier(shadow, gradient))
 }
