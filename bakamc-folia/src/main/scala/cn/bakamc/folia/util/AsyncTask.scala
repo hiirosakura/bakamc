@@ -29,7 +29,7 @@ object AsyncTask {
 
       val _task = task.plugin.getServer.getAsyncScheduler.runAtFixedRate(
         task.plugin,
-        task.task.asInstanceOf[Consumer[ScheduledTask]],
+        task.task(_),
         task.initialDelay.toMillis,
         task.period.toMillis,
         TimeUnit.MILLISECONDS
@@ -47,7 +47,7 @@ object AsyncTask {
 
 
 def runDelayed(plugin: JavaPlugin, delay: FiniteDuration)(task: ScheduledTask => Unit): Unit = {
-  plugin.getServer.getAsyncScheduler.runDelayed(plugin, task.asInstanceOf[Consumer[ScheduledTask]], delay.toMillis, TimeUnit.MILLISECONDS)
+  plugin.getServer.getAsyncScheduler.runDelayed(plugin, task(_), delay.toMillis, TimeUnit.MILLISECONDS)
 }
 
 private[folia] def runDelayed(delay: FiniteDuration)(task: ScheduledTask => Unit): Unit = {
@@ -55,7 +55,7 @@ private[folia] def runDelayed(delay: FiniteDuration)(task: ScheduledTask => Unit
 }
 
 def runAtFixedRate(plugin: JavaPlugin, initialDelay: FiniteDuration, period: FiniteDuration)(task: ScheduledTask => Unit): Unit = {
-  plugin.getServer.getAsyncScheduler.runAtFixedRate(plugin, task.asInstanceOf[Consumer[ScheduledTask]], initialDelay.toMillis, period.toMillis, TimeUnit.MILLISECONDS)
+  plugin.getServer.getAsyncScheduler.runAtFixedRate(plugin, task(_), initialDelay.toMillis, period.toMillis, TimeUnit.MILLISECONDS)
 }
 
 private[folia] def runAtFixedRate(initialDelay: FiniteDuration, period: FiniteDuration)(task: ScheduledTask => Unit): Unit = {

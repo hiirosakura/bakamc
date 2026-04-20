@@ -13,7 +13,6 @@ private val events: List[Listener] = List(
 def registerEvents(using plugin: JavaPlugin): Unit = {
   val manager = plugin.getServer.getPluginManager
   events.foreach(manager.registerEvents(_, plugin))
-
 }
 
 def reloadEvents(): Unit = events.foreach { case r: Reloadable => r.reload() }

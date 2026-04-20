@@ -10,6 +10,8 @@ slick = "3.6.1"
 hikariCP = "7.0.2"
 mysql = "9.6.0"
 
+vaultUnlockedApi = "2.16"
+placeholderApi = "2.12.2"
 
 
 #minecraft
@@ -25,6 +27,9 @@ slick = { group = "com.typesafe.slick", name = "slick_3", version.ref = "slick" 
 slickHikariCP = { group = "com.typesafe.slick", name = "slick-hikaricp_3", version.ref = "slick" }
 hikariCP = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikariCP" }
 mysqlConnector = { group = "com.mysql", name = "mysql-connector-j", version.ref = "mysql" }
+
+vaultUnlockedApi = { group = "net.milkbowl.vault", name = "VaultUnlockedAPI", version.ref = "vaultUnlockedApi" }
+placeholderApi = { group = "me.clip", name = "placeholderapi", version.ref = "placeholderApi" }
 
 [plugins]
 paperUserDev = { id = "io.papermc.paperweight.userdev", version.ref = "paperUserDev" }

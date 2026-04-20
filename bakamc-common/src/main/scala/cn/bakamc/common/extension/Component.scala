@@ -43,4 +43,16 @@ object Text {
   def translate(key: String, fallback: String | Null = null)(args: ComponentLike*): TranslatableComponent = Component.translatable(key, fallback, args *)
 
   def translate(key: String): TranslatableComponent = Component.translatable(key)
+
+  def status(status: Boolean): TextComponent =
+    if (status)
+      Text.literal("[开启]").color(0x55FF55)
+    else
+      Text.literal("[关闭]").color(0xFF5555)
+
+  def boolean(status: Boolean): TextComponent =
+    if (status)
+      Text.literal(status.toString).color(0x55FF55)
+    else
+      Text.literal(status.toString).color(0xFF5555)
 }

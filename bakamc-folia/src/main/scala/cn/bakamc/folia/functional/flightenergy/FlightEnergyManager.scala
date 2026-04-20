@@ -9,18 +9,18 @@ import cn.bakamc.folia.util.AsyncTask
 import cn.bakamc.folia.{BakaMC, execute, onlinePlayers}
 import moe.forpleuvoir.nebula.common.api.Initializable
 import moe.forpleuvoir.nebula.common.util.measureTime
+import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
-import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import org.bukkit.potion.{PotionEffect, PotionEffectType}
+import org.bukkit.{GameMode, Sound as Sounds}
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import scala.concurrent.Await
 import scala.concurrent.duration.{Duration, DurationDouble}
 import scala.jdk.CollectionConverters.CollectionHasAsScala
-import scala.math.Ordering.Implicits.infixOrderingOps
 
 object FlightEnergyManager extends Initializable, Reloadable {
 
@@ -34,7 +34,7 @@ object FlightEnergyManager extends Initializable, Reloadable {
 
   private val tasks = List(
     AsyncTask(0.second, tickPeriod) { it => tick() },
-    AsyncTask(0.second, tickPeriod) { it => sync() }
+    AsyncTask(0.second, syncPeriod) { it => sync() }
   )
 
   private[flightenergy] val allowGameMode = List(GameMode.SURVIVAL, GameMode.ADVENTURE)
@@ -69,7 +69,7 @@ object FlightEnergyManager extends Initializable, Reloadable {
   }
 
   def onDisable(): Unit = {
-    if (syncing) sync()
+    if (!syncing) sync()
     energyCache.clear()
     barCache.forEach((player, bar) => bar.close())
     barCache.clear()
@@ -82,6 +82,7 @@ object FlightEnergyManager extends Initializable, Reloadable {
   }
 
   private[flightenergy] def sync(): Unit = {
+    if (syncing) return
     syncing.set(true)
     measureTime {
       try Await.result(PlayerService.updateFlightEnergies(energyCache.values.asScala), timeOutDuration)
@@ -93,7 +94,7 @@ object FlightEnergyManager extends Initializable, Reloadable {
       }
     }.foreach { (result, time) =>
       if (result.exists(_ > 0)) {
-        logger.info(s"玩家飞行能量同步成功,同步玩家: ${result.size},同步时间: ${time}ms")
+        logger.info(s"玩家飞行能量同步成功,同步玩家: ${result.size},同步耗时: ${time.toMillis}ms")
       }
     }
   }
@@ -133,7 +134,7 @@ object FlightEnergyManager extends Initializable, Reloadable {
         else if (isFlying) {
           try {
             //扣除能量
-            player.energy = (player.energy - energyCost).max(0.0)
+            player.energy = player.energy - energyCost
             //更新能量条状态
             player.energyBar.foreach(_.tick())
             //玩家能量小于等于0
@@ -145,6 +146,7 @@ object FlightEnergyManager extends Initializable, Reloadable {
               logger.info(s"玩家 ${player.getName} 的飞行能量已耗尽")
               //给玩家添加200tick的缓降效果
               player.execute() {
+                player.playSound(Sound.sound(Sounds.BLOCK_ANVIL_LAND, Sound.Source.UI, 1.0f, 1.0f))
                 player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 200, 0))
               }
             }

@@ -7,7 +7,7 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 extension (self: Entity) {
 
   def execute(delay: Long = 1)(run: => Unit): Unit = {
-    self.getScheduler.execute(BakaMC, run.asInstanceOf[Runnable], null, delay)
+    self.getScheduler.execute(BakaMC, () => run, null, delay)
   }
 
 }

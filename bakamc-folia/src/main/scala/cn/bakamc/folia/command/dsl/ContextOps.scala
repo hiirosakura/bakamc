@@ -2,10 +2,12 @@ package cn.bakamc.folia.command.dsl
 
 import com.mojang.brigadier.context.CommandContext
 import io.papermc.paper.command.brigadier.CommandSourceStack
+import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver
 import net.kyori.adventure.text.Component
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
+import scala.jdk.CollectionConverters.*
 import scala.reflect.ClassTag
 import scala.util.Try
 
@@ -37,5 +39,14 @@ object ContextOps {
 
   inline def feedback(message: String)(using ctx: CommandContext[CommandSourceStack]): Unit =
     sender.sendMessage(message)
+
+
+  inline def getPlayer(argName: String)(using ctx: CommandContext[CommandSourceStack]): Player = {
+    getArg[PlayerSelectorArgumentResolver](argName).resolve(source).getFirst
+  }
+
+  inline def getPlayers(argName: String)(using ctx: CommandContext[CommandSourceStack]): List[Player] = {
+    getArg[PlayerSelectorArgumentResolver](argName).resolve(source).asScala.toList
+  }
 
 }

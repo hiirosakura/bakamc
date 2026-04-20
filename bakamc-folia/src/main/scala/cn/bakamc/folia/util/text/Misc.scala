@@ -9,7 +9,7 @@ import org.bukkit.craftbukkit.CraftRegistry
 
 given Conversion[String, Component] = Component.text(_)
 
-private val GSON: Gson = (new GsonBuilder).disableHtmlEscaping.create
+lazy val GSON: Gson = (new GsonBuilder).disableHtmlEscaping.create
 
 given Conversion[MCComponent, Component] = nms2Kyori(_)
 

@@ -8,6 +8,8 @@ val minecraftVersion = "1.21.11"
 
 repositories {
     maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://repo.codemc.io/repository/creatorfromhell/")
+    maven("https://repo.extendedclip.com/releases/")
 }
 
 dependencies {
@@ -20,6 +22,9 @@ dependencies {
     compileOnly(libs.slickHikariCP)
     compileOnly(libs.hikariCP)
     compileOnly(libs.mysqlConnector)
+
+    compileOnly(libs.vaultUnlockedApi) { isTransitive = false }
+    compileOnly(libs.placeholderApi)
 
 }
 
@@ -37,7 +42,7 @@ tasks {
     processResources {
         val props = mapOf(
             "projectVersion" to project.version,
-            "apiVersion" to minecraftVersion.substringBeforeLast('.'),
+//            "apiVersion" to minecraftVersion.substringBeforeLast('.'),
             "description" to "这是什么插件"
         )
         inputs.properties(props)

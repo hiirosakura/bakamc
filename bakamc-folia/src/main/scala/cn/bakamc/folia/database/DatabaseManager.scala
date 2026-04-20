@@ -1,7 +1,7 @@
 package cn.bakamc.folia.database
 
 import cn.bakamc.folia.config.DataBaseConfig
-import cn.bakamc.folia.database.table.{flightEnergies, playerInfos}
+import cn.bakamc.folia.database.table.{flightEnergies, playerInfos, specialItems}
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import org.slf4j.Logger
 import slick.dbio.NoStream
@@ -61,16 +61,17 @@ object DatabaseManager {
 def db[R](a: DBIOAction[R, NoStream, Nothing]): Future[R] = DatabaseManager.db.run(a)
 
 
-def initDatabase(logger: Logger): Unit = {
+def initDatabase(logger: Logger): Future[Unit] = {
   DatabaseManager.init()
 
-  val schema = playerInfos.schema ++ flightEnergies.schema
+  val schema = playerInfos.schema ++ flightEnergies.schema ++ specialItems.schema
 
   val setupAction = schema.createIfNotExists
-  db(setupAction).onComplete {
+  val result = db(setupAction)
+  result.onComplete {
     case Success(value) => logger.info("[Database] 所有表已就绪(自动创建或已存在)")
     case Failure(exception) =>
       logger.error(s"[Database] 初始化表时出错: ${exception.getMessage}", exception)
   }
-
+  result
 }

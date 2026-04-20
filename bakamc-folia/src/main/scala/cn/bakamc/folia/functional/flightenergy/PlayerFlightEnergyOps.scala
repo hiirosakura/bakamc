@@ -8,19 +8,21 @@ import cn.bakamc.folia.util.runDelayed
 import cn.bakamc.folia.{BakaMC, execute}
 import moe.forpleuvoir.nebula.common.util.measureTime
 import moe.forpleuvoir.nebula.common.util.primitive.CoerceInExtension.clamp
-import net.minecraft.server.level.ServerPlayer
 import org.bukkit.GameMode
+import org.bukkit.Statistic.PLAY_ONE_MINUTE
 import org.bukkit.entity.Player
 
+import java.util.concurrent.TimeUnit
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.DurationInt
-import scala.jdk.CollectionConverters.*
+import scala.concurrent.duration.{Duration, DurationInt, FiniteDuration}
 import scala.util.{Failure, Success, Try}
 
 object PlayerFlightEnergyOps {
 
   private def logger = BakaMC.logger
+
+  given [T] => Conversion[T, Option[T]] = Some[T]
 
   def onPlayerJoin(player: Player): Unit = {
     energyCache.put(player, Await.result(PlayerService.getFlightEnergy(player), timeOutDuration))
@@ -78,7 +80,7 @@ object PlayerFlightEnergyOps {
     energyCache.values().forEach { it =>
       it.energy = (it.energy + energy).clamp(range)
     }
-    if (syncing) {
+    if (syncing.get()) {
       runDelayed(1.seconds) { it =>
         sync()
       }
@@ -106,7 +108,7 @@ object PlayerFlightEnergyOps {
         }
       }.foreach { (result, time) =>
         if (result.exists(_ > 0)) {
-          logger.info(s"玩家[$name]飞行能量更新[$old -> ${player.energy}],耗时$time")
+          logger.info(s"玩家[$name]飞行能量更新[$old -> ${player.energy}], 耗时${time.toMillis}ms")
         }
       }
     }
@@ -186,27 +188,12 @@ object PlayerFlightEnergyOps {
       }
     }
 
-  }
+    /**
+     * @return 玩家在线时长
+     */
+    def onlineDuration: FiniteDuration =
+      Duration(player.getStatistic(PLAY_ONE_MINUTE) / 20, TimeUnit.MILLISECONDS)
 
-  extension (player: ServerPlayer) {
-    def energy: Double = {
-      energyCache.asScala
-        .find(_._1.uuid == player.getStringUUID)
-        .map(_._2.energy)
-        .getOrElse {
-          BakaMC.getServer.getPlayer(player.getUUID) match {
-            case null => 0.0
-            case p: Player => Try {
-              Await.result(PlayerService.getFlightEnergy(p), 10.second).energy
-            }.getOrElse(0.0)
-          }
-        }
-    }
-
-    def energy_=(energy: Double): Unit = {
-      energyCache.asScala.find(_._1.uuid == player.getStringUUID)
-        .foreach(_._2.energy = energy)
-    }
   }
   //endregion
 
