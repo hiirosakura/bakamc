@@ -70,6 +70,12 @@ object ArgumentScope {
     }
   }
 
+  def suggests[A](candidates: => List[String])(using parentScope: RequiredArgumentScope[A]): Unit = {
+    parentScope.argumentBuilder.suggests { (_, builder) =>
+      SharedSuggestionProvider.suggest(candidates.asJava, builder)
+    }
+  }
+
   extension (name: String) {
     def apply(scope: LiteralArgumentScope ?=> Unit)(using parentScope: ArgumentScope[?]): Unit = {
       ArgumentScope.literal(name)(scope)

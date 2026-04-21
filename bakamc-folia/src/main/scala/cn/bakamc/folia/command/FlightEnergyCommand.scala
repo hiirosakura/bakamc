@@ -1,11 +1,9 @@
 package cn.bakamc.folia.command
 
-import cn.bakamc.common.comp
 import cn.bakamc.folia.command.dsl.ArgumentScope.*
 import cn.bakamc.folia.command.dsl.ContextOps.{getPlayer, getPlayers}
 import cn.bakamc.folia.command.dsl.RootCommand
 import cn.bakamc.folia.functional.flightenergy.{FlightEnergyCommandOps, FlightEnergyManager}
-import cn.bakamc.folia.util.text.PluginComponentAdapter.given_ComponentAdapter
 import com.mojang.brigadier.arguments.{BoolArgumentType, DoubleArgumentType}
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver

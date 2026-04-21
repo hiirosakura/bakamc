@@ -5,6 +5,7 @@ import cn.bakamc.folia.config.{AnvilTextParserConfig, Configs, DataBaseConfig}
 import cn.bakamc.folia.database.{DatabaseManager, initDatabase}
 import cn.bakamc.folia.evnet.registerEvents
 import cn.bakamc.folia.functional.flightenergy.FlightEnergyManager
+import cn.bakamc.folia.functional.specialitem.SpecialItemManager
 import cn.bakamc.folia.hook.BakaMCHook
 import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.{Logger, LoggerFactory}
@@ -49,6 +50,7 @@ class BakaMC extends JavaPlugin {
 
 
     FlightEnergyManager.initialization()
+    SpecialItemManager.initialization()
     registerEvents(using this)
   }
 

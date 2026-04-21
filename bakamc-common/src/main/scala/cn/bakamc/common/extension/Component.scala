@@ -1,5 +1,6 @@
 package cn.bakamc.common.extension
 
+import cn.bakamc.common.ComponentAdapter
 import moe.forpleuvoir.nebula.common.color.Color
 import net.kyori.adventure.text.*
 import net.kyori.adventure.text.format.{Style, TextColor}
@@ -38,6 +39,8 @@ object Text {
 
   given Conversion[Int, TextColor] = TextColor.color(_)
 
+  given Conversion[String, Component] = literal(_)
+
   def literal(content: String): TextComponent = Component.text(content)
 
   def translate(key: String, fallback: String | Null = null)(args: ComponentLike*): TranslatableComponent = Component.translatable(key, fallback, args *)
@@ -55,4 +58,29 @@ object Text {
       Text.literal(status.toString).color(0x55FF55)
     else
       Text.literal(status.toString).color(0xFF5555)
+
+
+  extension [T <: Any](self: Iterable[T]) {
+
+    def mkText(using adapter: ComponentAdapter): Component = mkText("", "", "")
+
+    def mkText(sep: String)(using adapter: ComponentAdapter): Component = mkText("", sep, "")
+
+    def mkText(start: String, sep: String, end: String)(using adapter: ComponentAdapter): Component = {
+      val builder = Component.text()
+      if (start.nonEmpty) builder.append(start)
+      val it = self.iterator
+      if (it.hasNext) {
+        builder.append(adapter.convert(it.next()))
+        while (it.hasNext) {
+          if (sep.nonEmpty) builder.append(sep)
+          builder.append(adapter.convert(it.next()))
+        }
+      }
+      if (end.nonEmpty) builder.append(end)
+      builder.build()
+    }
+
+  }
+
 }

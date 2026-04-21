@@ -98,7 +98,7 @@ class SpecialItems(tag: Tag) extends Table[SpecialItem](tag, "special_items") {
 
   def id = column[String]("id", O.PrimaryKey, O.Length(36))
 
-  def namespace = column[String]("name_space", O.Length(36))
+  def namespace = column[String]("namespace", O.Length(36))
 
   def itemData = column[Array[Byte]]("item_data")
 

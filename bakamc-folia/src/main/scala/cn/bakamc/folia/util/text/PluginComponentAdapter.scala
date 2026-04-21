@@ -33,8 +33,8 @@ object PluginComponentAdapter extends ComponentAdapter {
       case b: Byte => Text.literal(b.toString).color(0x98FB98)        // 苍绿 - 微小值
       case b: Block => Component.translatable(b.getType.translationKey()).wrapInSquareBrackets
       case b: net.minecraft.world.level.block.Block => b.getName
-      case i: ItemStack => i.itemNameWithCount
-      case i: net.minecraft.world.item.ItemStack => CraftItemStack.asBukkitCopy(i).itemNameWithCount
+      case i: ItemStack => i.hoveredNameWithCount
+      case i: net.minecraft.world.item.ItemStack => CraftItemStack.asBukkitCopy(i).hoveredNameWithCount
       case p: Player => p.nameAsComponent
       case p: ServerPlayer => p.nameAsComponent
       case _ => Component.text(input.toString)

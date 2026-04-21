@@ -18,7 +18,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.{Duration, DurationInt, FiniteDuration}
 import scala.util.{Failure, Success, Try}
 
-object PlayerFlightEnergyOps {
+object FlightEnergyPlayerOps {
 
   private def logger = BakaMC.logger
 

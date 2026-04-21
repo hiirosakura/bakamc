@@ -44,7 +44,7 @@ object FlightEnergyManager extends Initializable, Reloadable {
 
   private[flightenergy] val syncing = AtomicBoolean(false)
 
-  export PlayerFlightEnergyOps._
+  export FlightEnergyPlayerOps._
 
   export FlightEnergyCommandOps._
 

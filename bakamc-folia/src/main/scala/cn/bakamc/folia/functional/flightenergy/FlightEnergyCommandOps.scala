@@ -5,9 +5,11 @@ import cn.bakamc.common.extension.Text
 import cn.bakamc.common.extension.Text.given
 import cn.bakamc.folia.BakaMC
 import cn.bakamc.folia.command.dsl.ContextOps.feedback
-import cn.bakamc.folia.config.FlightEnergyConfig.maxEnergy
+import cn.bakamc.folia.config.FlightEnergyConfig.{maxEnergy, moneyItem}
+import cn.bakamc.folia.database.table.SpecialItem
 import cn.bakamc.folia.functional.flightenergy.FlightEnergyManager.*
-import cn.bakamc.folia.functional.flightenergy.PlayerFlightEnergyOps.energy
+import cn.bakamc.folia.functional.flightenergy.FlightEnergyPlayerOps.energy
+import cn.bakamc.folia.functional.specialitem.SpecialItemManager
 import cn.bakamc.folia.util.text.PluginComponentAdapter.given
 import com.mojang.brigadier.context.CommandContext
 import io.papermc.paper.command.brigadier.CommandSourceStack
@@ -75,6 +77,13 @@ object FlightEnergyCommandOps {
     if (changeList.size != players.size) {
       feedback(comp"${players.size - changeList.size}名玩家的飞行能量更新失败")
       logger.info(s"操作者:${operator.getName},更新失败玩家列表:[${players.filterNot(x => changeList.exists(_._1 == x)).map(x => s"${x.getName}(${x.uuid}):未在缓存中找到该玩家").mkString(", ")}]")
+    }
+  }
+
+  def getMoneyItemEnergy(id: String): Option[(SpecialItem, Double)] = {
+    SpecialItemManager.specifyType(moneyItem.keys.toSet).get(id) match {
+      case Some(value) => Some(value -> moneyItem.get(id).get)
+      case None => None
     }
   }
 
