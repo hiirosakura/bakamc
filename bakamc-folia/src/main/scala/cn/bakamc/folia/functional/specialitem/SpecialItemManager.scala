@@ -10,6 +10,7 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.jdk.CollectionConverters.*
+import language.implicitConversions
 
 object SpecialItemManager extends Initializable {
 
@@ -28,7 +29,7 @@ object SpecialItemManager extends Initializable {
         .foreach { item =>
           cache.put(item.id, item)
         }
-      logger.info("特殊物品加载完成", cache.size)
+      logger.info("特殊物品加载完成 {}", cache.size)
     } catch {
       case e: Throwable => logger.error("特殊物品加载失败", e)
     }

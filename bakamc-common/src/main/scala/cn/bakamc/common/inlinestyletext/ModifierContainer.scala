@@ -1,10 +1,10 @@
 package cn.bakamc.common.inlinestyletext
 
 import cn.bakamc.common.inlinestyletext.modifier.*
+import moe.forpleuvoir.nebula.serialization.base.SerializeObject.:=
 import moe.forpleuvoir.nebula.serialization.base.{SerializeElement, SerializeObject}
 import moe.forpleuvoir.nebula.serialization.codec.Codec
 import moe.forpleuvoir.nebula.serialization.codec.Codec.deserialization
-import moe.forpleuvoir.nebula.serialization.extension.SerObjectOps.*
 
 given Codec[HoverEventModifier] = HoverEventModifier.CODEC
 given Codec[ColorModifier] = ColorModifier.CODEC

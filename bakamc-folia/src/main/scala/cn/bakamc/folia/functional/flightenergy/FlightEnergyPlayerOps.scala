@@ -192,7 +192,7 @@ object FlightEnergyPlayerOps {
      * @return 玩家在线时长
      */
     def onlineDuration: FiniteDuration =
-      Duration(player.getStatistic(PLAY_ONE_MINUTE) / 20, TimeUnit.MILLISECONDS)
+      Duration(player.getStatistic(PLAY_ONE_MINUTE) / 20, TimeUnit.SECONDS)
 
   }
   //endregion

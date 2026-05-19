@@ -12,7 +12,7 @@ trait BakaMCHook {
 
 object BakaMCHook extends BakaMCHook {
 
-  private val hooks: List[BakaMCHook] = List(
+  private lazy val hooks: List[BakaMCHook] = List(
     VaultUnlocked
   )
 

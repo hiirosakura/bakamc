@@ -5,9 +5,9 @@ import org.bukkit.event.Listener
 import org.bukkit.plugin.java.JavaPlugin
 
 private val events: List[Listener] = List(
-  PlayerEventListener
-
-
+  PlayerEventListener,
+  PrepareAnvilEventListener,
+  EntityActionInterceptEventListener
 )
 
 def registerEvents(using plugin: JavaPlugin): Unit = {

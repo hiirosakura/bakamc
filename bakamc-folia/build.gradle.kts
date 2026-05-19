@@ -4,18 +4,23 @@ plugins {
     alias(libs.plugins.shadow)
 }
 
-val minecraftVersion = "1.21.11"
+val minecraftVersion = "26.1.2"
 
 repositories {
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://repo.codemc.io/repository/creatorfromhell/")
     maven("https://repo.extendedclip.com/releases/")
+    maven {
+        name = "menthamc"
+        url = uri("https://repo.menthamc.org/repository/maven-public/")
+    }
 }
 
 dependencies {
-    paperweight.foliaDevBundle("${minecraftVersion}-R0.1-SNAPSHOT")
+//    paperweight.foliaDevBundle("$minecraftVersion.build.8-stable")
+    paperweight.devBundle("me.earthme.luminol", "26.1.2.build.648-stable")
 
-    implementation(project(":nebula-config"))
+    implementation(libs.nebula.scala)
     implementation(project(":bakamc-common"))
 
     compileOnly(libs.slick)
@@ -32,7 +37,7 @@ dependencies {
 paperweight {
     reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.MOJANG_PRODUCTION
     javaLauncher = javaToolchains.launcherFor {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(25))
     }
 
 }
@@ -40,8 +45,9 @@ paperweight {
 tasks {
 
     processResources {
+        filteringCharset = "UTF-8"
         val props = mapOf(
-            "projectVersion" to project.version,
+            "projectVersion" to version,
 //            "apiVersion" to minecraftVersion.substringBeforeLast('.'),
             "description" to "这是什么插件"
         )
@@ -56,15 +62,12 @@ tasks {
     }
 
     assemble {
-        dependsOn(reobfJar)
+        dependsOn(shadowJar)
     }
-
 
     shadowJar {
         dependencies {
-            include(dependency(":nebula-common"))
-            include(dependency(":nebula-serialization"))
-            include(dependency(":nebula-config"))
+            include(dependency(libs.nebula.scala))
             include(dependency(":bakamc-common"))
         }
 

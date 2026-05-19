@@ -1,6 +1,7 @@
 package cn.bakamc.folia.command
 
-val commands = List(
+private[bakamc] val commands = List(
   FlightEnergyCommand.root,
-  SpecialItemCommand.root
+  SpecialItemCommand.root,
+  QuickUseCommand.root
 )

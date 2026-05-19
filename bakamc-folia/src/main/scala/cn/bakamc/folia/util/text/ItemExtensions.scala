@@ -11,7 +11,10 @@ object ItemExtensions {
       if (meta != null && meta.hasItemName) {
         meta.itemName().color(meta.getRarity.color())
       } else {
-        Component.translatable(item.getType.translationKey()).color(meta.getRarity.color())
+        val c = Component.translatable(item.getType.translationKey())
+        if (meta.hasRarity)
+          c.color(meta.getRarity.color())
+        c
       }
     }
 

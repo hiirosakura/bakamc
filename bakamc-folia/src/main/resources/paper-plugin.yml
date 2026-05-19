@@ -3,7 +3,7 @@ version: '${projectVersion}'
 main: cn.bakamc.folia.BakaMC
 bootstrapper: cn.bakamc.folia.BakaMCBootstrap
 loader: cn.bakamc.folia.BakaMCLoader
-api-version: '1.21'
+api-version: '26.1'
 author: forpleuvoir
 
 folia-supported: true
@@ -12,5 +12,11 @@ description: ${description}
 
 load: POSTWORLD
 
-#dependencies:
-#  server:
+dependencies:
+  server:
+    Vault:
+      load: BEFORE
+      required: false
+    PlayerCurrency:
+      load: BEFORE
+      required: false

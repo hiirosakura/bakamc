@@ -1,13 +1,15 @@
 package cn.bakamc.folia.util.player
 
 import cn.bakamc.folia.BakaMC
-import cn.bakamc.folia.hook.VaultUnlocked
+import cn.bakamc.folia.hook.{BakaEconomy, VaultUnlocked}
 import net.milkbowl.vault2.economy.{Economy, EconomyResponse}
 import org.bukkit.entity.Player
 
+import language.implicitConversions
+
 object PlayerVaultOps {
 
-  private def economy: Economy = VaultUnlocked.economy
+  inline private def economy: BakaEconomy = VaultUnlocked.economy
 
   given Conversion[Double, BigDecimal] = BigDecimal(_)
 
@@ -15,12 +17,7 @@ object PlayerVaultOps {
 
     def money(currency: Option[String], world: String = player.getWorld.getName): BigDecimal = {
       try {
-        currency match {
-          case Some(currency) =>
-            economy.balance(BakaMC.name, player.getUniqueId, world, currency)
-          case None =>
-            economy.balance(BakaMC.name, player.getUniqueId, world)
-        }
+        economy.balance(player, world, currency)
       } catch {
         case e: Throwable =>
           BakaMC.logger.error("经济插件未加载", e)
@@ -30,12 +27,7 @@ object PlayerVaultOps {
 
     def withdraw(money: BigDecimal, currency: Option[String], world: String = player.getWorld.getName): EconomyResponse = {
       try {
-        currency match {
-          case Some(currency) =>
-            economy.withdraw(BakaMC.name, player.getUniqueId, world, currency, money.bigDecimal)
-          case None =>
-            economy.withdraw(BakaMC.name, player.getUniqueId, world, money.bigDecimal)
-        }
+        economy.withdraw(money.bigDecimal, player, world, currency)
       } catch {
         case e: Throwable =>
           BakaMC.logger.error("经济插件未加载", e)
@@ -45,12 +37,7 @@ object PlayerVaultOps {
 
     def deposit(money: BigDecimal, currency: Option[String], world: String = player.getWorld.getName): EconomyResponse = {
       try {
-        currency match {
-          case Some(currency) =>
-            economy.deposit(BakaMC.name, player.getUniqueId, world, currency, money.bigDecimal)
-          case None =>
-            economy.deposit(BakaMC.name, player.getUniqueId, world, money.bigDecimal)
-        }
+        economy.deposit(money.bigDecimal, player, world, currency)
       } catch {
         case e: Throwable =>
           BakaMC.logger.error("经济插件未加载", e)

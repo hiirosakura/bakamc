@@ -8,10 +8,10 @@ import moe.forpleuvoir.nebula.config.{Comment, Config}
 
 object AnvilTextParserConfig extends PluginConfigManager("anvil_text_parser") {
 
-  @Comment(text = "是否启用铁砧重命名文本解析")
+  @Comment("是否启用铁砧重命名文本解析")
   val enable = ConfigBoolean("enable", true)
 
-  @Comment(text = "文本解析器")
+  @Comment("文本解析器")
   val parser: Config[InlineStyleTextParser] = Config[InlineStyleTextParser](
     "parser",
     InlineStyleTextParser(

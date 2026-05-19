@@ -7,10 +7,5 @@ pluginManagement {
 }
 
 rootProject.name = "bakamc"
-include("nebula-common")
-include("nebula-serialization")
-include("nebula-config")
-
-
 include("bakamc-common")
 include("bakamc-folia")

@@ -3,6 +3,8 @@ package cn.bakamc.folia.config
 import cn.bakamc.folia.BakaMC
 import moe.forpleuvoir.nebula.config.{ConfigNode, DeserializationException, ExceptionHandler, SerializationException}
 
+import language.implicitConversions
+
 object PluginExceptionHandler extends ExceptionHandler {
 
   override def onSerializationException(config: ConfigNode, e: SerializationException): Unit = {

@@ -10,6 +10,7 @@ import org.bukkit.event.{EventHandler, Listener}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
+import scala.language.implicitConversions
 
 object PlayerEventListener extends Listener {
 

@@ -13,6 +13,8 @@ import java.text.BreakIterator
 import java.util.Locale
 import scala.collection.mutable
 
+import scala.language.implicitConversions
+
 case class ColorModifier(
   shadow: Boolean,
   gradient: Boolean
@@ -99,9 +101,9 @@ case class ColorModifier(
       val endColor = colors(segment + 1)
 
       val interpolated = if (isHsv)
-        startColor.hsvLerp(endColor, localT, true)
-      else
-        startColor.lerp(endColor, localT, true)
+                           startColor.hsvLerp(endColor, localT, true)
+                         else
+                           startColor.lerp(endColor, localT, true)
 
       val style = if (shadow) {
         comp.style().shadowColor(ShadowColor.shadowColor(interpolated))
@@ -114,25 +116,6 @@ case class ColorModifier(
     Component.text("")
       .children(coloredText.asJava)
   }
-
-
-  private def gradientColor(start: Color, end: Color, steps: Int, alpha: Boolean, isHsv: Boolean)(block: Color => Unit): Unit = {
-    require(steps > 0, "steps must be greater than 0")
-    if (steps == 1) {
-      block(start)
-    } else {
-      for (i <- 0 until steps) {
-
-        val color = if (isHsv)
-          start.hsvLerp(end, (i * (1f / (steps - 1f))).clamp(0f, 1f), alpha)
-        else
-          start.lerp(end, (i * (1f / (steps - 1f))).clamp(0f, 1f), alpha)
-
-        block(color)
-      }
-    }
-  }
-
 
   private val breakIterator = ThreadLocal.withInitial(() => BreakIterator.getCharacterInstance(Locale.ROOT))
 
@@ -162,9 +145,9 @@ case class ColorModifier(
 
   private def parseHSV(exp: String): Option[Color] = exp match {
     case HSV_PATTERN(h, s, v) =>
-      val hue = h.toFloat
-      val sat = s.toFloat
-      val value = v.toFloat
+      val hue = h.nn.toFloat
+      val sat = s.nn.toFloat
+      val value = v.nn.toFloat
       if (hue <= 360 && sat <= 100f && value <= 100f)
         Some(Color.fromHSV(hue, sat, value))
       else None

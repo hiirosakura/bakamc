@@ -21,7 +21,7 @@ object SpecialItemCommand {
     "give" {
       argument("id", StringArgumentType.string()) {
         suggests {
-          manager.getCache.keys.toList
+          manager.getCache.keys.map(s => s"\"$s\"").toList
         }
         //只有id的分支
         execute {
@@ -53,11 +53,12 @@ object SpecialItemCommand {
     "update" {
       execute(ops.update(None, None))
       argument("id", StringArgumentType.string()) {
+        suggests(manager.getCache.keys.map(s => s"\"$s\"").toList)
         execute {
           ops.update(Some(getArg[String]("id")), None)
         }
         argument("item", ArgumentTypes.itemStack()) {
-          execute{
+          execute {
             ops.update(Some(getArg[String]("id")), Some(getArg[ItemStack]("item")))
           }
         }
@@ -67,7 +68,7 @@ object SpecialItemCommand {
     "delete" {
       argument("id", StringArgumentType.string()) {
         suggests {
-          manager.getCache.keys.toList
+          manager.getCache.keys.map(s => s"\"$s\"").toList
         }
         execute(ops.delete(getArg[String]("id")))
       }

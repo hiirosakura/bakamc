@@ -1,7 +1,7 @@
 package cn.bakamc.folia
 
 import cn.bakamc.folia.BakaMC.instance
-import cn.bakamc.folia.config.{AnvilTextParserConfig, Configs, DataBaseConfig}
+import cn.bakamc.folia.config.{AnvilTextParserConfig, Configs, DataBaseConfig, MatcherConfig}
 import cn.bakamc.folia.database.{DatabaseManager, initDatabase}
 import cn.bakamc.folia.evnet.registerEvents
 import cn.bakamc.folia.functional.flightenergy.FlightEnergyManager
@@ -27,6 +27,7 @@ class BakaMC extends JavaPlugin {
 
     //region 初始化配置
     Configs.setup(getDataPath, logger)
+    MatcherConfig.setup(getDataPath,logger)
     DataBaseConfig.setup(getDataPath, logger)
     AnvilTextParserConfig.setup(getDataPath, logger)
 

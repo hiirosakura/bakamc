@@ -1,13 +1,16 @@
 package cn.bakamc.folia.command.dsl
 
-import com.mojang.brigadier.Command
+import cn.bakamc.folia.util.text.kyori2Nms
+import com.mojang.brigadier.{Command, Message}
 import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.builder.{ArgumentBuilder, LiteralArgumentBuilder, RequiredArgumentBuilder}
 import com.mojang.brigadier.context.CommandContext
-import com.mojang.brigadier.suggestion.SuggestionProvider
+import com.mojang.brigadier.suggestion.{SuggestionProvider, Suggestions, SuggestionsBuilder}
 import io.papermc.paper.command.brigadier.CommandSourceStack
+import net.kyori.adventure.text.Component
 import net.minecraft.commands.SharedSuggestionProvider
 
+import java.util.concurrent.CompletableFuture
 import java.util.function.Predicate
 import scala.jdk.CollectionConverters.IterableHasAsJava
 
@@ -62,6 +65,25 @@ object ArgumentScope {
 
   def suggests[A](provider: SuggestionProvider[CommandSourceStack])(using parentScope: RequiredArgumentScope[A]): Unit = {
     parentScope.argumentBuilder.suggests(provider)
+  }
+
+  def suggestsBuild[A](provider: (CommandContext[CommandSourceStack], SuggestionsBuilder) ?=> List[String | (String, Component)])(using parentScope: RequiredArgumentScope[A]): Unit = {
+    parentScope.argumentBuilder.suggests((context, builder) => {
+      val hints = provider(using context, builder).map {
+        case s: String => s -> None
+        case (s: String, c: Component) => s -> Some(kyori2Nms(c))
+      }
+      val remaining = builder.getRemaining
+      hints.foreach { case (hint, tooltip) =>
+        tooltip match {
+          case Some(value) =>
+            builder.suggest(hint, value)
+          case None =>
+            builder.suggest(hint)
+        }
+      }
+      builder.buildFuture()
+    })
   }
 
   def suggests[A](candidates: String*)(using parentScope: RequiredArgumentScope[A]): Unit = {

@@ -7,6 +7,8 @@ import net.kyori.adventure.text.format.{Style, TextColor}
 
 import scala.collection.mutable
 
+import scala.language.implicitConversions
+
 extension (self: Component) {
 
   def flat(parentStyle: Style = Style.empty(), buffer: mutable.Buffer[Component] = mutable.Buffer.empty): List[Component] = {
@@ -31,7 +33,6 @@ extension (self: Component) {
   }
 
 }
-
 
 object Text {
 

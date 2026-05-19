@@ -17,7 +17,8 @@ class BackupAndTemp(
   override def beginInit(): Unit = {
     try {
       val fileName = persistence.wrapFileName(manager.name)
-      val backupFile = ConfigUtil.configFile(s"$fileName.backup", path).toPath
+      val backupPath = path.resolve("backup")
+      val backupFile = ConfigUtil.configFile(s"$fileName.backup", backupPath).toPath
       val file = ConfigUtil.configFile(fileName, path).toPath
 
       if (Files.exists(file)) {
@@ -32,7 +33,8 @@ class BackupAndTemp(
   override def finishInit(): Unit = {
     try {
       val fileName = persistence.wrapFileName(manager.name)
-      val file = ConfigUtil.configFile(s"$fileName.temp", path)
+      val tempPath = path.resolve("temp")
+      val file = ConfigUtil.configFile(s"$fileName.temp", tempPath)
       ConfigUtil.writeToFile(persistence.dataToString(manager.serialization), file)
       logger.info("Success to create temp file")
     } catch case e: Throwable => logger.warn(s"Failed to create temp file", e)

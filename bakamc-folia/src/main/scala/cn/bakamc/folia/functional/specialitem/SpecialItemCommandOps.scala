@@ -34,9 +34,9 @@ object SpecialItemCommandOps {
       case Some(stack) =>
         players.foreach(p => p.getInventory.addItem(stack))
         if (players.size <= 5) {
-          feedback(comp"已向玩家 ${players.mkText(", ")} 授予物品 $item")
+          feedback(comp"已向玩家 ${players.mkText(", ")} 授予物品 $stack")
         } else {
-          feedback(comp"已向 ${players.size} 名玩家授予物品 $item")
+          feedback(comp"已向 ${players.size} 名玩家授予物品 $stack")
         }
       case None =>
         feedback(comp"特殊物品 ${item.id} 无法生成")

@@ -1,11 +1,12 @@
 package cn.bakamc.folia.util.text
 
-import com.google.gson.{Gson, GsonBuilder, JsonParser}
-import com.mojang.serialization.JsonOps
+import com.google.gson.{Gson, GsonBuilder}
+import io.papermc.paper.adventure.PaperAdventure
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.serializer.json.JSONComponentSerializer
-import net.minecraft.network.chat.{ComponentSerialization, Component as MCComponent}
-import org.bukkit.craftbukkit.CraftRegistry
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
+import net.minecraft.network.chat.Component as MCComponent
+
+import scala.language.implicitConversions
 
 given Conversion[String, Component] = Component.text(_)
 
@@ -16,25 +17,11 @@ given Conversion[MCComponent, Component] = nms2Kyori(_)
 given Conversion[Component, MCComponent] = kyori2Nms(_)
 
 def nms2Kyori(mcComponent: MCComponent): Component = {
-  val registry = CraftRegistry.getMinecraftRegistry
-  val json = GSON.toJson(
-    ComponentSerialization.CODEC.encodeStart(
-      registry.createSerializationContext(JsonOps.COMPRESSED),
-      mcComponent
-    ).getOrThrow()
-  )
-  JSONComponentSerializer.json.deserialize(json)
+  PaperAdventure.asAdventure(mcComponent)
 }
 
-def kyori2Nms(component: Component): MCComponent = {
-  val json = JSONComponentSerializer.json.serialize(component)
-  val registry = CraftRegistry.getMinecraftRegistry
-
-  ComponentSerialization.CODEC.decode(
-    registry.createSerializationContext(JsonOps.COMPRESSED),
-    JsonParser.parseString(json)
-  ).getOrThrow().getFirst
-}
+def kyori2Nms(component: Component): MCComponent =
+  PaperAdventure.asVanilla(component)
 
 extension (component: Component) {
   def wrapInSquareBrackets: Component = {
@@ -42,4 +29,13 @@ extension (component: Component) {
       .append(component)
       .append("]")
   }
+}
+
+
+extension (self: Option[Component]) {
+  def plainText: Option[String] = self.map(_.plainText)
+}
+
+extension (self: Component) {
+  def plainText: String = PlainTextComponentSerializer.plainText().serialize(self)
 }

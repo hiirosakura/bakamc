@@ -1,6 +1,8 @@
 [versions]
-scalaLibrary3 = "3.7.4"
+scalaLibrary3 = "3.8.3"
 slf4jVersion = "2.0.13"
+nebula = "0.1.5"
+
 paperUserDev = "2.0.0-beta.21"
 runTask = "3.0.2"
 shadow = "9.4.1"
@@ -10,7 +12,7 @@ slick = "3.6.1"
 hikariCP = "7.0.2"
 mysql = "9.6.0"
 
-vaultUnlockedApi = "2.16"
+vaultUnlockedApi = "2.19"
 placeholderApi = "2.12.2"
 
 
@@ -22,6 +24,8 @@ adventure = "4.26.1"
 scalaLibrary3 = { group = "org.scala-lang", name = "scala3-library_3", version.ref = "scalaLibrary3" }
 adventureApi = { group = "net.kyori", name = "adventure-api", version.ref = "adventure" }
 slf4j = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4jVersion" }
+
+nebula-scala = { group = "moe.forpleuvoir", name = "nebula-scala", version.ref = "nebula" }
 
 slick = { group = "com.typesafe.slick", name = "slick_3", version.ref = "slick" }
 slickHikariCP = { group = "com.typesafe.slick", name = "slick-hikaricp_3", version.ref = "slick" }

@@ -15,6 +15,8 @@ import slick.lifted.{ProvenShape, Tag}
 
 import java.nio.charset.StandardCharsets
 
+import scala.language.implicitConversions
+
 case class SpecialItem(
   id: String,
   namespace: String,
@@ -24,16 +26,22 @@ case class SpecialItem(
   private[table] lazy val stackCache: Option[MCItemStack] = {
     try {
       val registry = CraftRegistry.getMinecraftRegistry
-      val item = MCItemStack.SINGLE_ITEM_CODEC.decode(
+      val item = MCItemStack.CODEC.decode(
         registry.createSerializationContext(JsonOps.COMPRESSED),
         JsonParser.parseString(String(itemData, StandardCharsets.UTF_8))
       ).result.get.getFirst
+      item.setCount(1)
       Some(item)
     } catch {
       case e: Throwable =>
         BakaMC.logger.error("物品转换异常", e)
         None
     }
+  }
+
+  def isMatch(itemStack: ItemStack): Boolean = {
+    try MCItemStack.isSameItem(CraftItemStack.asNMSCopy(itemStack), stackCache.get)
+    catch case e: Throwable => false
   }
 
 }
@@ -54,7 +62,7 @@ object SpecialItem {
       case item: MCItemStack => item
       case item: ItemStack => CraftItemStack.asNMSCopy(item)
     }
-    val data = GSON.toJson(MCItemStack.SINGLE_ITEM_CODEC.encodeStart(ops, stack).result().get()).getBytes(StandardCharsets.UTF_8)
+    val data = GSON.toJson(MCItemStack.CODEC.encodeStart(ops, stack).result().get()).getBytes(StandardCharsets.UTF_8)
     SpecialItem(id, getItemNamespace(stack), data)
   }
 

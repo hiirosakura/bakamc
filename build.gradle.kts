@@ -9,7 +9,7 @@ dependencies {
 
 allprojects {
     group = "moe.forpleuvoir"
-    version = "1.0-SNAPSHOT"
+    version = "0.4.0"
 
     repositories {
         mavenCentral()
@@ -24,7 +24,7 @@ subprojects {
 
     java {
         toolchain {
-            languageVersion.set(JavaLanguageVersion.of(21))
+            languageVersion.set(JavaLanguageVersion.of(25))
         }
     }
 
